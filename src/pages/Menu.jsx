@@ -7,17 +7,17 @@ import "./Menu.css"
 
 function Menu() {
 
-    const categories = ["Todos", ...new Set(menuItems.map(item => item.category))]
+    const categories = [...new Set(menuItems.map(item => item.category))]
 
-    const [selectedCategory, setSelectedCategory] = useState("Todos")
+    const [selectedCategory, setSelectedCategory] = useState(categories[0])
 
-    const filteredItems = selectedCategory === "Todos"
-        ? menuItems
-        : menuItems.filter(item => item.category === selectedCategory)
+    const filteredItems = menuItems.filter(
+        item => item.category === selectedCategory
+    )
 
     return (
 
-        <section className="menu-section">
+        <section className="menu-section" id="menu">
 
             <h2>Nuestro Menú</h2>
 
