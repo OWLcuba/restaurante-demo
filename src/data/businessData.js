@@ -43,7 +43,7 @@ const businessData = {
 
     mapUrl: "https://maps.google.com/maps?q=San%20Antonio&t=&z=13&ie=UTF8&iwloc=&output=embed",
 
-googleMapsUrl: "https://www.google.com/maps/search/?api=1&query=San+Antonio",
+googleMapsUrl: "https://www.google.com/maps/search/123 Main Street, San Antonio, TX",
 
 delivery: {
     active: true,

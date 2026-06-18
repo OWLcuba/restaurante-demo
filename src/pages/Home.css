@@ -153,15 +153,22 @@
 
 }
 
+.mobile-business-strip
+ {
+    display: none;
+}
+
 
 
 /* móviles */
+
+
 
 @media(max-width: 800px){
 
     .hero {
         min-height: auto;
-        padding: 30px 6% 60px;
+        padding: 35px 6% 60px;
     }
 
     .hero-main {
@@ -171,59 +178,95 @@
     }
 
     .hero-content {
-        margin-top: 5px;
+        margin-top: 18px;
+        width: 100%;
     }
 
     .subtitle {
-        font-size: 18px;
-        margin-bottom: 10px;
+    display: none;
     }
 
     .hero h1 {
-        font-size: 42px;
+        font-size: 40px;
         line-height: 1.05;
-        margin: 14px 0 18px;
+        margin: 0 0 14px;
     }
 
     .hero p {
-        font-size: 18px;
-        line-height: 1.25;
-        max-width: 360px;
+        font-size: 16px;
+        line-height: 1.35;
+
+        max-width: 330px;
         margin: 0 auto;
+
+        color: #dddddd;
+
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
     }
 
     .hero-buttons {
         justify-content: center;
         gap: 12px;
-        margin-top: 28px;
+        margin-top: 26px;
     }
 
     .hero-buttons a {
         flex: 1;
-        max-width: 175px;
-        min-height: 58px;
+        max-width: 165px;
+        min-height: 52px;
 
         padding: 10px 14px;
 
-        font-size: 18px;
+        font-size: 16px;
         line-height: 1.1;
     }
 
     .hero-image {
         width: 100%;
-        margin-top: 0;
+        margin-top: 28px;
     }
 
     .hero-image img {
         width: 100%;
-        max-width: 430px;
-        height: 250px;
+        max-width: 420px;
+        height: 230px;
         object-fit: cover;
-        border-radius: 18px;
+        border-radius: 20px;
     }
 
     .info-cards {
-        flex-direction: column;
+        display: none;
+    }
+
+    .mobile-business-strip {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+
+        width: 100%;
+
+        margin: 14px auto 22px;
+        padding: 10px 14px;
+
+        background: #242424;
+        color: white;
+
+        border-radius: 999px;
+
+        font-size: 14px;
+        font-weight: 700;
+
+        white-space: nowrap;
+    }
+
+    .mobile-business-strip span {
+        display: inline-flex;
+        align-items: center;
     }
 
 }

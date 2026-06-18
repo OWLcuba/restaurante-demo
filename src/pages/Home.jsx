@@ -36,7 +36,7 @@ function Home() {
                             className="secondary-btn"
                             href={`tel:${businessData.phone}`}
                         >
-                            📞 Ordenar por llamada
+                            📞 Ordenar
                         </a>
 
                     </div>
@@ -48,6 +48,11 @@ function Home() {
                         src="/images/restaurant-cover.png"
                         alt={businessData.name}
                     />
+                </div>
+
+                <div className="mobile-business-strip">
+                    <span>⏰ {businessData.shortHours}</span>
+                    <span>📍 {businessData.shortAddress.line1}</span>
                 </div>
 
             </div>
