@@ -45,7 +45,7 @@ function Home() {
 
                 <div className="hero-image">
                     <img
-                        src="/images/restaurant-cover.png"
+                        src="/images/restaurant-cover.jpg"
                         alt={businessData.name}
                     />
                 </div>
