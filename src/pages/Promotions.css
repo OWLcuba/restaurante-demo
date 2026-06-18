@@ -1,0 +1,40 @@
+.promotions-section {
+
+    padding:70px 6%;
+
+    background:#fff;
+
+}
+
+
+.promotions-section h2 {
+
+    text-align:center;
+
+    font-size:45px;
+
+}
+
+
+.promotions-subtitle {
+
+    text-align:center;
+
+    margin:15px 0 50px;
+
+    font-size:20px;
+
+    color:#555;
+
+}
+
+
+.promotions-grid {
+
+    display:grid;
+
+    grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));
+
+    gap:30px;
+
+}
