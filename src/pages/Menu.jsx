@@ -1,71 +1,111 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { collection, getDocs } from "firebase/firestore"
 
-import menuItems from "../data/menuData"
+import { db } from "../firebase/firebase"
 import MenuCard from "../components/MenuCard"
 
 import "./Menu.css"
 
 function Menu() {
+    const [menuItems, setMenuItems] = useState([])
+    const [selectedCategory, setSelectedCategory] = useState("")
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState("")
 
-    const categories = [...new Set(menuItems.map(item => item.category))]
+    useEffect(() => {
+        async function loadMenuItems() {
+            try {
+                const querySnapshot = await getDocs(
+                    collection(db, "menuItems")
+                )
 
-    const [selectedCategory, setSelectedCategory] = useState(categories[0])
+                const items = querySnapshot.docs.map((document) => ({
+                    firebaseId: document.id,
+                    ...document.data()
+                }))
+
+                items.sort((a, b) => Number(a.id) - Number(b.id))
+
+                setMenuItems(items)
+
+                if (items.length > 0) {
+                    setSelectedCategory(items[0].category)
+                }
+            } catch (firebaseError) {
+                console.error(
+                    "Error al cargar el menú desde Firestore:",
+                    firebaseError
+                )
+
+                setError("No se pudo cargar el menú.")
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        loadMenuItems()
+    }, [])
+
+    const categories = [
+        ...new Set(menuItems.map((item) => item.category))
+    ]
 
     const filteredItems = menuItems.filter(
-        item => item.category === selectedCategory
+        (item) => item.category === selectedCategory
     )
 
     return (
-
         <section className="menu-section" id="menu">
-
             <h2>Nuestro Menú</h2>
 
             <p className="menu-subtitle">
                 Elige una categoría y descubre nuestros platos favoritos.
             </p>
 
-            <div className="menu-categories">
+            {loading && (
+                <p className="menu-status">
+                    Cargando menú...
+                </p>
+            )}
 
-                {
-                    categories.map(category => (
+            {error && (
+                <p className="menu-status">
+                    {error}
+                </p>
+            )}
 
-                        <button
-                            key={category}
-                            className={
-                                selectedCategory === category
-                                    ? "category-btn active"
-                                    : "category-btn"
-                            }
-                            onClick={() => setSelectedCategory(category)}
-                        >
-                            {category}
-                        </button>
+            {!loading && !error && (
+                <>
+                    <div className="menu-categories">
+                        {categories.map((category) => (
+                            <button
+                                key={category}
+                                className={
+                                    selectedCategory === category
+                                        ? "category-btn active"
+                                        : "category-btn"
+                                }
+                                onClick={() =>
+                                    setSelectedCategory(category)
+                                }
+                            >
+                                {category}
+                            </button>
+                        ))}
+                    </div>
 
-                    ))
-                }
-
-            </div>
-
-            <div className="menu-grid">
-
-                {
-                    filteredItems.map(item => (
-
-                        <MenuCard
-                            key={item.id}
-                            item={item}
-                        />
-
-                    ))
-                }
-
-            </div>
-
+                    <div className="menu-grid">
+                        {filteredItems.map((item) => (
+                            <MenuCard
+                                key={item.firebaseId}
+                                item={item}
+                            />
+                        ))}
+                    </div>
+                </>
+            )}
         </section>
-
     )
-
 }
 
 export default Menu
