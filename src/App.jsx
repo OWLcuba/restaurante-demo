@@ -17,6 +17,8 @@ import Footer from "./components/Footer.jsx"
 import WhatsAppButton from "./components/WhatsAppButton.jsx"
 import { BusinessProvider } from "./context/BusinessContext.jsx"
 
+import Parties from "./pages/Parties.jsx"
+import Events from "./pages/Events.jsx"
 
 function MainPage() {
     const location = useLocation()
@@ -71,11 +73,24 @@ function App() {
         <BusinessProvider>
             <BrowserRouter>
                 <Routes>
-                    <Route path="/" element={<MainPage />} />
+                    <Route
+                        path="/"
+                        element={<MainPage />}
+                    />
 
                     <Route
                         path="/gallery/:category"
                         element={<GalleryCategory />}
+                    />
+
+                    <Route
+                        path="/fiestas"
+                        element={<Parties />}
+                    />
+
+                    <Route
+                        path="/eventos"
+                        element={<Events />}
                     />
                 </Routes>
             </BrowserRouter>
