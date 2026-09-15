@@ -19,6 +19,8 @@ import { BusinessProvider } from "./context/BusinessContext.jsx"
 
 import Parties from "./pages/Parties.jsx"
 import Events from "./pages/Events.jsx"
+import PartyDetail from "./pages/PartyDetail.jsx"
+import EventDetail from "./pages/EventDetail.jsx"
 
 function MainPage() {
     const location = useLocation()
@@ -92,6 +94,18 @@ function App() {
                         path="/eventos"
                         element={<Events />}
                     />
+
+                    <Route
+                        path="/fiestas/:packageId"
+                        element={<PartyDetail />}
+                    />
+
+                    <Route
+                        path="/eventos/:eventId"
+                        element={<EventDetail />}
+                    />
+
+
                 </Routes>
             </BrowserRouter>
         </BusinessProvider>

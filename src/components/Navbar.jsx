@@ -1,21 +1,16 @@
 import { useEffect, useState } from "react"
+import { Link } from "react-router-dom"
 
 import "./Navbar.css"
 
 import businessData from "../data/businessData"
 
-
 function Navbar() {
-
     const [activeSection, setActiveSection] = useState("inicio")
-
     const [menuOpen, setMenuOpen] = useState(false)
 
-
     useEffect(() => {
-
         const handleScroll = () => {
-
             const sections = [
                 "inicio",
                 "menu",
@@ -24,40 +19,34 @@ function Navbar() {
                 "contacto"
             ]
 
-            sections.forEach(section => {
-
+            sections.forEach((section) => {
                 const element = document.getElementById(section)
 
                 if (element) {
-
                     const position = element.getBoundingClientRect()
 
-                    if (position.top <= 120 && position.bottom >= 120) {
+                    if (
+                        position.top <= 120 &&
+                        position.bottom >= 120
+                    ) {
                         setActiveSection(section)
                     }
-
                 }
-
             })
-
         }
 
         window.addEventListener("scroll", handleScroll)
 
-        return () => window.removeEventListener("scroll", handleScroll)
-
+        return () =>
+            window.removeEventListener("scroll", handleScroll)
     }, [])
-
 
     const closeMenu = () => {
         setMenuOpen(false)
     }
 
-
     return (
-
         <nav className="navbar">
-
             <h2 className="logo">
                 🌶️ {businessData.name}
             </h2>
@@ -70,11 +59,20 @@ function Navbar() {
                 ☰
             </button>
 
-            <div className={menuOpen ? "nav-links open" : "nav-links"}>
-
+            <div
+                className={
+                    menuOpen
+                        ? "nav-links open"
+                        : "nav-links"
+                }
+            >
                 <a
                     onClick={closeMenu}
-                    className={activeSection === "inicio" ? "active" : ""}
+                    className={
+                        activeSection === "inicio"
+                            ? "active"
+                            : ""
+                    }
                     href="#inicio"
                 >
                     Inicio
@@ -82,15 +80,37 @@ function Navbar() {
 
                 <a
                     onClick={closeMenu}
-                    className={activeSection === "menu" ? "active" : ""}
+                    className={
+                        activeSection === "menu"
+                            ? "active"
+                            : ""
+                    }
                     href="#menu"
                 >
                     Menú
                 </a>
 
+                <Link
+                    to="/fiestas"
+                    onClick={closeMenu}
+                >
+                    Fiestas
+                </Link>
+
+                <Link
+                    to="/eventos"
+                    onClick={closeMenu}
+                >
+                    Eventos
+                </Link>
+
                 <a
                     onClick={closeMenu}
-                    className={activeSection === "promociones" ? "active" : ""}
+                    className={
+                        activeSection === "promociones"
+                            ? "active"
+                            : ""
+                    }
                     href="#promociones"
                 >
                     Promociones
@@ -98,7 +118,11 @@ function Navbar() {
 
                 <a
                     onClick={closeMenu}
-                    className={activeSection === "galeria" ? "active" : ""}
+                    className={
+                        activeSection === "galeria"
+                            ? "active"
+                            : ""
+                    }
                     href="#galeria"
                 >
                     Galería
@@ -106,18 +130,18 @@ function Navbar() {
 
                 <a
                     onClick={closeMenu}
-                    className={activeSection === "contacto" ? "active" : ""}
+                    className={
+                        activeSection === "contacto"
+                            ? "active"
+                            : ""
+                    }
                     href="#contacto"
                 >
                     Contacto
                 </a>
-
             </div>
-
         </nav>
-
     )
-
 }
 
 export default Navbar

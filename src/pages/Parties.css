@@ -1,0 +1,94 @@
+.parties-page {
+    min-height: 100vh;
+    padding: 90px 6% 60px;
+    background: #151515;
+    color: white;
+}
+
+.parties-hero {
+    text-align: center;
+    max-width: 750px;
+    margin: 0 auto 45px;
+}
+
+.parties-hero h1 {
+    font-size: 48px;
+    margin-bottom: 15px;
+}
+
+.parties-hero p {
+    color: #ccc;
+    font-size: 20px;
+    line-height: 1.5;
+}
+
+.party-packages {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+}
+
+.party-card {
+    overflow: hidden;
+    border-radius: 16px;
+    background: #222;
+}
+
+.party-card img {
+    width: 100%;
+    height: 240px;
+    object-fit: cover;
+    display: block;
+}
+
+.party-card-content {
+    padding: 22px;
+}
+
+.party-serves {
+    display: inline-block;
+    margin-bottom: 10px;
+    color: #ff5a4f;
+    font-weight: bold;
+}
+
+.party-card h2 {
+    margin: 0 0 10px;
+    font-size: 24px;
+}
+
+.party-card p {
+    color: #ccc;
+    line-height: 1.5;
+    min-height: 48px;
+}
+
+.party-card strong {
+    display: block;
+    margin: 18px 0;
+    font-size: 26px;
+}
+
+.party-card button {
+    width: 100%;
+    padding: 13px;
+    border: none;
+    border-radius: 10px;
+    background: #ff4438;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+@media (max-width: 900px) {
+    .party-packages {
+        grid-template-columns: 1fr;
+    }
+
+    .parties-hero h1 {
+        font-size: 36px;
+    }
+}
