@@ -2,50 +2,102 @@ import "./Contact.css"
 
 import { useBusiness } from "../context/BusinessContext"
 
+
 function Contact() {
     const {
         businessData,
         loadingBusiness
     } = useBusiness()
 
-    if (loadingBusiness || !businessData) {
+
+    if (
+        loadingBusiness ||
+        !businessData
+    ) {
         return null
     }
 
+
+    const fallbackMapsUrl =
+        `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+            businessData.address || ""
+        )}`
+
+
+    const fallbackMapEmbed =
+        `https://maps.google.com/maps?q=${encodeURIComponent(
+            businessData.address || ""
+        )}` +
+        `&t=&z=13&ie=UTF8&iwloc=&output=embed`
+
+
     return (
         <section className="contact">
-            <h2>Visítanos</h2>
+
+            <h2>
+                Visítanos
+            </h2>
+
 
             <p className="contact-subtitle">
-                Ven y disfruta el auténtico sabor latino
+                Ven y disfruta el auténtico
+                sabor latino
             </p>
 
+
             <div className="contact-container">
+
                 <div className="contact-info">
+
                     <div>
-                        <h3>📍 Dirección</h3>
+                        <h3>
+                            📍 Dirección
+                        </h3>
 
                         <p>
-                            {businessData.shortAddress?.line1} <br />
-                            {businessData.shortAddress?.line2}
+                            {
+                                businessData
+                                    .shortAddress
+                                    ?.line1
+                            }
+
+                            <br />
+
+                            {
+                                businessData
+                                    .shortAddress
+                                    ?.line2
+                            }
                         </p>
                     </div>
 
-                    <div>
-                        <h3>🕒 Horarios</h3>
 
-                        {businessData.hours?.map((item, index) => (
-                            <p key={index}>
-                                <strong>{item.days}:</strong>{" "}
-                                {item.time}
-                            </p>
-                        ))}
+                    <div>
+                        <h3>
+                            🕒 Horarios
+                        </h3>
+
+                        {businessData.hours?.map(
+                            (item, index) => (
+                                <p key={index}>
+                                    <strong>
+                                        {item.days}:
+                                    </strong>{" "}
+                                    {item.time}
+                                </p>
+                            )
+                        )}
                     </div>
 
+
                     <div className="contact-buttons">
-                        <a href={`tel:${businessData.phone}`}>
+
+                        <a
+                            href={`tel:${businessData.phone}`}
+                        >
                             📞 Llamar
                         </a>
+
 
                         <a
                             href={`https://wa.me/${businessData.whatsapp}`}
@@ -55,30 +107,39 @@ function Contact() {
                             💬 WhatsApp
                         </a>
 
+
                         <a
-                            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-                            businessData.address
-                            )}`}
-                            arget="_blank"
+                            href={
+                                businessData.googleMapsUrl ||
+                                fallbackMapsUrl
+                            }
+                            target="_blank"
                             rel="noopener noreferrer"
                         >
                             📍 Cómo llegar
                         </a>
 
-                        
                     </div>
+
                 </div>
+
 
                 <div className="map">
                     <iframe
                         title={`Mapa de ${businessData.name}`}
-                        src={businessData.mapUrl}
+                        src={
+                            businessData.mapUrl ||
+                            fallbackMapEmbed
+                        }
                         loading="lazy"
                     />
                 </div>
+
             </div>
+
         </section>
     )
 }
+
 
 export default Contact

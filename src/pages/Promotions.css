@@ -1,50 +1,215 @@
+/* =====================================================
+   PROMOCIONES
+===================================================== */
+
 .promotions-section {
+    position: relative;
 
-    padding:70px 6%;
+    padding:
+        90px
+        6%
+        95px;
 
-    background:#fff;
+    overflow: hidden;
 
+    background:
+        radial-gradient(
+            circle at 90% 12%,
+            rgba(207, 20, 43, 0.16),
+            transparent 32%
+        ),
+        radial-gradient(
+            circle at 4% 85%,
+            rgba(0, 82, 165, 0.08),
+            transparent 30%
+        ),
+        #0d0d10;
+
+    color: white;
+
+    box-sizing: border-box;
+}
+
+
+/* línea decorativa superior */
+
+.promotions-section::before {
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: 6%;
+    right: 6%;
+
+    height: 1px;
+
+    background:
+        linear-gradient(
+            to right,
+            transparent,
+            rgba(0, 82, 165, 0.24),
+            rgba(207, 20, 43, 0.42),
+            transparent
+        );
+}
+
+
+/* =====================================================
+   ENCABEZADO
+===================================================== */
+
+.promotions-header {
+    max-width: 760px;
+
+    margin:
+        0
+        auto
+        45px;
+
+    text-align: center;
+}
+
+
+.promotions-kicker {
+    display: inline-block;
+
+    margin-bottom: 10px;
+
+    color: #ff6576;
+
+    font-size: 12px;
+    font-weight: 900;
+
+    letter-spacing: 3px;
 }
 
 
 .promotions-section h2 {
+    margin: 0;
 
-    text-align:center;
+    color: white;
 
-    font-size:45px;
+    font-size: clamp(
+        42px,
+        5vw,
+        60px
+    );
 
+    line-height: 1;
+
+    letter-spacing: -1px;
 }
 
 
 .promotions-subtitle {
+    max-width: 600px;
 
-    text-align:center;
+    margin:
+        17px
+        auto
+        0;
 
-    margin:15px 0 50px;
+    color: #b7bac0;
 
-    font-size:20px;
-
-    color:#555;
-
+    font-size: 18px;
+    line-height: 1.55;
 }
 
+
+/* =====================================================
+   GRID
+===================================================== */
 
 .promotions-grid {
+    width: 100%;
+    max-width: 1250px;
 
-    display:grid;
+    margin: 0 auto;
 
-    grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));
+    display: grid;
 
-    gap:30px;
+    grid-template-columns:
+        repeat(
+            2,
+            minmax(0, 1fr)
+        );
 
+    gap: 22px;
 }
+
+
+/* =====================================================
+   ESTADOS
+===================================================== */
 
 .promotions-status {
     margin: 35px 0;
 
     text-align: center;
 
-    color: #666;
+    color: #aaa;
 
-    font-size: 17px;
+    font-size: 16px;
+}
+
+
+/* =====================================================
+   TABLET
+===================================================== */
+
+@media (max-width: 950px) {
+
+    .promotions-grid {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+
+/* =====================================================
+   MÓVIL
+===================================================== */
+
+@media (max-width: 768px) {
+
+    .promotions-section {
+        padding:
+            58px
+            16px
+            70px;
+    }
+
+
+    .promotions-header {
+        margin-bottom: 28px;
+    }
+
+
+    .promotions-kicker {
+        font-size: 10px;
+
+        letter-spacing: 2px;
+    }
+
+
+    .promotions-section h2 {
+        font-size: 36px;
+    }
+
+
+    .promotions-subtitle {
+        max-width: 330px;
+
+        margin-top: 12px;
+
+        font-size: 15px;
+        line-height: 1.45;
+    }
+
+
+    .promotions-grid {
+        gap: 16px;
+    }
+
 }

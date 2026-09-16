@@ -1,9 +1,11 @@
 import { useEffect } from "react"
+
 import {
     BrowserRouter,
     Routes,
     Route,
-    useLocation
+    useLocation,
+    Outlet
 } from "react-router-dom"
 
 import Navbar from "./components/Navbar.jsx"
@@ -31,129 +33,186 @@ import AdminParties from "./admin/AdminParties.jsx"
 import AdminEvents from "./admin/AdminEvents.jsx"
 import AdminGallery from "./admin/AdminGallery.jsx"
 
-import { BusinessProvider } from "./context/BusinessContext.jsx"
+import {
+    BusinessProvider
+} from "./context/BusinessContext.jsx"
 
 
-function MainPage() {
-    const location = useLocation()
+/* =========================
+   LAYOUT PÚBLICO
+========================= */
 
-    useEffect(() => {
-        if (location.hash) {
-            const section = document.querySelector(
-                location.hash
-            )
-
-            if (section) {
-                setTimeout(() => {
-                    section.scrollIntoView({
-                        behavior: "smooth",
-                        block: "start"
-                    })
-                }, 100)
-            }
-        }
-    }, [location])
-
+function PublicLayout() {
     return (
         <>
             <Navbar />
 
-            <section id="inicio">
-                <Home />
-            </section>
+            <Outlet />
 
-            <section id="menu">
-                <Menu />
-            </section>
-
-            <section id="promociones">
-                <Promotions />
-            </section>
-
-            <section id="galeria">
-                <Gallery />
-            </section>
-
-            <section id="contacto">
-                <Contact />
-            </section>
-
-            <Footer />
             <WhatsAppButton />
         </>
     )
 }
 
 
+/* =========================
+   HOME
+========================= */
+
+function MainPage() {
+    const location = useLocation()
+
+
+    useEffect(() => {
+        if (!location.hash) {
+            return
+        }
+
+
+        const timer = setTimeout(() => {
+            const section =
+                document.querySelector(
+                    location.hash
+                )
+
+            if (section) {
+                section.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start"
+                })
+            }
+        }, 100)
+
+
+        return () => {
+            clearTimeout(timer)
+        }
+    }, [
+        location.pathname,
+        location.hash
+    ])
+
+
+    return (
+        <>
+            <section id="inicio">
+                <Home />
+            </section>
+
+
+            <section id="menu">
+                <Menu />
+            </section>
+
+
+            <section id="promociones">
+                <Promotions />
+            </section>
+
+
+            <section id="galeria">
+                <Gallery />
+            </section>
+
+
+            <section id="contacto">
+                <Contact />
+            </section>
+
+
+            <Footer />
+        </>
+    )
+}
+
+
+/* =========================
+   APP
+========================= */
+
 function App() {
     return (
         <BusinessProvider>
+
             <BrowserRouter>
+
                 <Routes>
 
-                    {/* =========================
-                        PÁGINA PRINCIPAL
-                    ========================= */}
+                    {/* =====================
+                        ZONA PÚBLICA
+                    ===================== */}
 
                     <Route
-                        path="/"
-                        element={<MainPage />}
-                    />
+                        element={
+                            <PublicLayout />
+                        }
+                    >
+
+                        <Route
+                            path="/"
+                            element={
+                                <MainPage />
+                            }
+                        />
 
 
-                    {/* =========================
-                        GALERÍA PÚBLICA
-                    ========================= */}
-
-                    <Route
-                        path="/gallery/:category"
-                        element={<GalleryCategory />}
-                    />
+                        <Route
+                            path="/gallery/:category"
+                            element={
+                                <GalleryCategory />
+                            }
+                        />
 
 
-                    {/* =========================
-                        FIESTAS PÚBLICAS
-                    ========================= */}
-
-                    <Route
-                        path="/fiestas"
-                        element={<Parties />}
-                    />
-
-                    <Route
-                        path="/fiestas/:packageId"
-                        element={<PartyDetail />}
-                    />
+                        <Route
+                            path="/fiestas"
+                            element={
+                                <Parties />
+                            }
+                        />
 
 
-                    {/* =========================
-                        EVENTOS PÚBLICOS
-                    ========================= */}
-
-                    <Route
-                        path="/eventos"
-                        element={<Events />}
-                    />
-
-                    <Route
-                        path="/eventos/:eventId"
-                        element={<EventDetail />}
-                    />
+                        <Route
+                            path="/fiestas/:packageId"
+                            element={
+                                <PartyDetail />
+                            }
+                        />
 
 
-                    {/* =========================
+                        <Route
+                            path="/eventos"
+                            element={
+                                <Events />
+                            }
+                        />
+
+
+                        <Route
+                            path="/eventos/:eventId"
+                            element={
+                                <EventDetail />
+                            }
+                        />
+
+                    </Route>
+
+
+                    {/* =====================
                         LOGIN ADMIN
-                    ========================= */}
+                    ===================== */}
 
                     <Route
                         path="/admin/login"
-                        element={<AdminLogin />}
+                        element={
+                            <AdminLogin />
+                        }
                     />
 
 
-                    {/* =========================
+                    {/* =====================
                         PANEL ADMIN
-                    ========================= */}
+                    ===================== */}
 
                     <Route
                         path="/admin"
@@ -165,10 +224,6 @@ function App() {
                     />
 
 
-                    {/* =========================
-                        ADMIN RESTAURANTE
-                    ========================= */}
-
                     <Route
                         path="/admin/restaurante"
                         element={
@@ -178,10 +233,6 @@ function App() {
                         }
                     />
 
-
-                    {/* =========================
-                        ADMIN MENÚ
-                    ========================= */}
 
                     <Route
                         path="/admin/menu"
@@ -193,10 +244,6 @@ function App() {
                     />
 
 
-                    {/* =========================
-                        ADMIN PROMOCIONES
-                    ========================= */}
-
                     <Route
                         path="/admin/promociones"
                         element={
@@ -206,10 +253,6 @@ function App() {
                         }
                     />
 
-
-                    {/* =========================
-                        ADMIN FIESTAS
-                    ========================= */}
 
                     <Route
                         path="/admin/fiestas"
@@ -221,10 +264,6 @@ function App() {
                     />
 
 
-                    {/* =========================
-                        ADMIN EVENTOS
-                    ========================= */}
-
                     <Route
                         path="/admin/eventos"
                         element={
@@ -234,10 +273,6 @@ function App() {
                         }
                     />
 
-
-                    {/* =========================
-                        ADMIN GALERÍA
-                    ========================= */}
 
                     <Route
                         path="/admin/galeria"
@@ -249,7 +284,9 @@ function App() {
                     />
 
                 </Routes>
+
             </BrowserRouter>
+
         </BusinessProvider>
     )
 }

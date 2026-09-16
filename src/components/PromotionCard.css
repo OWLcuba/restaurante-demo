@@ -1,148 +1,392 @@
+/* =====================================================
+   TARJETA PROMOCIÓN
+===================================================== */
+
 .promotion-card {
-    background: #151515;
+    min-width: 0;
+
+    display: grid;
+
+    grid-template-columns:
+        minmax(180px, 0.8fr)
+        minmax(0, 1.2fr);
+
+    overflow: hidden;
+
+    border:
+        1px solid
+        rgba(
+            207,
+            20,
+            43,
+            0.34
+        );
+
+    border-radius: 22px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(
+                207,
+                20,
+                43,
+                0.10
+            ),
+            transparent 42%
+        ),
+        #151519;
+
     color: white;
-    border-radius: 18px;
-    padding: 25px;
-    display: flex;
-    align-items: center;
-    gap: 30px;
-    transition: all 0.3s ease;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+
+    transition:
+        transform 0.25s ease,
+        border-color 0.25s ease,
+        box-shadow 0.25s ease;
 }
 
-.promotion-card:hover {
-    transform: scale(1.03);
+
+/* =====================================================
+   IMAGEN
+===================================================== */
+
+.promotion-image-wrapper {
+    position: relative;
+
+    min-height: 280px;
+
+    overflow: hidden;
+
+    background: #09090b;
 }
+
 
 .promotion-image {
-    width: 180px;
-    height: 140px;
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
     object-fit: cover;
-    border-radius: 14px;
+
+    transition:
+        transform 0.35s ease;
 }
+
+
+/* degradado */
+
+.promotion-image-wrapper::after {
+    content: "";
+
+    position: absolute;
+
+    inset: 0;
+
+    pointer-events: none;
+
+    background:
+        linear-gradient(
+            to right,
+            transparent 50%,
+            rgba(
+                21,
+                21,
+                25,
+                0.72
+            )
+        );
+}
+
+
+/* =====================================================
+   BADGE
+===================================================== */
+
+.promotion-badge {
+    position: absolute;
+
+    z-index: 2;
+
+    top: 16px;
+    left: 16px;
+
+    padding:
+        7px
+        10px;
+
+    border:
+        1px solid
+        rgba(
+            255,
+            90,
+            105,
+            0.48
+        );
+
+    border-radius: 8px;
+
+    background:
+        rgba(
+            120,
+            10,
+            26,
+            0.78
+        );
+
+    color: white;
+
+    font-size: 10px;
+    font-weight: 900;
+
+    letter-spacing: 1px;
+
+    backdrop-filter:
+        blur(7px);
+}
+
+
+/* =====================================================
+   CONTENIDO
+===================================================== */
 
 .promotion-content {
-    flex: 1;
+    min-width: 0;
+
+    padding:
+        28px
+        28px
+        26px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
-.promotion-card span {
-    color: #e63922;
-    font-weight: bold;
+
+.promotion-label {
+    margin-bottom: 8px;
+
+    color: #6eb4f5;
+
+    font-size: 10px;
+    font-weight: 900;
+
+    letter-spacing: 2px;
 }
+
 
 .promotion-card h3 {
-    font-size: 32px;
-    margin: 10px 0;
+    margin: 0;
+
+    color: #ffffff;
+
+    font-size: clamp(
+        27px,
+        3vw,
+        36px
+    );
+
+    line-height: 1.05;
+
+    letter-spacing: -0.5px;
 }
 
+
 .promotion-card p {
-    color: #ddd;
-    margin-bottom: 15px;
-    line-height: 1.35;
+    margin:
+        14px
+        0
+        19px;
+
+    color: #c1c3c8;
+
+    font-size: 15px;
+    line-height: 1.5;
 }
+
 
 .promotion-card strong {
     display: block;
-    color: #ffcf4a;
-    font-size: 28px;
-    margin-bottom: 18px;
+
+    margin-bottom: 20px;
+
+    color: #ff5365;
+
+    font-size: 29px;
+    font-weight: 900;
 }
 
+
+/* =====================================================
+   BOTÓN
+===================================================== */
+
 .promotion-button {
+    width: fit-content;
+
+    min-height: 45px;
+
+    padding:
+        0
+        18px;
+
     display: inline-flex;
     align-items: center;
     justify-content: center;
 
-    background: #e63922;
+    border:
+        1px solid
+        #cf142b;
+
+    border-radius: 10px;
+
+    background: #cf142b;
     color: white;
 
-    padding: 12px 22px;
-    border-radius: 999px;
-
     text-decoration: none;
-    font-weight: 700;
-    font-size: 15px;
 
-    transition: all 0.3s ease;
+    font-size: 14px;
+    font-weight: 800;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
 }
+
 
 .promotion-button:hover {
-    transform: translateY(-2px);
-    background: #ff4a32;
+    background: #e5243d;
+
+    transform:
+        translateY(-2px);
+
+    box-shadow:
+        0
+        10px
+        28px
+        rgba(
+            207,
+            20,
+            43,
+            0.22
+        );
 }
 
-@media(max-width:800px) {
+
+/* =====================================================
+   HOVER TARJETA
+===================================================== */
+
+@media (hover: hover) and (pointer: fine) {
+
+    .promotion-card:hover {
+        border-color:
+            rgba(
+                224,
+                49,
+                70,
+                0.70
+            );
+
+        transform:
+            translateY(-4px);
+
+        box-shadow:
+            0
+            20px
+            45px
+            rgba(
+                0,
+                0,
+                0,
+                0.38
+            );
+    }
+
+
+    .promotion-card:hover
+    .promotion-image {
+        transform:
+            scale(1.035);
+    }
+
+}
+
+
+/* =====================================================
+   MÓVIL
+===================================================== */
+
+@media (max-width: 768px) {
 
     .promotion-card {
-        flex-direction: column;
-        text-align: center;
+        grid-template-columns: 1fr;
 
-        padding: 18px;
-        gap: 16px;
-
-        border-radius: 20px;
+        border-radius: 18px;
     }
 
-    .promotion-image {
-        width: 100%;
-        height: 155px;
-        border-radius: 16px;
+
+    .promotion-image-wrapper {
+        min-height: 205px;
+        height: 205px;
     }
 
-    .promotion-card span {
-        font-size: 17px;
+
+    .promotion-image-wrapper::after {
+        background:
+            linear-gradient(
+                to top,
+                rgba(
+                    21,
+                    21,
+                    25,
+                    0.55
+                ),
+                transparent 55%
+            );
     }
+
+
+    .promotion-content {
+        padding:
+            21px
+            19px
+            22px;
+
+        text-align: left;
+    }
+
 
     .promotion-card h3 {
-        font-size: 28px;
-        line-height: 1.1;
-        margin: 8px 0;
+        font-size: 27px;
     }
+
 
     .promotion-card p {
-        font-size: 16px;
-        line-height: 1.3;
-        margin-bottom: 12px;
+        margin:
+            11px
+            0
+            16px;
+
+        font-size: 14px;
     }
 
+
     .promotion-card strong {
-        font-size: 30px;
-        margin-bottom: 16px;
+        margin-bottom: 17px;
+
+        font-size: 27px;
     }
+
 
     .promotion-button {
         width: 100%;
-        max-width: 300px;
 
-        padding: 14px 18px;
-
-        font-size: 16px;
-        margin: 0 auto;
+        box-sizing: border-box;
     }
-
-    @media(max-width: 768px) {
-
-    .promotions-section {
-        padding: 55px 5% 75px;
-    }
-
-    .promotions-section h2 {
-        font-size: 34px;
-        line-height: 1.1;
-    }
-
-    .promotions-subtitle {
-        font-size: 22px;
-        line-height: 1.25;
-        margin: 12px auto 35px;
-        max-width: 340px;
-    }
-
-    .promotions-grid {
-        grid-template-columns: 1fr;
-        gap: 24px;
-    }
-
-}
 
 }

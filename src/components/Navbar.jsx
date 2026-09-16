@@ -1,20 +1,52 @@
-import { useEffect, useState } from "react"
-import { Link } from "react-router-dom"
+import {
+    useEffect,
+    useState
+} from "react"
+
+import {
+    Link,
+    useLocation
+} from "react-router-dom"
 
 import "./Navbar.css"
 
-import { useBusiness } from "../context/BusinessContext"
+import {
+    useBusiness
+} from "../context/BusinessContext"
+
 
 function Navbar() {
-    const [activeSection, setActiveSection] = useState("inicio")
-    const [menuOpen, setMenuOpen] = useState(false)
+    const location = useLocation()
+
+    const [
+        activeSection,
+        setActiveSection
+    ] = useState("inicio")
+
+    const [
+        menuOpen,
+        setMenuOpen
+    ] = useState(false)
+
 
     const {
         businessData,
         loadingBusiness
     } = useBusiness()
 
+
+    /* =========================
+       DETECTAR SECCIÓN DEL HOME
+    ========================= */
+
     useEffect(() => {
+        if (
+            location.pathname !== "/"
+        ) {
+            return
+        }
+
+
         const handleScroll = () => {
             const sections = [
                 "inicio",
@@ -24,57 +56,149 @@ function Navbar() {
                 "contacto"
             ]
 
-            sections.forEach((section) => {
-                const element = document.getElementById(section)
 
-                if (element) {
-                    const position =
-                        element.getBoundingClientRect()
+            for (
+                const section
+                of sections
+            ) {
+                const element =
+                    document.getElementById(
+                        section
+                    )
 
-                    if (
-                        position.top <= 120 &&
-                        position.bottom >= 120
-                    ) {
-                        setActiveSection(section)
-                    }
+
+                if (!element) {
+                    continue
                 }
-            })
+
+
+                const position =
+                    element
+                        .getBoundingClientRect()
+
+
+                if (
+                    position.top <= 130 &&
+                    position.bottom >= 130
+                ) {
+                    setActiveSection(
+                        section
+                    )
+
+                    break
+                }
+            }
         }
 
-        window.addEventListener("scroll", handleScroll)
 
-        return () =>
+        handleScroll()
+
+
+        window.addEventListener(
+            "scroll",
+            handleScroll
+        )
+
+
+        return () => {
             window.removeEventListener(
                 "scroll",
                 handleScroll
             )
-    }, [])
+        }
+    }, [
+        location.pathname
+    ])
+
+
+    /* =========================
+       CERRAR AL CAMBIAR PÁGINA
+    ========================= */
+
+    useEffect(() => {
+        setMenuOpen(false)
+    }, [
+        location.pathname,
+        location.hash
+    ])
+
 
     const closeMenu = () => {
         setMenuOpen(false)
     }
 
+
+    const homeSectionClass = (
+        section
+    ) => {
+        if (
+            location.pathname === "/" &&
+            activeSection === section
+        ) {
+            return "active"
+        }
+
+        return ""
+    }
+
+
     return (
         <nav className="navbar">
-            <h2 className="logo">
+
+            {/* LOGO */}
+
+            <Link
+                to="/"
+                className="logo"
+                onClick={closeMenu}
+            >
                 <img
                     src="/images/logo.jpg"
-                    alt={businessData?.name || "Q' Bola"}
+                    alt={
+                        businessData?.name ||
+                        "Q' Bola"
+                    }
                     className="navbar-logo"
                 />
 
-                {!loadingBusiness && businessData?.name}
-            </h2>
+                <span>
+                    {!loadingBusiness &&
+                        businessData?.name}
+                </span>
+            </Link>
+
+
+            {/* HAMBURGUESA */}
 
             <button
-                className="hamburger"
-                onClick={() =>
-                    setMenuOpen(!menuOpen)
+                type="button"
+                className={
+                    menuOpen
+                        ? "hamburger open"
+                        : "hamburger"
                 }
-                aria-label="Abrir menú de navegación"
+                onClick={() =>
+                    setMenuOpen(
+                        (current) =>
+                            !current
+                    )
+                }
+                aria-label={
+                    menuOpen
+                        ? "Cerrar menú"
+                        : "Abrir menú"
+                }
+                aria-expanded={
+                    menuOpen
+                }
             >
-                ☰
+                {menuOpen
+                    ? "×"
+                    : "☰"}
             </button>
+
+
+            {/* MENÚ */}
 
             <div
                 className={
@@ -83,83 +207,127 @@ function Navbar() {
                         : "nav-links"
                 }
             >
-                <a
-                    onClick={closeMenu}
-                    className={
-                        activeSection === "inicio"
-                            ? "active"
-                            : ""
+
+                <Link
+                    to="/#inicio"
+                    onClick={
+                        closeMenu
                     }
-                    href="#inicio"
+                    className={
+                        homeSectionClass(
+                            "inicio"
+                        )
+                    }
                 >
                     Inicio
-                </a>
+                </Link>
 
-                <a
-                    onClick={closeMenu}
-                    className={
-                        activeSection === "menu"
-                            ? "active"
-                            : ""
+
+                <Link
+                    to="/#menu"
+                    onClick={
+                        closeMenu
                     }
-                    href="#menu"
+                    className={
+                        homeSectionClass(
+                            "menu"
+                        )
+                    }
                 >
                     Menú
-                </a>
+                </Link>
+
 
                 <Link
                     to="/fiestas"
-                    onClick={closeMenu}
+                    onClick={
+                        closeMenu
+                    }
+                    className={
+                        location.pathname
+                            .startsWith(
+                                "/fiestas"
+                            )
+                            ? "active"
+                            : ""
+                    }
                 >
                     Fiestas
                 </Link>
 
+
                 <Link
                     to="/eventos"
-                    onClick={closeMenu}
+                    onClick={
+                        closeMenu
+                    }
+                    className={
+                        location.pathname
+                            .startsWith(
+                                "/eventos"
+                            )
+                            ? "active"
+                            : ""
+                    }
                 >
                     Eventos
                 </Link>
 
-                <a
-                    onClick={closeMenu}
-                    className={
-                        activeSection ===
-                        "promociones"
-                            ? "active"
-                            : ""
+
+                <Link
+                    to="/#promociones"
+                    onClick={
+                        closeMenu
                     }
-                    href="#promociones"
+                    className={
+                        homeSectionClass(
+                            "promociones"
+                        )
+                    }
                 >
                     Promociones
-                </a>
+                </Link>
 
-                <a
-                    onClick={closeMenu}
-                    className={
-                        activeSection === "galeria"
-                            ? "active"
-                            : ""
+
+                <Link
+                    to="/#galeria"
+                    onClick={
+                        closeMenu
                     }
-                    href="#galeria"
+                    className={
+                        location.pathname
+                            .startsWith(
+                                "/gallery"
+                            )
+                            ? "active"
+                            : homeSectionClass(
+                                  "galeria"
+                              )
+                    }
                 >
                     Galería
-                </a>
+                </Link>
 
-                <a
-                    onClick={closeMenu}
-                    className={
-                        activeSection === "contacto"
-                            ? "active"
-                            : ""
+
+                <Link
+                    to="/#contacto"
+                    onClick={
+                        closeMenu
                     }
-                    href="#contacto"
+                    className={
+                        homeSectionClass(
+                            "contacto"
+                        )
+                    }
                 >
                     Contacto
-                </a>
+                </Link>
+
             </div>
+
         </nav>
     )
 }
+
 
 export default Navbar

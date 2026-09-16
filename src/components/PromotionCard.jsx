@@ -1,43 +1,110 @@
-import businessData from "../data/businessData"
-
 import "./PromotionCard.css"
 
+import {
+    useBusiness
+} from "../context/BusinessContext"
 
-function PromotionCard({ promotion }) {
-    const formatPrice = (price) => {
-        const numericPrice =
-            Number(price)
 
+function PromotionCard({
+    promotion
+}) {
+    const {
+        businessData,
+        loadingBusiness
+    } = useBusiness()
+
+
+    const formatPrice = (
+        price
+    ) => {
         if (
-            Number.isFinite(numericPrice)
+            price === null ||
+            price === undefined ||
+            price === ""
         ) {
-            return `$${numericPrice.toFixed(2)}`
+            return ""
         }
 
-        return price || ""
+
+        const numericPrice =
+            typeof price === "number"
+                ? price
+                : Number(
+                      String(
+                          price
+                      )
+                          .replace(
+                              "$",
+                              ""
+                          )
+                          .replace(
+                              ",",
+                              ""
+                          )
+                          .trim()
+                  )
+
+
+        if (
+            Number.isFinite(
+                numericPrice
+            )
+        ) {
+            return `$${numericPrice.toFixed(
+                2
+            )}`
+        }
+
+
+        return price
     }
 
 
+    const delivery =
+        businessData?.delivery
+
+
     return (
-        <div className="promotion-card">
-            <img
-                className="promotion-image"
-                src={promotion.imageUrl}
-                alt={promotion.title}
-            />
+        <article className="promotion-card">
+
+            <div className="promotion-image-wrapper">
+
+                <img
+                    className="promotion-image"
+                    src={
+                        promotion.imageUrl
+                    }
+                    alt={
+                        promotion.title
+                    }
+                    loading="lazy"
+                />
+
+                <span className="promotion-badge">
+                    🔥 PROMOCIÓN
+                </span>
+
+            </div>
+
 
             <div className="promotion-content">
-                <span>
-                    🔥 Promoción
+
+                <span className="promotion-label">
+                    ESPECIAL
                 </span>
+
 
                 <h3>
                     {promotion.title}
                 </h3>
 
+
                 <p>
-                    {promotion.description}
+                    {
+                        promotion.description
+                    }
                 </p>
+
 
                 <strong>
                     {formatPrice(
@@ -46,22 +113,32 @@ function PromotionCard({ promotion }) {
                 </strong>
 
 
-                {businessData.delivery?.active && (
-                    <a
-                        className="promotion-button"
-                        href={
-                            businessData.delivery.url
-                        }
-                        target="_blank"
-                        rel="noopener noreferrer"
-                    >
-                        {
-                            businessData.delivery.label
-                        }
-                    </a>
-                )}
+                {!loadingBusiness &&
+                    delivery?.active &&
+                    delivery?.url && (
+
+                        <a
+                            className="promotion-button"
+                            href={
+                                delivery.url
+                            }
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            {
+                                delivery.label ||
+                                `Ordenar en ${
+                                    delivery.platform ||
+                                    "línea"
+                                }`
+                            }
+                        </a>
+
+                    )}
+
             </div>
-        </div>
+
+        </article>
     )
 }
 

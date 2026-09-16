@@ -1,117 +1,329 @@
+/* =====================================================
+   NAVBAR
+===================================================== */
+
 .navbar {
-    height: 80px;
-    padding: 0 60px;
+    position: sticky;
+    z-index: 5000;
+    top: 0;
+
+    width: 100%;
+    height: 76px;
+
+    padding: 0 6%;
 
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
 
-    background-color: #111;
-    color: white;
+    border-bottom: 1px solid #24272d;
 
-    position: sticky;
-    top: 0;
-    z-index: 1000;
+    background:
+        rgba(8, 9, 11, 0.96);
+
+    backdrop-filter: blur(14px);
+
+    box-sizing: border-box;
 }
 
+
+/* =====================================================
+   LOGO
+===================================================== */
+
 .logo {
+    min-width: 0;
+
     display: flex;
     align-items: center;
-    gap: 10px;
 
-    margin: 0;
+    gap: 11px;
 
-    font-size: 26px;
+    color: white;
+
+    text-decoration: none;
+
+    font-size: 20px;
+    font-weight: 850;
+}
+
+.logo span {
+    overflow: hidden;
+
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 .navbar-logo {
-    width: 45px;
-    height: 45px;
+    width: 44px;
+    height: 44px;
 
-    object-fit: contain;
+    flex: 0 0 auto;
 
-    border-radius: 8px;
+    display: block;
 
-    flex-shrink: 0;
+    object-fit: cover;
+
+    border: 1px solid
+        rgba(65, 130, 195, 0.35);
+
+    border-radius: 11px;
 }
+
+
+/* =====================================================
+   NAVEGACIÓN DESKTOP
+===================================================== */
 
 .nav-links {
     display: flex;
     align-items: center;
 
-    gap: 30px;
+    gap: 5px;
 }
 
 .nav-links a {
-    color: white;
+    padding:
+        10px
+        12px;
+
+    border: 1px solid transparent;
+    border-radius: 9px;
+
+    color: #c5c7cc;
 
     text-decoration: none;
+
+    font-size: 14px;
+    font-weight: 700;
+
+    transition:
+        color 0.2s ease,
+        background 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.nav-links a:hover {
+    background: #15171b;
+
+    color: white;
 }
 
 .nav-links a.active {
-    color: #e63922;
+    border-color:
+        rgba(56, 132, 210, 0.25);
 
-    border-bottom: 2px solid #e63922;
+    background:
+        rgba(0, 82, 165, 0.13);
+
+    color: #ffffff;
 }
+
+
+/* pequeño acento inferior */
+
+.nav-links a.active::after {
+    content: "";
+
+    display: block;
+
+    width: 18px;
+    height: 2px;
+
+    margin:
+        4px
+        auto
+        -4px;
+
+    border-radius: 99px;
+
+    background: #cf142b;
+}
+
+
+/* =====================================================
+   HAMBURGUESA
+===================================================== */
 
 .hamburger {
     display: none;
 
-    background: none;
-    border: none;
+    width: 46px;
+    height: 46px;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+
+    border: 1px solid #30343b;
+    border-radius: 11px;
+
+    background:
+        rgba(18, 20, 24, 0.96);
 
     color: white;
 
-    font-size: 30px;
+    font-size: 27px;
+    line-height: 1;
 
     cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.hamburger:hover {
+    border-color:
+        rgba(71, 145, 219, 0.55);
+
+    background: #191c21;
+}
+
+.hamburger.open {
+    border-color:
+        rgba(207, 20, 43, 0.55);
 }
 
 
-/* móvil */
+/* =====================================================
+   MÓVIL / TABLET
+===================================================== */
 
-@media (max-width: 800px) {
+@media (max-width: 900px) {
 
     .navbar {
-        padding: 0 25px;
+        height: 68px;
+
+        padding:
+            0
+            16px;
     }
 
+
     .logo {
-        font-size: 22px;
+        max-width:
+            calc(100% - 65px);
+
+        gap: 9px;
+
+        font-size: 18px;
     }
+
+
+    .navbar-logo {
+        width: 40px;
+        height: 40px;
+
+        border-radius: 9px;
+    }
+
+
+    .hamburger {
+        display: flex;
+    }
+
+
+    /* menú flotante */
+
+    .nav-links {
+        position: absolute;
+
+        top:
+            calc(100% + 8px);
+
+        right: 14px;
+
+        width:
+            min(
+                290px,
+                calc(100vw - 28px)
+            );
+
+        padding: 10px;
+
+        display: none;
+        flex-direction: column;
+        align-items: stretch;
+
+        gap: 3px;
+
+        border: 1px solid #30343b;
+        border-radius: 16px;
+
+        background:
+            linear-gradient(
+                145deg,
+                rgba(0, 82, 165, 0.06),
+                transparent 38%
+            ),
+            #111318;
+
+        box-shadow:
+            0 22px 55px
+            rgba(0, 0, 0, 0.55);
+
+        box-sizing: border-box;
+    }
+
+
+    .nav-links.open {
+        display: flex;
+    }
+
+
+    .nav-links a {
+        width: 100%;
+
+        padding:
+            13px
+            14px;
+
+        border-radius: 10px;
+
+        box-sizing: border-box;
+
+        font-size: 15px;
+    }
+
+
+    .nav-links a.active::after {
+        display: none;
+    }
+
+}
+
+
+/* =====================================================
+   MÓVILES PEQUEÑOS
+===================================================== */
+
+@media (max-width: 420px) {
+
+    .navbar {
+        padding:
+            0
+            13px;
+    }
+
+
+    .logo {
+        font-size: 16px;
+    }
+
 
     .navbar-logo {
         width: 38px;
         height: 38px;
     }
 
+
     .hamburger {
-        display: block;
+        width: 44px;
+        height: 44px;
+
+        font-size: 25px;
     }
 
-    .nav-links {
-        position: absolute;
-
-        top: 80px;
-        right: 20px;
-
-        width: 240px;
-
-        background: #111;
-
-        flex-direction: column;
-        align-items: flex-start;
-
-        padding: 25px;
-
-        border-radius: 0 0 15px 15px;
-
-        display: none;
-
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-    }
-
-    .nav-links.open {
-        display: flex;
-    }
 }

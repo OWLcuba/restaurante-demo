@@ -1,117 +1,379 @@
+/* =====================================================
+   MENÚ
+===================================================== */
+
 .menu-section {
-    padding: 70px 6%;
-    background: #000000;
+    position: relative;
+
+    padding:
+        85px
+        6%
+        90px;
+
+    overflow: hidden;
+
+    background:
+        radial-gradient(
+            circle at 5% 15%,
+            rgba(0, 82, 165, 0.10),
+            transparent 28%
+        ),
+        #0b0c0f;
+
     color: white;
+
+    box-sizing: border-box;
+}
+
+
+/* línea superior muy sutil */
+
+.menu-section::before {
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: 6%;
+    right: 6%;
+
+    height: 1px;
+
+    background:
+        linear-gradient(
+            to right,
+            transparent,
+            rgba(75, 140, 205, 0.25),
+            rgba(207, 20, 43, 0.20),
+            transparent
+        );
+}
+
+
+/* =====================================================
+   ENCABEZADO
+===================================================== */
+
+.menu-header {
+    max-width: 760px;
+
+    margin:
+        0
+        auto
+        42px;
+
+    text-align: center;
+}
+
+.menu-kicker {
+    display: inline-block;
+
+    margin-bottom: 11px;
+
+    color: #72b7f8;
+
+    font-size: 12px;
+    font-weight: 900;
+
+    letter-spacing: 3px;
 }
 
 .menu-section h2 {
-    text-align: center;
-    font-size: 45px;
-    margin-bottom: 12px;
+    margin: 0;
+
+    color: #ffffff;
+
+    font-size: clamp(
+        40px,
+        5vw,
+        58px
+    );
+
+    line-height: 1;
+
+    letter-spacing: -1px;
 }
 
 .menu-subtitle {
-    text-align: center;
-    color: #cfcfcf;
-    font-size: 19px;
-    margin-bottom: 35px;
+    max-width: 590px;
+
+    margin:
+        17px
+        auto
+        0;
+
+    color: #aeb3bb;
+
+    font-size: 17px;
+    line-height: 1.6;
 }
 
+
+/* =====================================================
+   ESTADOS
+===================================================== */
+
+.menu-status {
+    margin: 30px auto;
+
+    color: #bbb;
+
+    text-align: center;
+
+    font-size: 16px;
+}
+
+
+/* =====================================================
+   CATEGORÍAS
+===================================================== */
+
 .menu-categories {
+    width: 100%;
+    max-width: 1250px;
+
+    margin:
+        0
+        auto
+        32px;
+
+    padding:
+        4px
+        0
+        14px;
+
     display: flex;
-    gap: 14px;
+
+    gap: 10px;
+
     overflow-x: auto;
-    padding: 0 0 22px;
-    margin-bottom: 25px;
-    scroll-snap-type: x mandatory;
+
+    scroll-snap-type:
+        x mandatory;
+
+    scrollbar-width: thin;
+
+    scrollbar-color:
+        #1f5e99
+        transparent;
 }
 
 .menu-categories::-webkit-scrollbar {
     height: 5px;
 }
 
-.menu-categories::-webkit-scrollbar-thumb {
-    background: #e63922;
-    border-radius: 20px;
+.menu-categories::-webkit-scrollbar-track {
+    background: transparent;
 }
+
+.menu-categories::-webkit-scrollbar-thumb {
+    border-radius: 20px;
+
+    background: #1f5e99;
+}
+
+
+/* =====================================================
+   BOTONES DE CATEGORÍA
+===================================================== */
 
 .category-btn {
     flex: 0 0 auto;
 
-    padding: 12px 24px;
+    min-height: 44px;
 
-    border: 1px solid #e63922;
+    padding:
+        0
+        20px;
+
+    border:
+        1px solid
+        #313740;
+
     border-radius: 999px;
 
-    background: transparent;
-    color: white;
+    background:
+        #14161b;
 
-    font-size: 16px;
-    font-weight: 600;
+    color:
+        #d6d9de;
+
+    font-size: 14px;
+    font-weight: 750;
 
     cursor: pointer;
 
-    transition: all 0.3s ease;
-
     scroll-snap-align: start;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease,
+        transform 0.2s ease;
 }
 
 .category-btn:hover {
-    background: rgba(230, 57, 34, 0.18);
-}
+    border-color:
+        rgba(67, 145, 220, 0.65);
 
-.category-btn.active {
-    background: #e63922;
+    background:
+        rgba(0, 82, 165, 0.15);
+
     color: white;
 }
 
-.menu-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 30px;
+
+/* activo:
+   azul cubano + pequeño acento rojo */
+
+.category-btn.active {
+    border-color:
+        #2d7bc4;
+
+    background:
+        linear-gradient(
+            135deg,
+            #0052a5,
+            #164c80
+        );
+
+    color: white;
+
+    box-shadow:
+        inset
+        0
+        -3px
+        0
+        #cf142b;
 }
 
 
-/* MOBILE */
+/* =====================================================
+   GRID
+===================================================== */
 
-@media(max-width: 768px) {
+.menu-grid {
+    width: 100%;
+    max-width: 1250px;
+
+    margin: 0 auto;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            3,
+            minmax(0, 1fr)
+        );
+
+    gap: 22px;
+}
+
+
+/* =====================================================
+   TABLET
+===================================================== */
+
+@media (max-width: 950px) {
+
+    .menu-grid {
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(0, 1fr)
+            );
+    }
+
+}
+
+
+/* =====================================================
+   MÓVIL
+===================================================== */
+
+@media (max-width: 768px) {
 
     .menu-section {
-        padding: 45px 4% 60px;
+        padding:
+            55px
+            16px
+            65px;
     }
+
+
+    .menu-header {
+        margin-bottom: 26px;
+    }
+
+
+    .menu-kicker {
+        margin-bottom: 8px;
+
+        font-size: 10px;
+    }
+
 
     .menu-section h2 {
-        font-size: 32px;
-        margin-bottom: 8px;
+        font-size: 34px;
     }
+
 
     .menu-subtitle {
-        max-width: 310px;
-        margin: 0 auto 22px;
+        max-width: 330px;
+
+        margin-top: 12px;
 
         font-size: 15px;
-        line-height: 1.25;
+        line-height: 1.45;
     }
+
 
     .menu-categories {
         gap: 8px;
 
-        padding-bottom: 14px;
-        margin-bottom: 18px;
+        margin-bottom: 20px;
+
+        padding-bottom: 11px;
     }
 
+
     .category-btn {
-        padding: 8px 15px;
+        min-height: 40px;
 
-        font-size: 14px;
-        font-weight: 700;
+        padding:
+            0
+            15px;
 
-        min-width: max-content;
+        font-size: 13px;
+    }
+
+
+    .menu-grid {
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(0, 1fr)
+            );
+
+        gap: 11px;
+    }
+
+}
+
+
+/* =====================================================
+   MÓVILES PEQUEÑOS
+===================================================== */
+
+@media (max-width: 420px) {
+
+    .menu-section {
+        padding-left: 13px;
+        padding-right: 13px;
     }
 
     .menu-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 10px;
+        gap: 9px;
     }
 
 }
