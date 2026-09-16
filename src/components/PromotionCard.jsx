@@ -1,16 +1,22 @@
+import businessData from "../data/businessData"
+
 import "./PromotionCard.css"
 
-import { useBusiness } from "../context/BusinessContext"
 
 function PromotionCard({ promotion }) {
-    const {
-        businessData,
-        loadingBusiness
-    } = useBusiness()
+    const formatPrice = (price) => {
+        const numericPrice =
+            Number(price)
 
-    if (loadingBusiness || !businessData) {
-        return null
+        if (
+            Number.isFinite(numericPrice)
+        ) {
+            return `$${numericPrice.toFixed(2)}`
+        }
+
+        return price || ""
     }
+
 
     return (
         <div className="promotion-card">
@@ -21,27 +27,43 @@ function PromotionCard({ promotion }) {
             />
 
             <div className="promotion-content">
-                <span>🔥 Promoción</span>
+                <span>
+                    🔥 Promoción
+                </span>
 
-                <h3>{promotion.title}</h3>
+                <h3>
+                    {promotion.title}
+                </h3>
 
-                <p>{promotion.description}</p>
+                <p>
+                    {promotion.description}
+                </p>
 
-                <strong>{promotion.price}</strong>
+                <strong>
+                    {formatPrice(
+                        promotion.price
+                    )}
+                </strong>
+
 
                 {businessData.delivery?.active && (
                     <a
                         className="promotion-button"
-                        href={businessData.delivery.url}
+                        href={
+                            businessData.delivery.url
+                        }
                         target="_blank"
                         rel="noopener noreferrer"
                     >
-                        {businessData.delivery.label}
+                        {
+                            businessData.delivery.label
+                        }
                     </a>
                 )}
             </div>
         </div>
     )
 }
+
 
 export default PromotionCard

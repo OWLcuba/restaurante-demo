@@ -223,7 +223,10 @@
     transform: translateY(-2px);
 }
 
-/* DETALLE DEL EVENTO */
+
+/* =========================
+   DETALLE DEL EVENTO
+========================= */
 
 .event-back-link {
     display: inline-block;
@@ -375,23 +378,69 @@
     font-size: 21px;
 }
 
+
+/* =========================
+   BOTONES DE RESERVA
+========================= */
+
 .event-offer-card button {
     width: 100%;
     padding: 14px;
+
     border: none;
     border-radius: 10px;
+
     background: #292929;
     color: white;
+
     font-size: 15px;
     font-weight: 700;
-    cursor: not-allowed;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease,
+        opacity 0.2s ease;
 }
+
+.event-offer-card button:hover:not(:disabled) {
+    background: #3a3a3a;
+    transform: translateY(-2px);
+}
+
+.event-offer-card button:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+
+/* BOTÓN VIP */
 
 .event-offer-card.featured button {
     background: #ff4438;
 }
 
-/* TABLET */
+.event-offer-card.featured button:hover:not(:disabled) {
+    background: #ff5a50;
+}
+
+
+/* PRÓXIMAMENTE / AGOTADO */
+
+.event-offer-card button:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.event-offer-card.featured button:disabled {
+    background: #ff4438;
+    opacity: 0.6;
+}
+
+
+/* =========================
+   TABLET
+========================= */
 
 @media (max-width: 900px) {
     .events-page {
@@ -433,7 +482,10 @@
     }
 }
 
-/* MOVIL */
+
+/* =========================
+   MÓVIL
+========================= */
 
 @media (max-width: 550px) {
     .events-header {

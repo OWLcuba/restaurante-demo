@@ -1,40 +1,56 @@
 import { useEffect, useState } from "react"
-import { collection, getDocs } from "firebase/firestore"
+import {
+    collection,
+    getDocs
+} from "firebase/firestore"
 
 import { db } from "../firebase/firebase"
-import PromotionCard from "../components/PromotionCard"
+import PromotionCard from "../components/PromotionCard.jsx"
 
 import "./Promotions.css"
+
 
 function Promotions() {
     const [promotions, setPromotions] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState("")
 
+
     useEffect(() => {
         async function loadPromotions() {
             try {
-                const querySnapshot = await getDocs(
-                    collection(db, "promotions")
+                const snapshot = await getDocs(
+                    collection(
+                        db,
+                        "promotions"
+                    )
                 )
 
-                const promotionsData = querySnapshot.docs.map((document) => ({
-                    firebaseId: document.id,
-                    ...document.data()
-                }))
+                const data = snapshot.docs
+                    .map((document) => ({
+                        firebaseId: document.id,
+                        ...document.data()
+                    }))
+                    .filter(
+                        (promotion) =>
+                            promotion.active !== false
+                    )
+                    .sort((a, b) =>
+                        (a.title || "").localeCompare(
+                            b.title || ""
+                        )
+                    )
 
-                promotionsData.sort(
-                    (a, b) => Number(a.id) - Number(b.id)
-                )
-
-                setPromotions(promotionsData)
+                setPromotions(data)
             } catch (firebaseError) {
                 console.error(
-                    "Error al cargar las promociones desde Firestore:",
+                    "Error al cargar promociones:",
                     firebaseError
                 )
 
-                setError("No se pudieron cargar las promociones.")
+                setError(
+                    "No se pudieron cargar las promociones."
+                )
             } finally {
                 setLoading(false)
             }
@@ -43,17 +59,18 @@ function Promotions() {
         loadPromotions()
     }, [])
 
-    const activePromotions = promotions.filter(
-        (promotion) => promotion.active !== false
-    )
 
     return (
         <section className="promotions-section">
-            <h2>Promociones</h2>
+            <h2>
+                Promociones
+            </h2>
 
             <p className="promotions-subtitle">
-                Especiales preparados para disfrutar más por menos.
+                Especiales preparados para disfrutar
+                más por menos.
             </p>
+
 
             {loading && (
                 <p className="promotions-status">
@@ -61,24 +78,45 @@ function Promotions() {
                 </p>
             )}
 
+
             {error && (
                 <p className="promotions-status">
                     {error}
                 </p>
             )}
 
-            {!loading && !error && (
-                <div className="promotions-grid">
-                    {activePromotions.map((promotion) => (
-                        <PromotionCard
-                            key={promotion.firebaseId}
-                            promotion={promotion}
-                        />
-                    ))}
-                </div>
-            )}
+
+            {!loading &&
+                !error &&
+                promotions.length === 0 && (
+                    <p className="promotions-status">
+                        No hay promociones disponibles
+                        en este momento.
+                    </p>
+                )}
+
+
+            {!loading &&
+                !error &&
+                promotions.length > 0 && (
+                    <div className="promotions-grid">
+                        {promotions.map(
+                            (promotion) => (
+                                <PromotionCard
+                                    key={
+                                        promotion.firebaseId
+                                    }
+                                    promotion={
+                                        promotion
+                                    }
+                                />
+                            )
+                        )}
+                    </div>
+                )}
         </section>
     )
 }
+
 
 export default Promotions

@@ -38,3 +38,13 @@
     gap:30px;
 
 }
+
+.promotions-status {
+    margin: 35px 0;
+
+    text-align: center;
+
+    color: #666;
+
+    font-size: 17px;
+}

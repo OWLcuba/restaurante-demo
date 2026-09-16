@@ -1,204 +1,434 @@
-.hero {
-    min-height: calc(100vh - 80px);
+/* =====================================================
+   HOME — ESTILO CUBANO ELEGANTE
+   Azul + Rojo + Blanco sobre fondo oscuro
+===================================================== */
 
-    background: #151515;
+.hero {
+    min-height: calc(100vh - 76px);
+
+    padding: 55px 6% 70px;
+
+    background:
+        radial-gradient(
+            circle at 8% 10%,
+            rgba(0, 82, 165, 0.20),
+            transparent 34%
+        ),
+        radial-gradient(
+            circle at 92% 8%,
+            rgba(207, 20, 43, 0.15),
+            transparent 30%
+        ),
+        #08090b;
+
     color: white;
 
-    padding: 10px 6%;
+    box-sizing: border-box;
 }
 
 
-/* zona principal */
+/* =====================================================
+   ZONA PRINCIPAL
+===================================================== */
 
 .hero-main {
-    display: flex;
+    width: 100%;
+    max-width: 1250px;
+
+    margin: 0 auto;
+
+    display: grid;
+    grid-template-columns:
+        minmax(0, 0.95fr)
+        minmax(0, 1.05fr);
+
     align-items: center;
-    justify-content: space-between;
+
+    gap: 55px;
 
     min-height: 480px;
 }
 
 
-/* texto */
+/* =====================================================
+   TEXTO PRINCIPAL
+===================================================== */
 
 .hero-content {
-    flex: 1;
+    min-width: 0;
 }
-
 
 .subtitle {
-    color: #e63922;
-    font-size: 22px;
-}
+    display: inline-block;
 
+    margin-bottom: 14px;
+
+    color: #6fb5ff;
+
+    font-size: 13px;
+    font-weight: 800;
+
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
 
 .hero h1 {
-    font-size: clamp(45px, 5vw, 80px);
+    max-width: 650px;
 
-    line-height: 1;
+    margin: 0;
 
-    margin: 20px 0;
+    color: #ffffff;
+
+    font-size: clamp(
+        48px,
+        6vw,
+        82px
+    );
+
+    line-height: 0.96;
+
+    letter-spacing: -2px;
+}
+
+.hero-content > p {
+    max-width: 580px;
+
+    margin: 24px 0 0;
+
+    color: #b9bdc5;
+
+    font-size: 18px;
+    line-height: 1.65;
 }
 
 
-.hero p {
-    font-size: clamp(18px, 2vw, 24px);
-
-    max-width: 550px;
-}
-
-
-/* botones */
+/* =====================================================
+   BOTONES PRINCIPALES
+===================================================== */
 
 .hero-buttons {
     display: flex;
-    gap: 20px;
+    flex-wrap: wrap;
 
-    margin-top: 35px;
+    gap: 13px;
+
+    margin-top: 32px;
 }
 
-
 .hero-buttons a {
-    padding: 15px 35px;
+    min-height: 52px;
 
-    border-radius: 8px;
+    padding: 0 25px;
 
-    font-size: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 
-    cursor: pointer;
+    border-radius: 12px;
 
     text-decoration: none;
 
-    display: inline-flex;
+    font-size: 16px;
+    font-weight: 800;
 
-    align-items: center;
+    box-sizing: border-box;
 
-    justify-content: center;
+    cursor: pointer;
+
+    transition:
+        transform 0.2s ease,
+        background 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
 }
 
+
+/* ROJO — acción principal */
 
 .primary-btn {
-    background: #e63922;
+    border: 1px solid #cf142b;
+
+    background: #cf142b;
     color: white;
-    border: none;
 }
 
+.primary-btn:hover {
+    background: #e3213c;
+
+    box-shadow:
+        0 8px 25px
+        rgba(207, 20, 43, 0.25);
+
+    transform: translateY(-2px);
+}
+
+
+/* AZUL — acción secundaria */
 
 .secondary-btn {
-    background: transparent;
-    color: white;
-    border: 1px solid white;
+    border: 1px solid #1768b5;
+
+    background:
+        rgba(0, 82, 165, 0.16);
+
+    color: #ffffff;
+}
+
+.secondary-btn:hover {
+    border-color: #2481d7;
+
+    background: #0052a5;
+
+    transform: translateY(-2px);
 }
 
 
-/* imagen */
+/* =====================================================
+   IMAGEN PRINCIPAL
+===================================================== */
 
 .hero-image {
-    flex: 1;
+    width: 100%;
+    min-width: 0;
 
-    display: flex;
-    justify-content: center;
+    padding: 7px;
+
+    border: 1px solid
+        rgba(70, 135, 200, 0.35);
+
+    border-radius: 26px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(0, 82, 165, 0.17),
+            rgba(255, 255, 255, 0.035) 48%,
+            rgba(207, 20, 43, 0.10)
+        ),
+        #101115;
+
+    box-sizing: border-box;
 }
-
 
 .hero-image img {
     width: 100%;
-    max-width: 620px;
-    height: 420px;
+    height: 465px;
+
+    display: block;
 
     object-fit: cover;
 
-    border-radius: 25px;
-
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+    border-radius: 19px;
 }
 
 
-/* tarjetas info */
+/* =====================================================
+   INFORMACIÓN DEL RESTAURANTE
+===================================================== */
 
 .info-cards {
-    display: flex;
+    width: 100%;
+    max-width: 1250px;
 
-    gap: 25px;
+    margin: 28px auto 0;
 
-    margin-top: 40px;
+    display: grid;
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 18px;
 }
 
+.info-cards > div {
+    min-width: 0;
 
-.info-cards div {
-    flex: 1;
+    padding: 22px 24px;
 
-    background: #242424;
+    border: 1px solid #262b33;
+    border-radius: 17px;
 
-    padding: 25px;
+    background:
+        linear-gradient(
+            145deg,
+            rgba(0, 82, 165, 0.055),
+            transparent 55%
+        ),
+        #111216;
 
-    border-radius: 15px;
+    color: white;
+
+    transition:
+        transform 0.2s ease,
+        border-color 0.2s ease,
+        background 0.2s ease;
 }
 
+.info-cards > div:hover {
+    border-color:
+        rgba(65, 139, 211, 0.55);
+
+    background: #15171c;
+
+    transform: translateY(-2px);
+}
+
+.info-cards p {
+    margin: 10px 0 5px;
+
+    color: #7c8da1;
+
+    font-size: 12px;
+    font-weight: 800;
+
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.info-cards strong {
+    color: #f5f7fa;
+
+    font-size: 16px;
+}
 
 .mobile-business-strip {
     display: none;
 }
 
 
-/* accesos a fiestas y eventos */
+/* =====================================================
+   FIESTAS + EVENTOS
+   EL CORAZÓN DE LA WEB
+===================================================== */
 
 .home-experiences {
+    width: 100%;
+    max-width: 1250px;
+
+    margin: 40px auto 15px;
+
+    padding-top: 10px;
+
     display: grid;
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
 
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-
-    gap: 24px;
-
-    margin-top: 45px;
-    margin-bottom: 30px;
+    gap: 22px;
 }
 
+
+/* =====================================================
+   TARJETAS GRANDES
+===================================================== */
 
 .home-experience-card {
     position: relative;
 
-    min-height: 340px;
+    min-height: 400px;
 
     overflow: hidden;
 
-    border-radius: 22px;
+    border: 1px solid #333842;
+    border-radius: 24px;
 
-    text-decoration: none;
-    color: white;
+    background-color: #111;
 
     background-size: cover;
     background-position: center;
 
-    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
+    color: white;
+
+    text-decoration: none;
+
+    box-shadow:
+        0 18px 48px
+        rgba(0, 0, 0, 0.46);
+
+    isolation: isolate;
 
     transition:
         transform 0.25s ease,
+        border-color 0.25s ease,
         box-shadow 0.25s ease;
 }
 
 
+/* =====================================================
+   FIESTAS — ACENTO AZUL
+===================================================== */
+
 .party-experience {
+    border-color:
+        rgba(44, 122, 200, 0.48);
+
     background-image:
         linear-gradient(
             to top,
-            rgba(0, 0, 0, 0.92),
-            rgba(0, 0, 0, 0.18) 70%
+            rgba(2, 12, 25, 0.98) 0%,
+            rgba(2, 22, 43, 0.76) 38%,
+            rgba(0, 41, 82, 0.20) 72%,
+            rgba(0, 0, 0, 0.05)
         ),
         url("/images/promo-familiar.jpg");
+
+    background-position: center;
+}
+
+.party-experience::after {
+    content: "";
+
+    position: absolute;
+    z-index: -1;
+
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    height: 5px;
+
+    background: #0052a5;
 }
 
 
+/* =====================================================
+   EVENTOS — ACENTO ROJO
+===================================================== */
+
 .events-experience {
+    border-color:
+        rgba(207, 20, 43, 0.50);
+
     background-image:
         linear-gradient(
             to top,
-            rgba(0, 0, 0, 0.92),
-            rgba(0, 0, 0, 0.18) 70%
+            rgba(25, 2, 6, 0.98) 0%,
+            rgba(45, 5, 12, 0.74) 38%,
+            rgba(100, 8, 22, 0.16) 72%,
+            rgba(0, 0, 0, 0.04)
         ),
         url("/images/yonki.webp");
+
+    background-position: center;
 }
 
+.events-experience::after {
+    content: "";
+
+    position: absolute;
+    z-index: -1;
+
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    height: 5px;
+
+    background: #cf142b;
+}
+
+
+/* =====================================================
+   CONTENIDO FIESTAS / EVENTOS
+===================================================== */
 
 .home-experience-overlay {
     position: absolute;
@@ -209,301 +439,490 @@
     flex-direction: column;
     justify-content: flex-end;
 
-    padding: 30px;
+    padding: 34px;
 
     box-sizing: border-box;
 }
 
-
 .home-experience-overlay > span {
-    display: inline-block;
+    width: fit-content;
 
-    margin-bottom: 10px;
+    margin-bottom: 11px;
 
-    color: #ff5a45;
+    padding: 7px 10px;
 
-    font-size: 13px;
-    font-weight: 800;
+    border-radius: 8px;
+
+    font-size: 11px;
+    font-weight: 900;
+
     letter-spacing: 2px;
 }
 
 
-.home-experience-overlay h2 {
-    margin: 0 0 10px;
+/* Badge azul de fiestas */
 
-    font-size: 32px;
-    line-height: 1.1;
+.party-experience
+.home-experience-overlay > span {
+    border: 1px solid
+        rgba(72, 155, 235, 0.55);
+
+    background:
+        rgba(0, 82, 165, 0.25);
+
+    color: #8dc7ff;
 }
 
+
+/* Badge rojo de eventos */
+
+.events-experience
+.home-experience-overlay > span {
+    border: 1px solid
+        rgba(235, 52, 75, 0.55);
+
+    background:
+        rgba(207, 20, 43, 0.24);
+
+    color: #ff8796;
+}
+
+
+.home-experience-overlay h2 {
+    max-width: 520px;
+
+    margin: 0;
+
+    color: #ffffff;
+
+    font-size: clamp(
+        32px,
+        3.2vw,
+        44px
+    );
+
+    line-height: 1.02;
+
+    letter-spacing: -0.5px;
+}
 
 .home-experience-overlay p {
-    margin: 0 0 22px;
+    max-width: 510px;
 
-    max-width: 480px;
+    margin: 15px 0 23px;
 
-    color: #e2e2e2;
+    color: #e3e5e8;
 
-    font-size: 17px;
-    line-height: 1.45;
+    font-size: 16px;
+    line-height: 1.55;
 }
 
 
-.home-experience-button {
-    align-self: flex-start;
+/* =====================================================
+   BOTONES DE LAS TARJETAS IMPORTANTES
+===================================================== */
 
-    padding: 12px 18px;
+.home-experience-button {
+    width: fit-content;
+
+    padding: 12px 17px;
 
     border-radius: 10px;
 
-    background: #e63922;
     color: white;
 
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 800;
+
+    backdrop-filter: blur(7px);
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease;
 }
 
 
-@media (hover: hover) and (pointer: fine) {
-    .home-experience-card:hover {
-        transform: translateY(-4px);
+/* Fiestas azul */
 
-        box-shadow: 0 24px 55px rgba(0, 0, 0, 0.45);
+.party-experience
+.home-experience-button {
+    border: 1px solid
+        rgba(88, 163, 235, 0.55);
+
+    background:
+        rgba(0, 62, 125, 0.68);
+}
+
+
+/* Eventos rojo */
+
+.events-experience
+.home-experience-button {
+    border: 1px solid
+        rgba(232, 73, 92, 0.55);
+
+    background:
+        rgba(151, 14, 31, 0.70);
+}
+
+
+/* =====================================================
+   HOVER DESKTOP
+===================================================== */
+
+@media (hover: hover) and (pointer: fine) {
+
+    .party-experience:hover {
+        border-color: #3189de;
+
+        box-shadow:
+            0 24px 60px
+            rgba(0, 0, 0, 0.58),
+            0 0 30px
+            rgba(0, 82, 165, 0.12);
+
+        transform: translateY(-5px);
+    }
+
+    .events-experience:hover {
+        border-color: #df3046;
+
+        box-shadow:
+            0 24px 60px
+            rgba(0, 0, 0, 0.58),
+            0 0 30px
+            rgba(207, 20, 43, 0.12);
+
+        transform: translateY(-5px);
+    }
+
+    .party-experience:hover
+    .home-experience-button {
+        border-color: #338ddf;
+
+        background: #0052a5;
+
+        transform: translateY(-1px);
+    }
+
+    .events-experience:hover
+    .home-experience-button {
+        border-color: #e5374c;
+
+        background: #cf142b;
+
+        transform: translateY(-1px);
     }
 }
 
 
-/* móviles y tablet */
+/* =====================================================
+   TABLET
+===================================================== */
 
-@media (max-width: 800px) {
+@media (max-width: 900px) {
 
     .hero {
         min-height: auto;
 
-        padding: 35px 6% 60px;
+        padding:
+            42px
+            20px
+            60px;
     }
 
-
     .hero-main {
-        flex-direction: column;
+        grid-template-columns: 1fr;
 
-        text-align: center;
+        gap: 30px;
 
         min-height: auto;
     }
 
-
     .hero-content {
-        margin-top: 18px;
-
-        width: 100%;
+        max-width: 700px;
     }
-
-
-    .subtitle {
-        display: none;
-    }
-
 
     .hero h1 {
-        font-size: 40px;
-
-        line-height: 1.05;
-
-        margin: 0 0 14px;
+        font-size: clamp(
+            46px,
+            9vw,
+            68px
+        );
     }
-
-
-    .hero p {
-        font-size: 16px;
-
-        line-height: 1.35;
-
-        max-width: 330px;
-
-        margin: 0 auto;
-
-        color: #dddddd;
-
-        display: -webkit-box;
-
-        -webkit-line-clamp: 3;
-        line-clamp: 3;
-
-        -webkit-box-orient: vertical;
-
-        overflow: hidden;
-    }
-
-
-    .hero-buttons {
-        justify-content: center;
-
-        gap: 12px;
-
-        margin-top: 26px;
-    }
-
-
-    .hero-buttons a {
-        flex: 1;
-
-        max-width: 165px;
-        min-height: 52px;
-
-        padding: 10px 14px;
-
-        font-size: 16px;
-
-        line-height: 1.1;
-    }
-
-
-    .hero-image {
-        width: 100%;
-
-        margin-top: 28px;
-    }
-
 
     .hero-image img {
-        width: 100%;
-
-        max-width: 420px;
-        height: 230px;
-
-        object-fit: cover;
-
-        border-radius: 20px;
+        height: 380px;
     }
-
-
-    .info-cards {
-        display: none;
-    }
-
-
-    .mobile-business-strip {
-        display: flex;
-
-        justify-content: center;
-        align-items: center;
-
-        gap: 10px;
-
-        width: 100%;
-
-        margin: 14px auto 22px;
-
-        padding: 10px 14px;
-
-        background: #242424;
-        color: white;
-
-        border-radius: 999px;
-
-        font-size: 14px;
-        font-weight: 700;
-
-        white-space: nowrap;
-
-        box-sizing: border-box;
-    }
-
-
-    .mobile-business-strip span {
-        display: inline-flex;
-
-        align-items: center;
-    }
-
 
     .home-experiences {
         grid-template-columns: 1fr;
 
         gap: 18px;
-
-        margin-top: 28px;
     }
-
 
     .home-experience-card {
-        min-height: 280px;
-
-        border-radius: 18px;
-    }
-
-
-    .home-experience-overlay {
-        padding: 22px;
-
-        text-align: left;
-    }
-
-
-    .home-experience-overlay > span {
-        font-size: 12px;
-
-        letter-spacing: 1.5px;
-    }
-
-
-    .home-experience-overlay h2 {
-        font-size: 28px;
-    }
-
-
-    .home-experience-overlay p {
-        max-width: 100%;
-
-        margin: 0 0 18px;
-
-        font-size: 15px;
-
-        line-height: 1.4;
-
-        display: block;
-
-        overflow: visible;
-
-        color: #eeeeee;
-    }
-
-
-    .home-experience-button {
-        padding: 11px 15px;
-
-        font-size: 14px;
+        min-height: 360px;
     }
 }
 
 
-/* móviles pequeños */
+/* =====================================================
+   MÓVIL
+===================================================== */
 
-@media (max-width: 480px) {
+@media (max-width: 600px) {
 
-    .home-experience-card {
-        min-height: 245px;
+    .hero {
+        padding:
+            30px
+            16px
+            45px;
+
+        background:
+            radial-gradient(
+                circle at 5% 5%,
+                rgba(0, 82, 165, 0.19),
+                transparent 29%
+            ),
+            radial-gradient(
+                circle at 100% 3%,
+                rgba(207, 20, 43, 0.12),
+                transparent 27%
+            ),
+            #08090b;
     }
 
 
-    .home-experience-overlay {
-        padding: 18px;
+    /* PRINCIPAL */
+
+    .hero-main {
+        display: flex;
+        flex-direction: column;
+
+        text-align: center;
+
+        gap: 0;
+    }
+
+    .hero-content {
+        width: 100%;
+
+        margin-top: 10px;
+    }
+
+    .subtitle {
+        display: none;
+    }
+
+    .hero h1 {
+        margin: 0 0 14px;
+
+        font-size: 42px;
+
+        line-height: 1.03;
+
+        letter-spacing: -1px;
+    }
+
+    .hero-content > p {
+        max-width: 340px;
+
+        margin: 0 auto;
+
+        color: #c4c8ce;
+
+        font-size: 16px;
+        line-height: 1.45;
     }
 
 
-    .home-experience-overlay h2 {
-        font-size: 24px;
+    /* BOTONES */
+
+    .hero-buttons {
+        justify-content: center;
+
+        gap: 10px;
+
+        margin-top: 24px;
     }
 
+    .hero-buttons a {
+        flex: 1;
 
-    .home-experience-overlay p {
+        min-width: 0;
+        max-width: 175px;
+
+        min-height: 50px;
+
+        padding: 0 13px;
+
         font-size: 14px;
     }
 
 
-    .home-experience-button {
-        padding: 10px 13px;
+    /* IMAGEN */
 
+    .hero-image {
+        width: 100%;
+
+        margin-top: 27px;
+
+        padding: 5px;
+
+        border-radius: 19px;
+    }
+
+    .hero-image img {
+        width: 100%;
+        height: 250px;
+
+        border-radius: 14px;
+    }
+
+
+    /* INFORMACIÓN */
+
+    .info-cards {
+        display: none;
+    }
+
+    .mobile-business-strip {
+        width: 100%;
+
+        margin:
+            15px
+            auto
+            5px;
+
+        padding:
+            13px
+            14px;
+
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+
+        gap: 6px;
+
+        border: 1px solid
+            rgba(55, 119, 185, 0.30);
+
+        border-radius: 14px;
+
+        background:
+            rgba(15, 18, 24, 0.96);
+
+        color: #d3d6da;
+
+        font-size: 13px;
+        font-weight: 700;
+
+        white-space: normal;
+
+        box-sizing: border-box;
+    }
+
+    .mobile-business-strip span {
+        display: block;
+
+        width: 100%;
+    }
+
+
+    /* CORAZÓN DEL HOME */
+
+    .home-experiences {
+        margin-top: 28px;
+        margin-bottom: 5px;
+
+        gap: 17px;
+    }
+
+    .home-experience-card {
+        min-height: 305px;
+
+        border-radius: 18px;
+    }
+
+    .home-experience-overlay {
+        padding: 23px 20px;
+    }
+
+    .home-experience-overlay > span {
+        margin-bottom: 9px;
+
+        padding: 6px 8px;
+
+        font-size: 10px;
+
+        letter-spacing: 1.5px;
+    }
+
+    .home-experience-overlay h2 {
+        max-width: 92%;
+
+        font-size: 29px;
+
+        line-height: 1.05;
+    }
+
+    .home-experience-overlay p {
+        max-width: 100%;
+
+        margin:
+            12px
+            0
+            18px;
+
+        color: #f0f0f0;
+
+        font-size: 14px;
+        line-height: 1.45;
+    }
+
+    .home-experience-button {
+        padding:
+            11px
+            14px;
+
+        font-size: 13px;
+    }
+}
+
+
+/* =====================================================
+   MÓVILES PEQUEÑOS
+===================================================== */
+
+@media (max-width: 420px) {
+
+    .hero h1 {
+        font-size: 38px;
+    }
+
+    .hero-buttons a {
+        font-size: 13px;
+    }
+
+    .hero-image img {
+        height: 225px;
+    }
+
+    .home-experience-card {
+        min-height: 280px;
+    }
+
+    .home-experience-overlay {
+        padding: 20px 17px;
+    }
+
+    .home-experience-overlay h2 {
+        font-size: 26px;
+    }
+
+    .home-experience-overlay p {
         font-size: 13px;
     }
 }

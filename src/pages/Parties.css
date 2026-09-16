@@ -1,87 +1,316 @@
 .parties-page {
     min-height: 100vh;
     padding: 90px 6% 60px;
+
     background: #151515;
     color: white;
+
+    box-sizing: border-box;
 }
 
+
+/* =========================
+   HERO
+========================= */
+
 .parties-hero {
-    text-align: center;
     max-width: 750px;
     margin: 0 auto 45px;
+
+    text-align: center;
 }
 
 .parties-hero h1 {
-    font-size: 48px;
     margin-bottom: 15px;
+
+    font-size: 48px;
 }
 
 .parties-hero p {
     color: #ccc;
+
     font-size: 20px;
     line-height: 1.5;
 }
 
+
+/* =========================
+   ESTADOS
+========================= */
+
+.party-status {
+    margin: 40px 0;
+
+    color: #bbb;
+
+    text-align: center;
+    font-size: 17px;
+}
+
+
+/* =========================
+   LISTA DE COMBOS
+========================= */
+
 .party-packages {
     max-width: 1200px;
     margin: 0 auto;
+
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
     gap: 24px;
 }
 
 .party-card {
+    display: flex;
+    flex-direction: column;
+
     overflow: hidden;
+
+    border: 1px solid #303030;
     border-radius: 16px;
+
     background: #222;
 }
 
 .party-card img {
     width: 100%;
     height: 240px;
-    object-fit: cover;
+
     display: block;
+
+    object-fit: cover;
 }
 
 .party-card-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+
     padding: 22px;
 }
 
 .party-serves {
     display: inline-block;
+
     margin-bottom: 10px;
+
     color: #ff5a4f;
+
     font-weight: bold;
 }
 
 .party-card h2 {
     margin: 0 0 10px;
+
     font-size: 24px;
 }
 
 .party-card p {
-    color: #ccc;
-    line-height: 1.5;
     min-height: 48px;
+
+    margin-bottom: 0;
+
+    color: #ccc;
+
+    line-height: 1.5;
 }
 
 .party-card strong {
     display: block;
+
     margin: 18px 0;
+
     font-size: 26px;
 }
 
-.party-card button {
+
+/* BOTÓN VER COMBO */
+
+.party-card-button {
+    display: block;
+
     width: 100%;
+    margin-top: auto;
     padding: 13px;
-    border: none;
+
     border-radius: 10px;
+
     background: #ff4438;
     color: white;
+
+    text-align: center;
+    text-decoration: none;
+
     font-size: 16px;
     font-weight: bold;
+
+    box-sizing: border-box;
+
     cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
 }
+
+.party-card-button:hover {
+    background: #ff5a50;
+
+    transform: translateY(-2px);
+}
+
+
+/* =========================
+   DETALLE DEL COMBO
+========================= */
+
+.party-back-link {
+    display: inline-block;
+
+    margin-bottom: 28px;
+
+    color: #ff5a4f;
+
+    text-decoration: none;
+
+    font-weight: 700;
+}
+
+.party-back-link:hover {
+    text-decoration: underline;
+}
+
+.party-detail {
+    max-width: 1200px;
+    margin: 0 auto;
+
+    display: grid;
+    grid-template-columns:
+        minmax(0, 1fr)
+        minmax(0, 1fr);
+
+    overflow: hidden;
+
+    border: 1px solid #303030;
+    border-radius: 22px;
+
+    background: #1d1d1d;
+}
+
+.party-detail-image {
+    width: 100%;
+    height: 100%;
+    min-height: 600px;
+
+    display: block;
+
+    object-fit: cover;
+}
+
+.party-detail-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    padding: 50px;
+}
+
+.party-detail-content h1 {
+    margin: 0 0 18px;
+
+    font-size: clamp(
+        38px,
+        5vw,
+        64px
+    );
+
+    line-height: 1;
+}
+
+.party-detail-content > p {
+    margin: 0 0 30px;
+
+    color: #ccc;
+
+    font-size: 17px;
+    line-height: 1.6;
+}
+
+.party-detail-content h3 {
+    margin: 0 0 15px;
+
+    font-size: 22px;
+}
+
+.party-detail-content ul {
+    margin: 0 0 28px;
+    padding-left: 22px;
+
+    color: #ddd;
+
+    line-height: 1.9;
+}
+
+.party-detail-price {
+    display: block;
+
+    margin-bottom: 25px;
+
+    color: white;
+
+    font-size: 32px;
+}
+
+
+/* =========================
+   BOTÓN RESERVAR
+========================= */
+
+.party-reserve-button {
+    width: 100%;
+    padding: 15px;
+
+    border: none;
+    border-radius: 10px;
+
+    background: #ff4438;
+    color: white;
+
+    font-size: 16px;
+    font-weight: 800;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease,
+        opacity 0.2s ease;
+}
+
+.party-reserve-button:hover:not(:disabled) {
+    background: #ff5a50;
+
+    transform: translateY(-2px);
+}
+
+.party-reserve-button:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.party-reserve-button:disabled {
+    background: #333;
+
+    opacity: 0.65;
+
+    cursor: not-allowed;
+}
+
+
+/* =========================
+   TABLET
+========================= */
 
 @media (max-width: 900px) {
     .party-packages {
@@ -90,5 +319,259 @@
 
     .parties-hero h1 {
         font-size: 36px;
+    }
+
+    .party-detail {
+        grid-template-columns: 1fr;
+    }
+
+    .party-detail-image {
+        height: 450px;
+        min-height: 450px;
+    }
+
+    .party-detail-content {
+        padding: 32px 25px;
+    }
+}
+
+
+/* =========================
+   MÓVIL
+========================= */
+
+@media (max-width: 550px) {
+    .parties-page {
+        padding:
+            70px
+            16px
+            45px;
+    }
+
+    .parties-hero p {
+        font-size: 17px;
+    }
+
+    .party-card img {
+        height: 220px;
+    }
+
+    .party-detail {
+        border-radius: 16px;
+    }
+
+    .party-detail-image {
+        height: 350px;
+        min-height: 350px;
+    }
+
+    .party-detail-content {
+        padding: 26px 20px;
+    }
+
+    .party-detail-content h1 {
+        font-size: 38px;
+    }
+
+    .party-detail-price {
+        font-size: 28px;
+    }
+}
+
+/* =========================
+   MODAL DE RESERVA
+========================= */
+
+.party-modal-backdrop {
+    position: fixed;
+    z-index: 9999;
+    inset: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(6px);
+
+    box-sizing: border-box;
+}
+
+.party-modal {
+    width: 100%;
+    max-width: 560px;
+
+    padding: 30px;
+
+    border: 1px solid #383838;
+    border-radius: 20px;
+
+    background: #171717;
+    color: white;
+
+    box-sizing: border-box;
+}
+
+.party-modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.party-modal-header span {
+    color: #ff4438;
+
+    font-size: 12px;
+    font-weight: 800;
+
+    letter-spacing: 2px;
+}
+
+.party-modal-header h2 {
+    margin: 5px 0 0;
+
+    font-size: 28px;
+}
+
+.party-modal-close {
+    flex: 0 0 auto;
+
+    width: 42px;
+    height: 42px;
+
+    border: none;
+    border-radius: 50%;
+
+    background: #292929;
+    color: white;
+
+    font-size: 28px;
+    line-height: 1;
+
+    cursor: pointer;
+}
+
+.party-modal-close:hover {
+    background: #3a3a3a;
+}
+
+.party-modal-description {
+    margin: 18px 0 25px;
+
+    color: #aaa;
+
+    line-height: 1.5;
+}
+
+
+/* FORMULARIO */
+
+.party-reservation-form {
+    display: grid;
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 18px;
+}
+
+.party-reservation-form label {
+    display: flex;
+    flex-direction: column;
+
+    gap: 8px;
+
+    color: #ddd;
+
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.party-reservation-form input,
+.party-reservation-form textarea {
+    width: 100%;
+
+    padding: 13px 14px;
+
+    border: 1px solid #383838;
+    border-radius: 10px;
+
+    outline: none;
+
+    background: #0e0e0e;
+    color: white;
+
+    font: inherit;
+
+    box-sizing: border-box;
+}
+
+.party-reservation-form input:focus,
+.party-reservation-form textarea:focus {
+    border-color: #ff4438;
+}
+
+.party-reservation-form textarea {
+    resize: vertical;
+}
+
+.party-address-field {
+    grid-column: 1 / -1;
+}
+
+.party-whatsapp-button {
+    grid-column: 1 / -1;
+
+    width: 100%;
+
+    padding: 15px;
+
+    border: none;
+    border-radius: 10px;
+
+    background: #25d366;
+    color: white;
+
+    font-size: 16px;
+    font-weight: 800;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
+}
+
+.party-whatsapp-button:hover {
+    background: #20bd5a;
+    transform: translateY(-2px);
+}
+
+
+/* MÓVIL */
+
+@media (max-width: 550px) {
+    .party-modal-backdrop {
+        padding: 14px;
+    }
+
+    .party-modal {
+        padding: 22px 18px;
+        border-radius: 16px;
+    }
+
+    .party-modal-header h2 {
+        font-size: 23px;
+    }
+
+    .party-reservation-form {
+        grid-template-columns: 1fr;
+    }
+
+    .party-address-field,
+    .party-whatsapp-button {
+        grid-column: auto;
     }
 }

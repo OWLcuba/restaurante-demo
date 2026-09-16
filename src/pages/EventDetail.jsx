@@ -6,12 +6,14 @@ import { db } from "../firebase/firebase"
 
 import "./Events.css"
 
+
 function EventDetail() {
     const { eventId } = useParams()
 
     const [event, setEvent] = useState(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState("")
+
 
     useEffect(() => {
         async function loadEvent() {
@@ -22,15 +24,22 @@ function EventDetail() {
                     eventId
                 )
 
-                const eventSnapshot = await getDoc(eventRef)
+                const eventSnapshot = await getDoc(
+                    eventRef
+                )
 
                 if (!eventSnapshot.exists()) {
-                    setError("Evento no encontrado.")
+                    setError(
+                        "Evento no encontrado."
+                    )
+
                     return
                 }
 
                 setEvent({
-                    firebaseId: eventSnapshot.id,
+                    firebaseId:
+                        eventSnapshot.id,
+
                     ...eventSnapshot.data()
                 })
             } catch (firebaseError) {
@@ -39,7 +48,9 @@ function EventDetail() {
                     firebaseError
                 )
 
-                setError("No se pudo cargar este evento.")
+                setError(
+                    "No se pudo cargar este evento."
+                )
             } finally {
                 setLoading(false)
             }
@@ -47,6 +58,46 @@ function EventDetail() {
 
         loadEvent()
     }, [eventId])
+
+
+    const handleReservation = (offer) => {
+        const phoneNumber = "13059700125"
+
+        const offerType = (
+            offer.type || ""
+        ).toLowerCase()
+
+        let reservationText =
+            "una entrada normal"
+
+        if (offerType === "table") {
+            reservationText =
+                "una mesa"
+        }
+
+        if (offerType === "vip") {
+            reservationText =
+                "una entrada VIP"
+        }
+
+
+        const message =
+            `Hola, quiero reservar ${reservationText} ` +
+            `para el evento/show ${event.title}.`
+
+
+        const whatsappUrl =
+            `https://wa.me/${phoneNumber}` +
+            `?text=${encodeURIComponent(message)}`
+
+
+        window.open(
+            whatsappUrl,
+            "_blank",
+            "noopener,noreferrer"
+        )
+    }
+
 
     if (loading) {
         return (
@@ -58,10 +109,14 @@ function EventDetail() {
         )
     }
 
+
     if (error || !event) {
         return (
             <main className="events-page">
-                <h1>{error || "Evento no encontrado"}</h1>
+                <h1>
+                    {error ||
+                        "Evento no encontrado"}
+                </h1>
 
                 <Link
                     to="/eventos"
@@ -73,10 +128,13 @@ function EventDetail() {
         )
     }
 
+
     const activeOffers =
         event.offers?.filter(
-            (offer) => offer.active !== false
+            (offer) =>
+                offer.active !== false
         ) || []
+
 
     return (
         <main className="events-page">
@@ -86,6 +144,7 @@ function EventDetail() {
             >
                 ← Volver a Eventos
             </Link>
+
 
             <section className="event-detail-hero">
                 <img
@@ -98,13 +157,16 @@ function EventDetail() {
                         {event.dateLabel}
                     </span>
 
-                    <h1>{event.title}</h1>
+                    <h1>
+                        {event.title}
+                    </h1>
 
                     <p>
                         En {event.venue}
                     </p>
                 </div>
             </section>
+
 
             <section className="event-offers-section">
                 <div className="event-offers-header">
@@ -113,56 +175,108 @@ function EventDetail() {
                     </span>
 
                     <h2>
-                        Elige cómo quieres vivir la noche
+                        Elige cómo quieres vivir
+                        la noche
                     </h2>
 
                     <p>
-                        Selecciona entre las opciones disponibles
-                        para este evento.
+                        Selecciona entre las opciones
+                        disponibles para este evento.
                     </p>
                 </div>
 
+
                 <div className="event-offers-grid">
-                    {activeOffers.map((offer) => (
-                        <article
-                            key={offer.type}
-                            className={
-                                offer.type === "vip"
-                                    ? "event-offer-card featured"
-                                    : "event-offer-card"
-                            }
-                        >
-                            <span className="event-offer-type">
-                                {offer.type?.toUpperCase()}
-                            </span>
+                    {activeOffers.map(
+                        (offer, index) => {
+                            const offerType = (
+                                offer.type || ""
+                            ).toLowerCase()
 
-                            <h3>{offer.name}</h3>
+                            const price =
+                                Number(
+                                    offer.price
+                                ) || 0
 
-                            <p>
-                                {offer.description ||
-                                    "Acceso disponible para este evento."}
-                            </p>
+                            const hasPrice =
+                                price > 0
 
-                            <strong>
-                                {Number(offer.price) > 0
-                                    ? `$${Number(
-                                          offer.price
-                                      ).toFixed(2)}`
-                                    : "Precio por confirmar"}
-                            </strong>
+                            const soldOut =
+                                offer.available !==
+                                    undefined &&
+                                Number(
+                                    offer.available
+                                ) <= 0
 
-                            <button
-                                type="button"
-                                disabled
-                            >
-                                Próximamente
-                            </button>
-                        </article>
-                    ))}
+
+                            return (
+                                <article
+                                    key={`${offerType}-${index}`}
+                                    className={
+                                        offerType ===
+                                        "vip"
+                                            ? "event-offer-card featured"
+                                            : "event-offer-card"
+                                    }
+                                >
+                                    <span className="event-offer-type">
+                                        {offerType.toUpperCase()}
+                                    </span>
+
+                                    <h3>
+                                        {offer.name}
+                                    </h3>
+
+                                    <p>
+                                        {offer.description ||
+                                            "Acceso disponible para este evento."}
+                                    </p>
+
+
+                                    <strong>
+                                        {hasPrice
+                                            ? `$${price.toFixed(
+                                                  2
+                                              )}`
+                                            : "Precio por confirmar"}
+                                    </strong>
+
+
+                                    {!hasPrice ? (
+                                        <button
+                                            type="button"
+                                            disabled
+                                        >
+                                            Próximamente
+                                        </button>
+                                    ) : soldOut ? (
+                                        <button
+                                            type="button"
+                                            disabled
+                                        >
+                                            Agotado
+                                        </button>
+                                    ) : (
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                handleReservation(
+                                                    offer
+                                                )
+                                            }
+                                        >
+                                            Reservar
+                                        </button>
+                                    )}
+                                </article>
+                            )
+                        }
+                    )}
                 </div>
             </section>
         </main>
     )
 }
+
 
 export default EventDetail
