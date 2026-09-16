@@ -3,11 +3,16 @@ import { Link } from "react-router-dom"
 
 import "./Navbar.css"
 
-import businessData from "../data/businessData"
+import { useBusiness } from "../context/BusinessContext"
 
 function Navbar() {
     const [activeSection, setActiveSection] = useState("inicio")
     const [menuOpen, setMenuOpen] = useState(false)
+
+    const {
+        businessData,
+        loadingBusiness
+    } = useBusiness()
 
     useEffect(() => {
         const handleScroll = () => {
@@ -23,7 +28,8 @@ function Navbar() {
                 const element = document.getElementById(section)
 
                 if (element) {
-                    const position = element.getBoundingClientRect()
+                    const position =
+                        element.getBoundingClientRect()
 
                     if (
                         position.top <= 120 &&
@@ -38,7 +44,10 @@ function Navbar() {
         window.addEventListener("scroll", handleScroll)
 
         return () =>
-            window.removeEventListener("scroll", handleScroll)
+            window.removeEventListener(
+                "scroll",
+                handleScroll
+            )
     }, [])
 
     const closeMenu = () => {
@@ -48,12 +57,17 @@ function Navbar() {
     return (
         <nav className="navbar">
             <h2 className="logo">
-                🌶️ {businessData.name}
+                🌶️{" "}
+                {loadingBusiness
+                    ? "Cargando..."
+                    : businessData?.name}
             </h2>
 
             <button
                 className="hamburger"
-                onClick={() => setMenuOpen(!menuOpen)}
+                onClick={() =>
+                    setMenuOpen(!menuOpen)
+                }
                 aria-label="Abrir menú de navegación"
             >
                 ☰
@@ -107,7 +121,8 @@ function Navbar() {
                 <a
                     onClick={closeMenu}
                     className={
-                        activeSection === "promociones"
+                        activeSection ===
+                        "promociones"
                             ? "active"
                             : ""
                     }
