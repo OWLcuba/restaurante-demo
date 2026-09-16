@@ -57,10 +57,13 @@ function Navbar() {
     return (
         <nav className="navbar">
             <h2 className="logo">
-                🌶️{" "}
-                {loadingBusiness
-                    ? "Cargando..."
-                    : businessData?.name}
+                <img
+                    src="/images/logo.jpg"
+                    alt={businessData?.name || "Q' Bola"}
+                    className="navbar-logo"
+                />
+
+                {!loadingBusiness && businessData?.name}
             </h2>
 
             <button

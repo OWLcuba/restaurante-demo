@@ -5,7 +5,11 @@ import {
     useState
 } from "react"
 
-import { doc, getDoc } from "firebase/firestore"
+import {
+    doc,
+    onSnapshot
+} from "firebase/firestore"
+
 import { db } from "../firebase/firebase"
 
 const BusinessContext = createContext(null)
@@ -16,36 +20,58 @@ export function BusinessProvider({ children }) {
     const [businessError, setBusinessError] = useState("")
 
     useEffect(() => {
-        async function loadBusinessData() {
-            try {
-                const businessRef = doc(db, "business", "main")
-                const businessSnapshot = await getDoc(businessRef)
+        const businessRef = doc(
+            db,
+            "business",
+            "main"
+        )
 
+        const unsubscribe = onSnapshot(
+            businessRef,
+            (businessSnapshot) => {
                 if (!businessSnapshot.exists()) {
-                    throw new Error(
-                        "No existe el documento business/main"
+                    console.error(
+                        "No existe business/main"
                     )
+
+                    setBusinessError(
+                        "No existe la información del restaurante."
+                    )
+
+                    setLoadingBusiness(false)
+
+                    return
                 }
 
-                setBusinessData({
+                const data = {
                     firebaseId: businessSnapshot.id,
                     ...businessSnapshot.data()
-                })
-            } catch (error) {
+                }
+
+                console.log(
+                    "DATOS RECIBIDOS DE FIRESTORE:",
+                    data
+                )
+
+                setBusinessData(data)
+                setBusinessError("")
+                setLoadingBusiness(false)
+            },
+            (error) => {
                 console.error(
-                    "Error al cargar la información del negocio:",
+                    "ERROR FIRESTORE:",
                     error
                 )
 
                 setBusinessError(
                     "No se pudo cargar la información del restaurante."
                 )
-            } finally {
+
                 setLoadingBusiness(false)
             }
-        }
+        )
 
-        loadBusinessData()
+        return () => unsubscribe()
     }, [])
 
     return (

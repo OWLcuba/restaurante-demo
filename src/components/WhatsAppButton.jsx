@@ -1,7 +1,16 @@
 import "./WhatsAppButton.css"
-import businessData from "../data/businessData"
+
+import { useBusiness } from "../context/BusinessContext"
 
 function WhatsAppButton() {
+    const {
+        businessData,
+        loadingBusiness
+    } = useBusiness()
+
+    if (loadingBusiness || !businessData) {
+        return null
+    }
 
     const action = businessData.floatingAction
 

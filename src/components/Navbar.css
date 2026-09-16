@@ -1,5 +1,4 @@
 .navbar {
-
     height: 80px;
     padding: 0 60px;
 
@@ -15,107 +14,104 @@
     z-index: 1000;
 }
 
-
 .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    margin: 0;
 
     font-size: 26px;
-
 }
 
+.navbar-logo {
+    width: 45px;
+    height: 45px;
+
+    object-fit: contain;
+
+    border-radius: 8px;
+
+    flex-shrink: 0;
+}
 
 .nav-links {
-
     display: flex;
+    align-items: center;
+
     gap: 30px;
-
 }
-
 
 .nav-links a {
+    color: white;
 
-    color:white;
-    text-decoration:none;
-
+    text-decoration: none;
 }
 
-
 .nav-links a.active {
+    color: #e63922;
 
-    color:#e63922;
-
-    border-bottom:2px solid #e63922;
-
+    border-bottom: 2px solid #e63922;
 }
 
 .hamburger {
-
-    display:none;
-
-    background:none;
-    border:none;
-
-    color:white;
-
-    font-size:30px;
-
-    cursor:pointer;
-
-}
-
-
-
-@media(max-width:800px){
-
-
-    .navbar {
-
-        padding:0 25px;
-
-    }
-
-
-    .logo {
-
-        font-size:22px;
-
-    }
-
-
-
-    .hamburger {
-
-        display:block;
-
-    }
-
-
-
-    .nav-links {
-    position: absolute;
-    top: 80px;
-    right: 20px;
-
-    width: 240px;
-
-    background: #111;
-
-    flex-direction: column;
-
-    padding: 25px;
-
-    border-radius: 0 0 15px 15px;
-
     display: none;
 
-    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    background: none;
+    border: none;
+
+    color: white;
+
+    font-size: 30px;
+
+    cursor: pointer;
 }
 
 
-    .nav-links.open {
+/* móvil */
 
-        display:flex;
+@media (max-width: 800px) {
 
+    .navbar {
+        padding: 0 25px;
     }
 
+    .logo {
+        font-size: 22px;
+    }
 
+    .navbar-logo {
+        width: 38px;
+        height: 38px;
+    }
+
+    .hamburger {
+        display: block;
+    }
+
+    .nav-links {
+        position: absolute;
+
+        top: 80px;
+        right: 20px;
+
+        width: 240px;
+
+        background: #111;
+
+        flex-direction: column;
+        align-items: flex-start;
+
+        padding: 25px;
+
+        border-radius: 0 0 15px 15px;
+
+        display: none;
+
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .nav-links.open {
+        display: flex;
+    }
 }
