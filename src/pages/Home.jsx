@@ -1,9 +1,22 @@
 import { Link } from "react-router-dom"
 
 import "./Home.css"
-import businessData from "../data/businessData"
+import { useBusiness } from "../context/BusinessContext"
 
 function Home() {
+    const {
+        businessData,
+        loadingBusiness
+    } = useBusiness()
+
+    if (loadingBusiness || !businessData) {
+        return (
+            <section className="hero">
+                <p>Cargando información...</p>
+            </section>
+        )
+    }
+
     return (
         <section className="hero">
             <div className="hero-main">
@@ -50,7 +63,7 @@ function Home() {
                     </span>
 
                     <span>
-                        📍 {businessData.shortAddress.line1}
+                        📍 {businessData.shortAddress?.line1}
                     </span>
                 </div>
             </div>
@@ -68,7 +81,7 @@ function Home() {
                     📍
                     <p>Visítanos</p>
                     <strong>
-                        {businessData.shortAddress.line2}
+                        {businessData.shortAddress?.line2}
                     </strong>
                 </div>
 
@@ -87,7 +100,9 @@ function Home() {
                     className="home-experience-card party-experience"
                 >
                     <div className="home-experience-overlay">
-                        <span>🎉 FIESTAS Y CATERING</span>
+                        <span>
+                            🎉 FIESTAS Y CATERING
+                        </span>
 
                         <h2>
                             Lleva Q&apos; Bola a tu celebración
@@ -109,7 +124,9 @@ function Home() {
                     className="home-experience-card events-experience"
                 >
                     <div className="home-experience-overlay">
-                        <span>🎤 EVENTOS ESPECIALES</span>
+                        <span>
+                            🎤 EVENTOS ESPECIALES
+                        </span>
 
                         <h2>
                             Vive una noche diferente
