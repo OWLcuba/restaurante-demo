@@ -1,36 +1,140 @@
 import "./Footer.css"
 
-import { useBusiness } from "../context/BusinessContext"
+import {
+    Link
+} from "react-router-dom"
+
+import {
+    useBusiness
+} from "../context/BusinessContext"
+
 
 function Footer() {
-    const currentYear = new Date().getFullYear()
+    const currentYear =
+        new Date().getFullYear()
+
 
     const {
         businessData,
         loadingBusiness
     } = useBusiness()
 
-    if (loadingBusiness || !businessData) {
+
+    if (
+        loadingBusiness ||
+        !businessData
+    ) {
         return null
     }
 
+
     return (
         <footer className="footer">
-            <h3 className="footer-brand">
-                <img
-                    src="/images/logo.jpg"
-                    alt={businessData.name}
-                    className="footer-logo"
-                />
 
-                {businessData.name}
-            </h3>
+            <div className="footer-inner">
 
-            <p>
-                © {currentYear} {businessData.name}. Todos los derechos reservados.
-            </p>
+                {/* =====================
+                    MARCA
+                ===================== */}
+
+                <div className="footer-brand-area">
+
+                    <Link
+                        to="/"
+                        className="footer-brand"
+                    >
+
+                        <img
+                            src="/images/logo.jpg"
+                            alt={
+                                businessData.name
+                            }
+                            className="footer-logo"
+                        />
+
+
+                        <div>
+
+                            <strong>
+                                {
+                                    businessData.name
+                                }
+                            </strong>
+
+                            <span>
+                                {
+                                    businessData.slogan
+                                }
+                            </span>
+
+                        </div>
+
+                    </Link>
+
+                </div>
+
+
+                {/* =====================
+                    LINKS
+                ===================== */}
+
+                <nav className="footer-links">
+
+                    <Link to="/#menu">
+                        Menú
+                    </Link>
+
+                    <Link to="/fiestas">
+                        Fiestas
+                    </Link>
+
+                    <Link to="/eventos">
+                        Eventos
+                    </Link>
+
+                    <Link to="/#promociones">
+                        Promociones
+                    </Link>
+
+                    <Link to="/#galeria">
+                        Galería
+                    </Link>
+
+                    <Link to="/#contacto">
+                        Contacto
+                    </Link>
+
+                </nav>
+
+
+                {/* =====================
+                    COPYRIGHT
+                ===================== */}
+
+                <div className="footer-bottom">
+
+                    <p>
+                        © {currentYear}{" "}
+                        {
+                            businessData.name
+                        }.
+                        Todos los derechos
+                        reservados.
+                    </p>
+
+
+                    <span>
+                        Sabor cubano en cada
+                        detalle.
+                    </span>
+
+                </div>
+
+            </div>
+
         </footer>
     )
 }
+
 
 export default Footer

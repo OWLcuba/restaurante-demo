@@ -1,6 +1,8 @@
 import "./Contact.css"
 
-import { useBusiness } from "../context/BusinessContext"
+import {
+    useBusiness
+} from "../context/BusinessContext"
 
 
 function Contact() {
@@ -34,68 +36,141 @@ function Contact() {
     return (
         <section className="contact">
 
-            <h2>
-                Visítanos
-            </h2>
+            <div className="contact-header">
+
+                <span className="contact-kicker">
+                    VEN A CONOCERNOS
+                </span>
 
 
-            <p className="contact-subtitle">
-                Ven y disfruta el auténtico
-                sabor latino
-            </p>
+                <h2>
+                    Visítanos
+                </h2>
+
+
+                <p className="contact-subtitle">
+                    Ven y disfruta del auténtico
+                    sabor cubano de Q&apos; Bola.
+                </p>
+
+            </div>
 
 
             <div className="contact-container">
 
+                {/* =====================
+                    INFORMACIÓN
+                ===================== */}
+
                 <div className="contact-info">
 
-                    <div>
-                        <h3>
-                            📍 Dirección
-                        </h3>
+                    <div className="contact-info-block">
 
-                        <p>
-                            {
-                                businessData
-                                    .shortAddress
-                                    ?.line1
-                            }
+                        <div className="contact-info-icon">
+                            📍
+                        </div>
 
-                            <br />
 
-                            {
-                                businessData
-                                    .shortAddress
-                                    ?.line2
-                            }
-                        </p>
+                        <div>
+
+                            <span className="contact-info-label">
+                                UBICACIÓN
+                            </span>
+
+                            <h3>
+                                Dirección
+                            </h3>
+
+                            <p>
+                                {
+                                    businessData
+                                        .shortAddress
+                                        ?.line1
+                                }
+
+                                <br />
+
+                                {
+                                    businessData
+                                        .shortAddress
+                                        ?.line2
+                                }
+                            </p>
+
+                        </div>
+
                     </div>
 
 
-                    <div>
-                        <h3>
-                            🕒 Horarios
-                        </h3>
+                    <div className="contact-divider" />
 
-                        {businessData.hours?.map(
-                            (item, index) => (
-                                <p key={index}>
-                                    <strong>
-                                        {item.days}:
-                                    </strong>{" "}
-                                    {item.time}
-                                </p>
-                            )
-                        )}
+
+                    <div className="contact-info-block">
+
+                        <div className="contact-info-icon">
+                            🕒
+                        </div>
+
+
+                        <div className="contact-hours">
+
+                            <span className="contact-info-label">
+                                HORARIO
+                            </span>
+
+                            <h3>
+                                Estamos abiertos
+                            </h3>
+
+
+                            {businessData.hours?.map(
+                                (
+                                    item,
+                                    index
+                                ) => (
+                                    <p
+                                        key={
+                                            index
+                                        }
+                                    >
+                                        <strong>
+                                            {
+                                                item.days
+                                            }
+                                        </strong>
+
+                                        <span>
+                                            {
+                                                item.time
+                                            }
+                                        </span>
+                                    </p>
+                                )
+                            )}
+
+                        </div>
+
                     </div>
 
+
+                    <div className="contact-divider" />
+
+
+                    {/* =====================
+                        ACCIONES
+                    ===================== */}
 
                     <div className="contact-buttons">
 
                         <a
                             href={`tel:${businessData.phone}`}
+                            className="contact-button contact-button-call"
                         >
-                            📞 Llamar
+                            <span>
+                                📞
+                            </span>
+
+                            Llamar
                         </a>
 
 
@@ -103,8 +178,13 @@ function Contact() {
                             href={`https://wa.me/${businessData.whatsapp}`}
                             target="_blank"
                             rel="noopener noreferrer"
+                            className="contact-button contact-button-whatsapp"
                         >
-                            💬 WhatsApp
+                            <span>
+                                💬
+                            </span>
+
+                            WhatsApp
                         </a>
 
 
@@ -115,8 +195,13 @@ function Contact() {
                             }
                             target="_blank"
                             rel="noopener noreferrer"
+                            className="contact-button contact-button-map"
                         >
-                            📍 Cómo llegar
+                            <span>
+                                📍
+                            </span>
+
+                            Cómo llegar
                         </a>
 
                     </div>
@@ -124,7 +209,36 @@ function Contact() {
                 </div>
 
 
+                {/* =====================
+                    MAPA
+                ===================== */}
+
                 <div className="map">
+
+                    <div className="map-header">
+
+                        <div>
+
+                            <span>
+                                ENCUÉNTRANOS
+                            </span>
+
+                            <strong>
+                                {
+                                    businessData.name
+                                }
+                            </strong>
+
+                        </div>
+
+
+                        <span className="map-status">
+                            ● ABIERTO
+                        </span>
+
+                    </div>
+
+
                     <iframe
                         title={`Mapa de ${businessData.name}`}
                         src={
@@ -133,6 +247,7 @@ function Contact() {
                         }
                         loading="lazy"
                     />
+
                 </div>
 
             </div>
