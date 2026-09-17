@@ -6,6 +6,10 @@ import { db } from "../firebase/firebase"
 
 import "./Parties.css"
 
+import {
+    trackWebAction
+} from "../utils/analytics"
+
 
 function PartyDetail() {
     const { packageId } = useParams()
@@ -19,6 +23,7 @@ function PartyDetail() {
 
     const [reservationData, setReservationData] =
         useState({
+            name: "",
             date: "",
             time: "",
             address: ""
@@ -162,6 +167,7 @@ function PartyDetail() {
 
     const openReservation = () => {
         setReservationData({
+            name: "",
             date: "",
             time: "",
             address: ""
@@ -187,6 +193,7 @@ function PartyDetail() {
         const message =
             `Hola, quiero reservar el combo "${partyPackage.title}" ` +
             `para ${partyPackage.serves} personas.\n\n` +
+            `Reserva a nombre de: ${reservationData.name}\n` +
             `Fecha de entrega: ${formatDate(
                 reservationData.date
             )}\n` +
@@ -198,6 +205,26 @@ function PartyDetail() {
             `?text=${encodeURIComponent(
                 message
             )}`
+
+            trackWebAction(
+                "party_whatsapp",
+                {
+                    category:
+                        "parties",
+
+                    packageId:
+                        partyPackage.firebaseId ||
+                        packageId,
+
+                    packageTitle:
+                        partyPackage.title,
+
+                    value:
+                        Number(
+                        partyPackage.price
+                        ) || 0
+                }
+            )
 
         window.open(
             whatsappUrl,
@@ -377,7 +404,8 @@ function PartyDetail() {
 
 
                         <p className="party-modal-description">
-                            Indica cuándo y dónde
+                            Indica a nombre de quién va
+                            la reserva y cuándo y dónde
                             quieres recibir tu pedido.
                         </p>
 
@@ -388,6 +416,25 @@ function PartyDetail() {
                                 handleReservationSubmit
                             }
                         >
+                            <label>
+                                Nombre para la reserva
+
+                                <input
+                                    type="text"
+                                    name="name"
+                                    value={
+                                        reservationData.name
+                                    }
+                                    onChange={
+                                        handleReservationChange
+                                    }
+                                    placeholder="Ej: Juan Pérez"
+                                    autoComplete="name"
+                                    required
+                                />
+                            </label>
+
+
                             <label>
                                 Fecha de entrega
 

@@ -133,6 +133,36 @@ function Admin() {
                         Administrar
                     </Link>
                 </article>
+
+
+                <article className="admin-card">
+
+                    <span>
+                        📊
+                    </span>
+
+                    <div>
+
+                        <h2>
+                            Resultados web
+                        </h2>
+
+                        <p>
+                            Sesiones, llamadas, mapas,
+                            DoorDash, fiestas y eventos.
+                        </p>
+
+                    </div>
+
+                    <Link
+                        to="/admin/estadisticas"
+                        className="admin-card-button"
+                    >
+                        Ver estadísticas
+                    </Link>
+
+                </article>
+
             </section>
         </main>
     )

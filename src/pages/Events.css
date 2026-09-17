@@ -1,266 +1,519 @@
+/* =====================================================
+   PÁGINA DE EVENTOS
+===================================================== */
+
 .events-page {
     min-height: 100vh;
-    padding: 90px 6% 70px;
+
+    padding:
+        90px
+        6%
+        70px;
+
     background:
         radial-gradient(
             circle at 80% 10%,
-            rgba(180, 20, 50, 0.18),
+            rgba(207, 20, 43, 0.18),
             transparent 35%
         ),
+        radial-gradient(
+            circle at 5% 80%,
+            rgba(0, 82, 165, 0.07),
+            transparent 28%
+        ),
         #090909;
+
     color: white;
+
     box-sizing: border-box;
 }
 
+
+/* =====================================================
+   HEADER DE EVENTOS
+===================================================== */
+
 .events-header {
     max-width: 900px;
-    margin: 0 auto 45px;
+
+    margin:
+        0
+        auto
+        45px;
+
     text-align: center;
 }
 
+
 .events-kicker {
     display: inline-block;
+
     margin-bottom: 12px;
-    color: #ff4438;
+
+    color: #ff5365;
+
     font-size: 14px;
     font-weight: 800;
+
     letter-spacing: 3px;
 }
 
+
 .events-header h1 {
     margin: 0;
-    font-size: clamp(38px, 6vw, 68px);
+
+    font-size:
+        clamp(
+            38px,
+            6vw,
+            68px
+        );
+
     line-height: 1;
 }
 
+
 .events-header p {
     max-width: 650px;
-    margin: 20px auto 0;
+
+    margin:
+        20px
+        auto
+        0;
+
     color: #aaa;
+
     font-size: 19px;
     line-height: 1.6;
 }
 
+
+/* =====================================================
+   EVENTO DESTACADO
+===================================================== */
+
 .featured-event {
     max-width: 1250px;
+
     margin: 0 auto;
+
     display: grid;
-    grid-template-columns: 1.05fr 0.95fr;
+
+    grid-template-columns:
+        1.05fr
+        0.95fr;
+
     overflow: hidden;
-    border: 1px solid #2e2e2e;
+
+    border:
+        1px solid
+        #2e2e2e;
+
     border-radius: 24px;
-    background: #111;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(207, 20, 43, 0.04),
+            transparent 35%
+        ),
+        #111;
 }
+
+
+/* =====================================================
+   IMAGEN EVENTO
+===================================================== */
 
 .featured-event-image {
     position: relative;
+
     min-height: 600px;
+
     overflow: hidden;
 }
 
+
 .featured-event-image::after {
     content: "";
+
     position: absolute;
+
     inset: 0;
+
     background:
         linear-gradient(
             to top,
-            rgba(0, 0, 0, 0.7),
+            rgba(0, 0, 0, 0.75),
             transparent 50%
         );
 }
 
+
 .featured-event-image img {
     width: 100%;
     height: 100%;
+
     min-height: 600px;
+
     display: block;
+
     object-fit: cover;
 }
 
+
+/* =====================================================
+   FECHA
+===================================================== */
+
 .featured-event-date {
     position: absolute;
+
     z-index: 2;
+
     top: 24px;
     left: 24px;
+
     width: 82px;
     height: 88px;
+
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
+
     border-radius: 14px;
-    background: #ff4438;
+
+    background: #cf142b;
+
     color: white;
+
+    box-shadow:
+        0
+        12px
+        28px
+        rgba(207, 20, 43, 0.25);
 }
+
 
 .featured-event-date strong {
     font-size: 36px;
+
     line-height: 1;
 }
 
+
 .featured-event-date span {
     margin-top: 4px;
+
     font-size: 13px;
     font-weight: 800;
+
     letter-spacing: 2px;
 }
+
+
+/* =====================================================
+   BADGE
+===================================================== */
 
 .featured-event-badge {
     position: absolute;
+
     z-index: 2;
+
     bottom: 24px;
     left: 24px;
-    padding: 9px 15px;
+
+    padding:
+        9px
+        15px;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.14);
+
     border-radius: 999px;
-    background: rgba(0, 0, 0, 0.75);
-    backdrop-filter: blur(8px);
+
+    background:
+        rgba(0, 0, 0, 0.75);
+
+    backdrop-filter:
+        blur(8px);
+
     font-size: 12px;
     font-weight: 800;
+
     letter-spacing: 2px;
 }
 
+
+/* =====================================================
+   CONTENIDO EVENTO
+===================================================== */
+
 .featured-event-content {
+    padding: 55px;
+
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 55px;
 }
 
+
 .featured-event-label {
-    color: #ff4438;
+    color: #ff5365;
+
     font-size: 14px;
     font-weight: 800;
+
     letter-spacing: 4px;
 }
 
+
 .featured-event-content h2 {
-    margin: 8px 0 0;
-    font-size: clamp(52px, 6vw, 84px);
+    margin:
+        8px
+        0
+        0;
+
+    font-size:
+        clamp(
+            52px,
+            6vw,
+            84px
+        );
+
     line-height: 0.95;
 }
 
+
 .featured-event-content h3 {
-    margin: 8px 0 35px;
+    margin:
+        8px
+        0
+        35px;
+
     color: #aaa;
+
     font-size: 25px;
     font-weight: 500;
 }
 
+
+/* =====================================================
+   INFORMACIÓN
+===================================================== */
+
 .event-info-row {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+
+    grid-template-columns:
+        1fr
+        1fr;
+
     gap: 15px;
+
     margin-bottom: 28px;
 }
 
+
 .event-info-row > div {
+    padding: 16px;
+
     display: flex;
     align-items: center;
+
     gap: 12px;
-    padding: 16px;
-    border: 1px solid #2d2d2d;
+
+    border:
+        1px solid
+        #2d2d2d;
+
     border-radius: 12px;
+
     background: #181818;
 }
+
 
 .event-info-icon {
     font-size: 24px;
 }
 
+
 .event-info-row small {
     display: block;
+
     margin-bottom: 3px;
+
     color: #888;
 }
+
 
 .event-info-row strong {
     font-size: 15px;
 }
 
+
+/* =====================================================
+   DESCRIPCIÓN
+===================================================== */
+
 .featured-event-description {
-    margin: 0 0 25px;
+    margin:
+        0
+        0
+        25px;
+
     color: #bbb;
+
     font-size: 17px;
     line-height: 1.6;
 }
 
+
+/* =====================================================
+   OPCIONES
+===================================================== */
+
 .event-options-preview {
     display: flex;
     flex-wrap: wrap;
+
     gap: 9px;
+
     margin-bottom: 30px;
 }
 
+
 .event-options-preview span {
-    padding: 8px 12px;
-    border: 1px solid #393939;
+    padding:
+        8px
+        12px;
+
+    border:
+        1px solid
+        #393939;
+
     border-radius: 999px;
+
     background: #191919;
+
     color: #ddd;
+
     font-size: 13px;
 }
 
+
+/* =====================================================
+   BOTÓN PRINCIPAL
+===================================================== */
+
 .event-primary-button {
-    display: block;
     width: 100%;
-    padding: 17px 20px;
+
+    padding:
+        17px
+        20px;
+
+    display: block;
+
     border-radius: 12px;
-    background: #ff4438;
+
+    background: #cf142b;
+
     color: white;
+
     text-align: center;
     text-decoration: none;
+
     font-size: 17px;
     font-weight: 800;
+
     box-sizing: border-box;
+
     transition:
         transform 0.2s ease,
-        background 0.2s ease;
+        background 0.2s ease,
+        box-shadow 0.2s ease;
 }
+
 
 .event-primary-button:hover {
-    background: #ff5a50;
-    transform: translateY(-2px);
+    background: #e3263e;
+
+    transform:
+        translateY(-2px);
+
+    box-shadow:
+        0
+        12px
+        30px
+        rgba(207, 20, 43, 0.24);
 }
 
 
-/* =========================
+/* =====================================================
    DETALLE DEL EVENTO
-========================= */
+===================================================== */
 
 .event-back-link {
     display: inline-block;
+
     margin-bottom: 25px;
-    color: #ff4438;
+
+    color: #ff5365;
+
     text-decoration: none;
+
     font-weight: 700;
 }
+
 
 .event-back-link:hover {
     text-decoration: underline;
 }
 
+
+/* =====================================================
+   HERO DETALLE
+===================================================== */
+
 .event-detail-hero {
     position: relative;
+
     max-width: 1250px;
     height: 560px;
+
     margin: 0 auto;
+
     overflow: hidden;
+
+    border:
+        1px solid
+        #2d2d2d;
+
     border-radius: 24px;
-    border: 1px solid #2d2d2d;
 }
+
 
 .event-detail-hero img {
     width: 100%;
     height: 100%;
+
     display: block;
+
     object-fit: cover;
 }
 
+
 .event-detail-hero::after {
     content: "";
+
     position: absolute;
+
     inset: 0;
+
     background:
         linear-gradient(
             to top,
@@ -270,127 +523,228 @@
         );
 }
 
+
+/* =====================================================
+   OVERLAY
+===================================================== */
+
 .event-detail-overlay {
     position: absolute;
+
     z-index: 2;
+
     left: 40px;
     right: 40px;
     bottom: 35px;
 }
 
+
 .event-detail-overlay span {
     display: inline-block;
+
     margin-bottom: 10px;
-    color: #ff4438;
+
+    color: #ff5365;
+
     font-size: 14px;
     font-weight: 800;
+
     letter-spacing: 3px;
 }
+
 
 .event-detail-overlay h1 {
     margin: 0;
-    font-size: clamp(54px, 8vw, 100px);
+
+    font-size:
+        clamp(
+            54px,
+            8vw,
+            100px
+        );
+
     line-height: 0.9;
 }
 
+
 .event-detail-overlay p {
-    margin: 10px 0 0;
+    margin:
+        10px
+        0
+        0;
+
     color: #ddd;
+
     font-size: 24px;
 }
 
+
+/* =====================================================
+   OFERTAS
+===================================================== */
+
 .event-offers-section {
     max-width: 1250px;
-    margin: 70px auto 0;
+
+    margin:
+        70px
+        auto
+        0;
 }
+
 
 .event-offers-header {
     max-width: 750px;
+
     margin-bottom: 35px;
 }
 
+
 .event-offers-header > span {
-    color: #ff4438;
+    color: #ff5365;
+
     font-size: 13px;
     font-weight: 800;
+
     letter-spacing: 3px;
 }
 
+
 .event-offers-header h2 {
-    margin: 10px 0 12px;
-    font-size: clamp(34px, 5vw, 52px);
+    margin:
+        10px
+        0
+        12px;
+
+    font-size:
+        clamp(
+            34px,
+            5vw,
+            52px
+        );
 }
+
 
 .event-offers-header p {
     margin: 0;
+
     color: #aaa;
+
     font-size: 17px;
     line-height: 1.6;
 }
 
+
+/* =====================================================
+   GRID OFERTAS
+===================================================== */
+
 .event-offers-grid {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+
+    grid-template-columns:
+        repeat(
+            3,
+            minmax(0, 1fr)
+        );
+
     gap: 22px;
 }
 
+
 .event-offer-card {
     padding: 28px;
-    border: 1px solid #2e2e2e;
+
+    border:
+        1px solid
+        #2e2e2e;
+
     border-radius: 18px;
-    background: #121212;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(0, 82, 165, 0.035),
+            transparent 35%
+        ),
+        #121212;
 }
 
+
 .event-offer-card.featured {
-    border-color: #ff4438;
+    border-color:
+        #cf142b;
+
     background:
         linear-gradient(
             180deg,
-            rgba(255, 68, 56, 0.12),
+            rgba(207, 20, 43, 0.14),
             #121212 45%
         );
 }
 
+
 .event-offer-type {
     display: inline-block;
+
     margin-bottom: 15px;
-    color: #ff4438;
+
+    color: #ff5365;
+
     font-size: 12px;
     font-weight: 800;
+
     letter-spacing: 2px;
 }
 
+
 .event-offer-card h3 {
-    margin: 0 0 12px;
+    margin:
+        0
+        0
+        12px;
+
     font-size: 27px;
 }
 
+
 .event-offer-card p {
     min-height: 72px;
+
     margin: 0;
+
     color: #aaa;
+
     line-height: 1.5;
 }
 
+
 .event-offer-card strong {
     display: block;
-    margin: 25px 0 20px;
+
+    margin:
+        25px
+        0
+        20px;
+
     font-size: 21px;
 }
 
 
-/* =========================
+/* =====================================================
    BOTONES DE RESERVA
-========================= */
+===================================================== */
 
 .event-offer-card button {
     width: 100%;
+
     padding: 14px;
 
     border: none;
     border-radius: 10px;
 
     background: #292929;
+
     color: white;
 
     font-size: 15px;
@@ -404,53 +758,483 @@
         opacity 0.2s ease;
 }
 
+
 .event-offer-card button:hover:not(:disabled) {
     background: #3a3a3a;
-    transform: translateY(-2px);
+
+    transform:
+        translateY(-2px);
 }
+
 
 .event-offer-card button:active:not(:disabled) {
-    transform: translateY(0);
+    transform:
+        translateY(0);
 }
 
 
-/* BOTÓN VIP */
+/* VIP */
 
 .event-offer-card.featured button {
-    background: #ff4438;
+    background: #cf142b;
 }
+
 
 .event-offer-card.featured button:hover:not(:disabled) {
-    background: #ff5a50;
+    background: #e3263e;
 }
 
 
-/* PRÓXIMAMENTE / AGOTADO */
+/* DESHABILITADOS */
 
 .event-offer-card button:disabled {
     cursor: not-allowed;
+
     opacity: 0.6;
 }
+
 
 .event-offer-card.featured button:disabled {
-    background: #ff4438;
+    background: #cf142b;
+
     opacity: 0.6;
 }
 
 
-/* =========================
+/* =====================================================
+   MODAL - FONDO
+===================================================== */
+
+.event-modal-backdrop {
+    position: fixed;
+
+    z-index: 10000;
+
+    inset: 0;
+
+    padding: 20px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background:
+        rgba(0, 0, 0, 0.78);
+
+    backdrop-filter:
+        blur(7px);
+
+    box-sizing: border-box;
+}
+
+
+/* =====================================================
+   MODAL
+===================================================== */
+
+.event-modal {
+    width: 100%;
+    max-width: 500px;
+
+    max-height:
+        calc(100vh - 40px);
+
+    overflow-y: auto;
+
+    border:
+        1px solid
+        rgba(207, 20, 43, 0.45);
+
+    border-radius: 22px;
+
+    background:
+        radial-gradient(
+            circle at 100% 0%,
+            rgba(207, 20, 43, 0.13),
+            transparent 34%
+        ),
+        radial-gradient(
+            circle at 0% 100%,
+            rgba(0, 82, 165, 0.07),
+            transparent 30%
+        ),
+        #121318;
+
+    color: white;
+
+    box-shadow:
+        0
+        30px
+        90px
+        rgba(0, 0, 0, 0.65);
+
+    animation:
+        eventModalOpen
+        0.18s
+        ease-out;
+}
+
+
+@keyframes eventModalOpen {
+
+    from {
+        opacity: 0;
+
+        transform:
+            translateY(15px)
+            scale(0.985);
+    }
+
+    to {
+        opacity: 1;
+
+        transform:
+            translateY(0)
+            scale(1);
+    }
+
+}
+
+
+/* =====================================================
+   HEADER MODAL
+===================================================== */
+
+.event-modal-header {
+    padding:
+        25px
+        25px
+        20px;
+
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    border-bottom:
+        1px solid
+        #292d34;
+}
+
+
+.event-modal-header > div {
+    min-width: 0;
+}
+
+
+.event-modal-header > div > span {
+    display: block;
+
+    margin-bottom: 6px;
+
+    color: #ff5365;
+
+    font-size: 10px;
+    font-weight: 900;
+
+    letter-spacing: 2px;
+}
+
+
+.event-modal-header h2 {
+    margin: 0;
+
+    color: white;
+
+    font-size: 27px;
+
+    line-height: 1.05;
+}
+
+
+.event-modal-header p {
+    margin:
+        7px
+        0
+        0;
+
+    color: #979ca4;
+
+    font-size: 14px;
+}
+
+
+/* =====================================================
+   CERRAR MODAL
+===================================================== */
+
+.event-modal-close {
+    width: 40px;
+    height: 40px;
+
+    flex: 0 0 auto;
+
+    padding: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border:
+        1px solid
+        #353a42;
+
+    border-radius: 10px;
+
+    background: #1a1c21;
+
+    color: white;
+
+    font-size: 25px;
+
+    line-height: 1;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease;
+}
+
+
+.event-modal-close:hover {
+    border-color:
+        rgba(207, 20, 43, 0.65);
+
+    background:
+        rgba(207, 20, 43, 0.14);
+}
+
+
+/* =====================================================
+   FORMULARIO RESERVA
+===================================================== */
+
+.event-reservation-form {
+    padding: 24px;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 18px;
+}
+
+
+.event-reservation-form label {
+    display: flex;
+    flex-direction: column;
+
+    gap: 8px;
+
+    color: #d4d6da;
+
+    font-size: 13px;
+    font-weight: 750;
+}
+
+
+.event-reservation-form input {
+    width: 100%;
+    height: 48px;
+
+    padding:
+        0
+        13px;
+
+    border:
+        1px solid
+        #343941;
+
+    border-radius: 10px;
+
+    outline: none;
+
+    background: #0d0f13;
+
+    color: white;
+
+    font-family: inherit;
+    font-size: 15px;
+
+    box-sizing: border-box;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+
+.event-reservation-form input:focus {
+    border-color:
+        #cf142b;
+
+    box-shadow:
+        0
+        0
+        0
+        3px
+        rgba(207, 20, 43, 0.11);
+}
+
+
+/* =====================================================
+   DISPONIBILIDAD
+===================================================== */
+
+.event-reservation-available {
+    margin:
+        -8px
+        0
+        0;
+
+    color: #858b93;
+
+    font-size: 12px;
+}
+
+
+/* =====================================================
+   RESUMEN
+===================================================== */
+
+.event-reservation-summary {
+    margin-top: 3px;
+
+    padding: 16px;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 12px;
+
+    border:
+        1px solid
+        #2d3239;
+
+    border-radius: 13px;
+
+    background:
+        #0d0f13;
+}
+
+
+.event-reservation-summary > div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+}
+
+
+.event-reservation-summary span {
+    color: #969ba3;
+
+    font-size: 13px;
+}
+
+
+.event-reservation-summary strong {
+    color: #e4e6e9;
+
+    font-size: 15px;
+}
+
+
+.event-reservation-total {
+    padding-top: 12px;
+
+    border-top:
+        1px solid
+        #292e35;
+}
+
+
+.event-reservation-total span {
+    color: white;
+
+    font-weight: 800;
+}
+
+
+.event-reservation-total strong {
+    color: #ff5365;
+
+    font-size: 23px;
+    font-weight: 900;
+}
+
+
+/* =====================================================
+   BOTÓN WHATSAPP
+===================================================== */
+
+.event-whatsapp-button {
+    width: 100%;
+    min-height: 50px;
+
+    padding:
+        0
+        18px;
+
+    border:
+        1px solid
+        #25a95b;
+
+    border-radius: 11px;
+
+    background:
+        #188848;
+
+    color: white;
+
+    font-size: 15px;
+    font-weight: 850;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+
+.event-whatsapp-button:hover {
+    background: #20a85a;
+
+    transform:
+        translateY(-2px);
+
+    box-shadow:
+        0
+        12px
+        30px
+        rgba(21, 155, 77, 0.22);
+}
+
+
+/* =====================================================
    TABLET
-========================= */
+===================================================== */
 
 @media (max-width: 900px) {
+
     .events-page {
-        padding: 75px 16px 50px;
+        padding:
+            75px
+            16px
+            50px;
     }
+
 
     .featured-event {
         grid-template-columns: 1fr;
+
         border-radius: 18px;
     }
+
 
     .featured-event-image,
     .featured-event-image img {
@@ -458,18 +1242,25 @@
         height: 470px;
     }
 
+
     .featured-event-content {
-        padding: 30px 22px;
+        padding:
+            30px
+            22px;
     }
+
 
     .featured-event-content h2 {
         font-size: 54px;
     }
 
+
     .event-detail-hero {
         height: 470px;
+
         border-radius: 18px;
     }
+
 
     .event-detail-overlay {
         left: 22px;
@@ -477,24 +1268,29 @@
         bottom: 25px;
     }
 
+
     .event-offers-grid {
         grid-template-columns: 1fr;
     }
+
 }
 
 
-/* =========================
+/* =====================================================
    MÓVIL
-========================= */
+===================================================== */
 
 @media (max-width: 550px) {
+
     .events-header {
         margin-bottom: 28px;
     }
 
+
     .events-header p {
         font-size: 16px;
     }
+
 
     .featured-event-image,
     .featured-event-image img {
@@ -502,48 +1298,1306 @@
         min-height: 410px;
     }
 
+
     .featured-event-date {
         top: 16px;
         left: 16px;
+
         width: 70px;
         height: 76px;
     }
 
+
     .featured-event-date strong {
         font-size: 31px;
     }
+
 
     .featured-event-badge {
         left: 16px;
         bottom: 16px;
     }
 
+
     .event-info-row {
         grid-template-columns: 1fr;
     }
+
 
     .featured-event-content h2 {
         font-size: 48px;
     }
 
+
     .featured-event-content h3 {
         margin-bottom: 25px;
+
         font-size: 21px;
     }
+
 
     .event-detail-hero {
         height: 420px;
     }
 
+
     .event-detail-overlay h1 {
         font-size: 54px;
     }
+
 
     .event-detail-overlay p {
         font-size: 19px;
     }
 
+
     .event-offers-section {
         margin-top: 45px;
     }
+
+
+    /* MODAL */
+
+    .event-modal-backdrop {
+        padding: 12px;
+    }
+
+
+    .event-modal {
+        max-height:
+            calc(100vh - 24px);
+
+        border-radius: 18px;
+    }
+
+
+    .event-modal-header {
+        padding:
+            20px
+            18px
+            17px;
+    }
+
+
+    .event-modal-header h2 {
+        font-size: 23px;
+    }
+
+
+    .event-modal-close {
+        width: 37px;
+        height: 37px;
+
+        font-size: 23px;
+    }
+
+
+    .event-reservation-form {
+        padding:
+            19px
+            18px
+            20px;
+
+        gap: 16px;
+    }
+
+
+    .event-reservation-form input {
+        height: 47px;
+    }
+
+
+    .event-reservation-total strong {
+        font-size: 21px;
+    }
+
+}
+
+/* =====================================================
+   DISPONIBILIDAD EN TARJETAS
+===================================================== */
+
+.event-offer-availability {
+    margin-top: 18px;
+}
+
+
+.event-offer-availability span {
+    display: inline-flex;
+    align-items: center;
+
+    min-height: 28px;
+
+    padding:
+        5px
+        10px;
+
+    border:
+        1px solid
+        rgba(70, 151, 226, 0.28);
+
+    border-radius: 999px;
+
+    background:
+        rgba(70, 151, 226, 0.08);
+
+    color: #91c9ff;
+
+    font-size: 11px;
+    font-weight: 800;
+}
+
+
+/* =====================================================
+   MODAL RESERVA
+===================================================== */
+
+.event-reservation-overlay {
+    position: fixed;
+
+    z-index: 9999;
+
+    inset: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 30px;
+
+    background:
+        rgba(
+            0,
+            0,
+            0,
+            0.82
+        );
+
+    backdrop-filter:
+        blur(8px);
+
+    box-sizing: border-box;
+
+    overflow-y: auto;
+}
+
+
+.event-reservation-modal {
+    width: min(
+        100%,
+        1050px
+    );
+
+    max-height:
+        calc(
+            100vh - 60px
+        );
+
+    overflow-y: auto;
+
+    padding: 28px;
+
+    border:
+        1px solid
+        #343434;
+
+    border-radius: 22px;
+
+    background:
+        #101010;
+
+    color: white;
+
+    box-sizing:
+        border-box;
+}
+
+
+/* =====================================================
+   HEADER MODAL
+===================================================== */
+
+.event-reservation-modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    margin-bottom: 25px;
+}
+
+
+.event-reservation-modal-header > div > span {
+    display: block;
+
+    margin-bottom: 7px;
+
+    color:
+        #ff4438;
+
+    font-size: 11px;
+    font-weight: 900;
+
+    letter-spacing: 3px;
+}
+
+
+.event-reservation-modal-header h2 {
+    margin: 0;
+
+    font-size:
+        clamp(
+            30px,
+            5vw,
+            46px
+        );
+}
+
+
+.event-reservation-modal-header p {
+    margin:
+        7px
+        0
+        0;
+
+    color: #888;
+}
+
+
+.event-reservation-close {
+    flex-shrink: 0;
+
+    width: 43px;
+    height: 43px;
+
+    border:
+        1px solid
+        #3d3d3d;
+
+    border-radius:
+        50%;
+
+    background:
+        #191919;
+
+    color: white;
+
+    font-size: 26px;
+    line-height: 1;
+
+    cursor: pointer;
+}
+
+
+/* =====================================================
+   NOMBRE
+===================================================== */
+
+.event-reservation-customer {
+    margin-bottom: 25px;
+}
+
+
+.event-reservation-customer label {
+    display: flex;
+    flex-direction: column;
+
+    gap: 8px;
+
+    color: #ccc;
+
+    font-size: 13px;
+    font-weight: 800;
+}
+
+
+.event-reservation-customer input {
+    width: 100%;
+
+    min-height: 49px;
+
+    padding:
+        12px
+        14px;
+
+    border:
+        1px solid
+        #363636;
+
+    border-radius: 10px;
+
+    outline: none;
+
+    background:
+        #080808;
+
+    color: white;
+
+    font-family: inherit;
+    font-size: 16px;
+
+    box-sizing:
+        border-box;
+}
+
+
+.event-reservation-customer input:focus {
+    border-color:
+        #ff4438;
+}
+
+
+/* =====================================================
+   GENERAL
+===================================================== */
+
+.event-general-selection {
+    margin-bottom: 25px;
+
+    padding: 18px;
+
+    border:
+        1px solid
+        #303030;
+
+    border-radius: 14px;
+
+    background:
+        #151515;
+}
+
+
+.event-general-selection > div > span {
+    display: block;
+
+    margin-bottom: 11px;
+
+    color: #ddd;
+
+    font-size: 13px;
+    font-weight: 800;
+}
+
+
+.event-general-selection small {
+    display: block;
+
+    margin-top: 9px;
+
+    color: #777;
+
+    font-size: 11px;
+}
+
+
+.event-public-quantity {
+    display: grid;
+
+    grid-template-columns:
+        50px
+        100px
+        50px;
+
+    gap: 8px;
+}
+
+
+.event-public-quantity button {
+    height: 48px;
+
+    border:
+        1px solid
+        #3a3a3a;
+
+    border-radius: 9px;
+
+    background:
+        #222;
+
+    color: white;
+
+    font-size: 22px;
+    font-weight: 900;
+
+    cursor: pointer;
+}
+
+
+.event-public-quantity button:disabled {
+    opacity: 0.35;
+
+    cursor: not-allowed;
+}
+
+
+.event-public-quantity input {
+    width: 100%;
+    height: 48px;
+
+    padding: 0;
+
+    border:
+        1px solid
+        #ff4438;
+
+    border-radius: 9px;
+
+    outline: none;
+
+    background:
+        #090909;
+
+    color: white;
+
+    text-align: center;
+
+    font-size: 19px;
+    font-weight: 900;
+
+    box-sizing: border-box;
+}
+
+
+/* =====================================================
+   ENCABEZADO MAPA
+===================================================== */
+
+.event-public-map-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    margin-bottom: 14px;
+}
+
+
+.event-public-map-heading span {
+    display: block;
+
+    margin-bottom: 4px;
+
+    color:
+        #ff4438;
+
+    font-size: 9px;
+    font-weight: 900;
+
+    letter-spacing: 2px;
+}
+
+
+.event-public-map-heading h3 {
+    margin: 0;
+
+    font-size: 22px;
+}
+
+
+.event-public-map-heading > strong {
+    color: #999;
+
+    font-size: 12px;
+}
+
+
+/* =====================================================
+   PLANO PÚBLICO
+===================================================== */
+
+.event-public-floor-plan {
+    position: relative;
+
+    width: 100%;
+    height: 520px;
+
+    overflow: hidden;
+
+    border:
+        1px solid
+        #343942;
+
+    border-radius: 17px;
+
+    background:
+        radial-gradient(
+            circle at 50% 12%,
+            rgba(
+                180,
+                20,
+                50,
+                0.09
+            ),
+            transparent 30%
+        ),
+        linear-gradient(
+            180deg,
+            #13161b,
+            #090b0e
+        );
+
+    user-select: none;
+
+    box-sizing:
+        border-box;
+}
+
+
+.event-public-floor-plan::before {
+    content: "";
+
+    position: absolute;
+
+    inset: 0;
+
+    z-index: 0;
+
+    opacity: 0.14;
+
+    pointer-events: none;
+
+    background-image:
+        linear-gradient(
+            rgba(
+                255,
+                255,
+                255,
+                0.06
+            )
+            1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(
+                255,
+                255,
+                255,
+                0.06
+            )
+            1px,
+            transparent 1px
+        );
+
+    background-size:
+        10% 10%;
+}
+
+
+/* =====================================================
+   ÁREA GENERAL
+===================================================== */
+
+.event-public-standing-layer {
+    position: absolute;
+
+    z-index: 1;
+
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+
+    pointer-events: none;
+}
+
+
+.event-public-standing-area {
+    fill:
+        rgba(
+            58,
+            137,
+            214,
+            0.05
+        );
+
+    stroke:
+        rgba(
+            94,
+            173,
+            255,
+            0.24
+        );
+
+    stroke-width: 0.45;
+
+    vector-effect:
+        non-scaling-stroke;
+}
+
+
+.event-public-standing-area.highlighted {
+    fill:
+        rgba(
+            58,
+            137,
+            214,
+            0.23
+        );
+
+    stroke:
+        #70b7f8;
+}
+
+
+.event-public-area-label {
+    position: absolute;
+
+    z-index: 3;
+
+    transform:
+        translate(
+            -50%,
+            -50%
+        );
+
+    min-width: 86px;
+
+    padding:
+        7px
+        9px;
+
+    border:
+        1px solid
+        #323a43;
+
+    border-radius: 9px;
+
+    background:
+        rgba(
+            10,
+            13,
+            17,
+            0.88
+        );
+
+    text-align: center;
+
+    pointer-events: none;
+}
+
+
+.event-public-area-label.highlighted {
+    border-color:
+        #5ca4e7;
+
+    background:
+        rgba(
+            13,
+            41,
+            68,
+            0.92
+        );
+}
+
+
+.event-public-area-label strong {
+    display: block;
+
+    font-size: 10px;
+}
+
+
+.event-public-area-label small {
+    display: block;
+
+    margin-top: 2px;
+
+    color:
+        #8bc6fa;
+
+    font-size: 8px;
+}
+
+
+/* =====================================================
+   ESCENARIO / MARCADORES
+===================================================== */
+
+.event-public-stage,
+.event-public-marker {
+    position: absolute;
+
+    z-index: 4;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    box-sizing:
+        border-box;
+
+    pointer-events: none;
+}
+
+
+.event-public-stage {
+    gap: 7px;
+
+    padding:
+        5px
+        9px;
+
+    overflow: hidden;
+
+    border:
+        2px solid
+        rgba(
+            207,
+            20,
+            43,
+            0.75
+        );
+
+    border-radius:
+        9px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #710b1b,
+            #33040c
+        );
+
+    color: white;
+
+    font-size: 11px;
+    font-weight: 900;
+
+    letter-spacing: 1px;
+
+    white-space: nowrap;
+}
+
+
+.event-public-marker {
+    gap: 5px;
+
+    padding:
+        4px
+        6px;
+
+    overflow: hidden;
+
+    border:
+        1px solid
+        #444b54;
+
+    border-radius: 8px;
+
+    background:
+        #15191e;
+
+    color: #d8dce1;
+
+    font-size: 9px;
+    font-weight: 900;
+
+    white-space: nowrap;
+}
+
+
+/* =====================================================
+   MESAS PÚBLICAS
+===================================================== */
+
+.event-public-seat {
+    position: absolute;
+
+    z-index: 6;
+
+    min-width: 38px;
+    min-height: 38px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    padding: 2px;
+
+    border:
+        2px solid
+        #3988d3;
+
+    border-radius: 50%;
+
+    background:
+        #102942;
+
+    color: white;
+
+    font-family: inherit;
+
+    cursor: pointer;
+
+    box-sizing:
+        border-box;
+
+    touch-action:
+        manipulation;
+
+    transition:
+        border-color 0.15s ease,
+        background 0.15s ease,
+        opacity 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+
+.event-public-seat.vip {
+    border-radius: 12px;
+
+    border-color:
+        #d0a53a;
+
+    background:
+        #3b2b0c;
+
+    color:
+        #ffe28d;
+}
+
+
+.event-public-seat strong {
+    font-size: 10px;
+    line-height: 1;
+}
+
+
+.event-public-seat small {
+    margin-top: 2px;
+
+    color: inherit;
+
+    opacity: 0.72;
+
+    font-size: 8px;
+}
+
+
+.event-public-seat.selected {
+    border-color: white;
+
+    background:
+        #205486;
+
+    box-shadow:
+        0
+        0
+        0
+        4px
+        rgba(
+            255,
+            255,
+            255,
+            0.13
+        );
+
+    opacity: 1;
+}
+
+
+.event-public-seat.vip.selected {
+    background:
+        #66501d;
+}
+
+
+.event-public-seat.reserved {
+    border-color:
+        #bb4052;
+
+    background:
+        #43141c;
+
+    color:
+        #ff8798;
+
+    cursor:
+        not-allowed;
+}
+
+
+.event-public-seat.blocked {
+    border-color:
+        #565c64;
+
+    background:
+        #292c31;
+
+    color:
+        #777e86;
+
+    cursor:
+        not-allowed;
+}
+
+
+.event-public-seat.locked {
+    border-color:
+        #41464d;
+
+    background:
+        #202328;
+
+    color:
+        #696f76;
+
+    opacity: 0.48;
+
+    cursor:
+        not-allowed;
+}
+
+
+.event-public-seat:disabled {
+    pointer-events: none;
+}
+
+
+/* =====================================================
+   LEYENDA
+===================================================== */
+
+.event-public-map-legend {
+    display: flex;
+    flex-wrap: wrap;
+
+    gap: 16px;
+
+    margin:
+        12px
+        0
+        18px;
+
+    color:
+        #858c94;
+
+    font-size: 10px;
+    font-weight: 700;
+}
+
+
+.event-public-map-legend span {
+    display: flex;
+    align-items: center;
+
+    gap: 6px;
+}
+
+
+.event-public-map-legend i {
+    width: 10px;
+    height: 10px;
+
+    display: block;
+
+    border-radius: 50%;
+}
+
+
+.event-public-map-legend i.available {
+    background:
+        #3988d3;
+}
+
+
+.event-public-map-legend i.selected {
+    background: white;
+}
+
+
+.event-public-map-legend i.unavailable {
+    background:
+        #555b63;
+}
+
+
+/* =====================================================
+   SELECCIONADAS
+===================================================== */
+
+.event-public-selected-list {
+    display: flex;
+    flex-wrap: wrap;
+
+    gap: 8px;
+
+    margin-bottom: 18px;
+}
+
+
+.event-public-selected-list button {
+    display: grid;
+
+    grid-template-columns:
+        auto
+        auto
+        auto
+        auto;
+
+    align-items: center;
+
+    gap: 7px;
+
+    padding:
+        8px
+        10px;
+
+    border:
+        1px solid
+        #3c424a;
+
+    border-radius:
+        999px;
+
+    background:
+        #171a1f;
+
+    color: white;
+
+    font-family:
+        inherit;
+
+    cursor: pointer;
+}
+
+
+.event-public-selected-list small {
+    color: #9299a1;
+}
+
+
+.event-public-selected-list b {
+    color:
+        #ff6b61;
+}
+
+
+/* =====================================================
+   RESUMEN
+===================================================== */
+
+.event-public-reservation-summary {
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            3,
+            minmax(
+                0,
+                1fr
+            )
+        );
+
+    gap: 10px;
+
+    margin-top: 20px;
+    margin-bottom: 15px;
+}
+
+
+.event-public-reservation-summary > div {
+    padding: 14px;
+
+    border:
+        1px solid
+        #30343a;
+
+    border-radius: 11px;
+
+    background:
+        #15171a;
+}
+
+
+.event-public-reservation-summary span {
+    display: block;
+
+    margin-bottom: 4px;
+
+    color:
+        #777f88;
+
+    font-size: 9px;
+    font-weight: 900;
+
+    letter-spacing: 1px;
+}
+
+
+.event-public-reservation-summary strong {
+    display: block;
+
+    font-size: 15px;
+}
+
+
+.event-public-reservation-summary small {
+    display: block;
+
+    color: #bbb;
+
+    font-size: 12px;
+}
+
+
+/* =====================================================
+   WHATSAPP
+===================================================== */
+
+.event-public-whatsapp-button {
+    width: 100%;
+
+    min-height: 52px;
+
+    padding:
+        14px
+        18px;
+
+    border: none;
+
+    border-radius: 11px;
+
+    background:
+        #ff4438;
+
+    color: white;
+
+    font-family: inherit;
+
+    font-size: 15px;
+    font-weight: 900;
+
+    cursor: pointer;
+}
+
+
+.event-public-whatsapp-button:hover:not(:disabled) {
+    background:
+        #ff5a50;
+}
+
+
+.event-public-whatsapp-button:disabled {
+    opacity: 0.4;
+
+    cursor: not-allowed;
+}
+
+
+.event-public-reservation-note {
+    margin:
+        10px
+        0
+        0;
+
+    color:
+        #707780;
+
+    text-align: center;
+
+    font-size: 10px;
+}
+
+
+/* =====================================================
+   RESPONSIVE MODAL
+===================================================== */
+
+@media (max-width: 750px) {
+
+    .event-reservation-overlay {
+        align-items:
+            flex-start;
+
+        padding:
+            15px;
+    }
+
+
+    .event-reservation-modal {
+        max-height: none;
+
+        padding: 20px;
+
+        border-radius: 17px;
+    }
+
+
+    .event-public-floor-plan {
+        height: 430px;
+    }
+
+
+    .event-public-reservation-summary {
+        grid-template-columns:
+            1fr;
+    }
+
+}
+
+
+@media (max-width: 500px) {
+
+    .event-reservation-overlay {
+        padding:
+            10px;
+    }
+
+
+    .event-reservation-modal {
+        padding:
+            16px;
+    }
+
+
+    .event-public-map-heading {
+        align-items:
+            flex-start;
+
+        flex-direction:
+            column;
+
+        gap: 8px;
+    }
+
+
+    .event-public-floor-plan {
+        height: 370px;
+    }
+
+
+    .event-public-quantity {
+        grid-template-columns:
+            48px
+            1fr
+            48px;
+
+        width: 100%;
+    }
+
+
+    .event-public-seat strong {
+        font-size: 8px;
+    }
+
+
+    .event-public-seat small {
+        font-size: 7px;
+    }
+
+
+    .event-public-stage {
+        font-size: 8px;
+    }
+
+
+    .event-public-marker {
+        font-size: 7px;
+    }
+
 }

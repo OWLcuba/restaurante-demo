@@ -8,6 +8,8 @@ import {
     Outlet
 } from "react-router-dom"
 
+import AnalyticsTracker from "./components/AnalyticsTracker.jsx"
+
 import Navbar from "./components/Navbar.jsx"
 import Home from "./pages/Home.jsx"
 import Menu from "./pages/Menu.jsx"
@@ -31,20 +33,21 @@ import AdminMenu from "./admin/AdminMenu.jsx"
 import AdminPromotions from "./admin/AdminPromotions.jsx"
 import AdminParties from "./admin/AdminParties.jsx"
 import AdminEvents from "./admin/AdminEvents.jsx"
+import AdminEventForm from "./admin/AdminEventForm.jsx"
+import AdminVenueForm from "./admin/AdminVenueForm.jsx"
 import AdminGallery from "./admin/AdminGallery.jsx"
+import AdminAnalytics from "./admin/AdminAnalytics.jsx"
 
 import {
     BusinessProvider
 } from "./context/BusinessContext.jsx"
 
 
-/* =========================
-   LAYOUT PÚBLICO
-========================= */
-
 function PublicLayout() {
     return (
         <>
+            <AnalyticsTracker />
+
             <Navbar />
 
             <Outlet />
@@ -55,12 +58,9 @@ function PublicLayout() {
 }
 
 
-/* =========================
-   HOME
-========================= */
-
 function MainPage() {
-    const location = useLocation()
+    const location =
+        useLocation()
 
 
     useEffect(() => {
@@ -69,23 +69,30 @@ function MainPage() {
         }
 
 
-        const timer = setTimeout(() => {
-            const section =
-                document.querySelector(
-                    location.hash
-                )
+        const timer =
+            setTimeout(() => {
+                const section =
+                    document.querySelector(
+                        location.hash
+                    )
 
-            if (section) {
-                section.scrollIntoView({
-                    behavior: "smooth",
-                    block: "start"
-                })
-            }
-        }, 100)
+
+                if (section) {
+                    section.scrollIntoView({
+                        behavior:
+                            "smooth",
+
+                        block:
+                            "start"
+                    })
+                }
+            }, 100)
 
 
         return () => {
-            clearTimeout(timer)
+            clearTimeout(
+                timer
+            )
         }
     }, [
         location.pathname,
@@ -126,10 +133,6 @@ function MainPage() {
 }
 
 
-/* =========================
-   APP
-========================= */
-
 function App() {
     return (
         <BusinessProvider>
@@ -139,7 +142,7 @@ function App() {
                 <Routes>
 
                     {/* =====================
-                        ZONA PÚBLICA
+                        PÚBLICO
                     ===================== */}
 
                     <Route
@@ -199,7 +202,7 @@ function App() {
 
 
                     {/* =====================
-                        LOGIN ADMIN
+                        LOGIN
                     ===================== */}
 
                     <Route
@@ -211,7 +214,7 @@ function App() {
 
 
                     {/* =====================
-                        PANEL ADMIN
+                        ADMIN
                     ===================== */}
 
                     <Route
@@ -275,10 +278,64 @@ function App() {
 
 
                     <Route
+                        path="/admin/eventos/nuevo"
+                        element={
+                            <ProtectedAdminRoute>
+                                <AdminEventForm />
+                            </ProtectedAdminRoute>
+                        }
+                    />
+
+
+                    <Route
+                        path="/admin/eventos/:eventId/editar"
+                        element={
+                            <ProtectedAdminRoute>
+                                <AdminEventForm />
+                            </ProtectedAdminRoute>
+                        }
+                    />
+
+
+                    <Route
+                        path="/admin/locales/nuevo"
+                        element={
+                            <ProtectedAdminRoute>
+                                <AdminVenueForm />
+                            </ProtectedAdminRoute>
+                        }
+                    />
+
+
+                    <Route
+                        path="/admin/locales/:venueId/editar"
+                        element={
+                            <ProtectedAdminRoute>
+                                <AdminVenueForm />
+                            </ProtectedAdminRoute>
+                        }
+                    />
+
+
+                    <Route
                         path="/admin/galeria"
                         element={
                             <ProtectedAdminRoute>
                                 <AdminGallery />
+                            </ProtectedAdminRoute>
+                        }
+                    />
+
+
+                    {/* =====================
+                        ESTADÍSTICAS
+                    ===================== */}
+
+                    <Route
+                        path="/admin/estadisticas"
+                        element={
+                            <ProtectedAdminRoute>
+                                <AdminAnalytics />
                             </ProtectedAdminRoute>
                         }
                     />
