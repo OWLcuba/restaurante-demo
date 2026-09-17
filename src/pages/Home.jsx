@@ -1,7 +1,26 @@
-import { Link } from "react-router-dom"
+import {
+    useEffect,
+    useState
+} from "react"
+
+import {
+    collection,
+    getDocs
+} from "firebase/firestore"
+
+import {
+    Link
+} from "react-router-dom"
+
+import {
+    db
+} from "../firebase/firebase"
 
 import "./Home.css"
-import { useBusiness } from "../context/BusinessContext"
+
+import {
+    useBusiness
+} from "../context/BusinessContext"
 
 
 function Home() {
@@ -11,15 +30,103 @@ function Home() {
     } = useBusiness()
 
 
+    const [
+        nextEvent,
+        setNextEvent
+    ] = useState(null)
+
+
+    /* =====================================================
+       PRÓXIMO EVENTO ACTIVO
+    ===================================================== */
+
+    useEffect(() => {
+        async function loadNextEvent() {
+            try {
+                const snapshot =
+                    await getDocs(
+                        collection(
+                            db,
+                            "specialEvents"
+                        )
+                    )
+
+
+                const today =
+                    new Date()
+                        .toISOString()
+                        .slice(
+                            0,
+                            10
+                        )
+
+
+                const activeEvents =
+                    snapshot.docs
+                        .map(
+                            (
+                                document
+                            ) => ({
+                                firebaseId:
+                                    document.id,
+
+                                ...document.data()
+                            })
+                        )
+                        .filter(
+                            (event) =>
+                                event.active !==
+                                    false &&
+                                event.date &&
+                                event.date >=
+                                    today
+                        )
+                        .sort(
+                            (a, b) =>
+                                a.date.localeCompare(
+                                    b.date
+                                )
+                        )
+
+
+                setNextEvent(
+                    activeEvents[0] ||
+                    null
+                )
+
+            } catch (error) {
+                console.error(
+                    "Error cargando próximo evento:",
+                    error
+                )
+
+
+                setNextEvent(
+                    null
+                )
+            }
+        }
+
+
+        loadNextEvent()
+    }, [])
+
+
+    /* =====================================================
+       LOADING BUSINESS
+    ===================================================== */
+
     if (
         loadingBusiness ||
         !businessData
     ) {
         return (
             <section className="hero">
+
                 <p>
                     Cargando información...
                 </p>
+
             </section>
         )
     }
@@ -33,19 +140,30 @@ function Home() {
     return (
         <section className="hero">
 
+            {/* =====================================================
+                HERO PRINCIPAL
+            ===================================================== */}
+
             <div className="hero-main">
 
                 <div className="hero-content">
+
                     <span className="subtitle">
                         Sabor que enamora
                     </span>
 
+
                     <h1>
-                        {businessData.slogan}
+                        {
+                            businessData.slogan
+                        }
                     </h1>
 
+
                     <p>
-                        {businessData.description}
+                        {
+                            businessData.description
+                        }
                     </p>
 
 
@@ -67,14 +185,21 @@ function Home() {
                         </a>
 
                     </div>
+
                 </div>
 
 
                 <div className="hero-image">
+
                     <img
-                        src={heroImage}
-                        alt={businessData.name}
+                        src={
+                            heroImage
+                        }
+                        alt={
+                            businessData.name
+                        }
                     />
+
                 </div>
 
 
@@ -82,8 +207,11 @@ function Home() {
 
                     <span>
                         ⏰{" "}
-                        {businessData.shortHours}
+                        {
+                            businessData.shortHours
+                        }
                     </span>
+
 
                     <span>
                         📍{" "}
@@ -98,6 +226,10 @@ function Home() {
 
             </div>
 
+
+            {/* =====================================================
+                INFO
+            ===================================================== */}
 
             <div className="info-cards">
 
@@ -152,22 +284,31 @@ function Home() {
             </div>
 
 
+            {/* =====================================================
+                EXPERIENCIAS
+            ===================================================== */}
+
             <div className="home-experiences">
+
+                {/* FIESTAS */}
 
                 <Link
                     to="/fiestas"
                     className="home-experience-card party-experience"
                 >
+
                     <div className="home-experience-overlay">
 
                         <span>
                             🎉 FIESTAS Y CATERING
                         </span>
 
+
                         <h2>
                             Lleva Q&apos; Bola
                             a tu celebración
                         </h2>
+
 
                         <p>
                             Combos para cumpleaños,
@@ -175,41 +316,64 @@ function Home() {
                             actividades en casa.
                         </p>
 
+
                         <div className="home-experience-button">
                             Ver combos →
                         </div>
 
                     </div>
+
                 </Link>
 
 
-                <Link
-                    to="/eventos"
-                    className="home-experience-card events-experience"
-                >
-                    <div className="home-experience-overlay">
+                {/* EVENTO DINÁMICO */}
 
-                        <span>
-                            🎤 EVENTOS ESPECIALES
-                        </span>
+                {nextEvent && (
 
-                        <h2>
-                            Vive una noche
-                            diferente
-                        </h2>
+                    <Link
+                        to={`/eventos/${nextEvent.firebaseId}`}
+                        className="home-experience-card events-experience"
+                        style={{
+                            backgroundImage:
+                                nextEvent.imageUrl
+                                    ? `url("${nextEvent.imageUrl}")`
+                                    : undefined
+                        }}
+                    >
 
-                        <p>
-                            Artistas en vivo,
-                            entradas, experiencias
-                            VIP y mesas especiales.
-                        </p>
+                        <div className="home-experience-overlay">
 
-                        <div className="home-experience-button">
-                            Ver próximos eventos →
+                            <span>
+                                🎤{" "}
+                                {
+                                    nextEvent.dateLabel ||
+                                    "PRÓXIMO EVENTO"
+                                }
+                            </span>
+
+
+                            <h2>
+                                {
+                                    nextEvent.title
+                                }
+                            </h2>
+
+
+                            <p>
+                                {nextEvent.description ||
+                                    "Vive una noche especial en Q' Bola."}
+                            </p>
+
+
+                            <div className="home-experience-button">
+                                Ver evento →
+                            </div>
+
                         </div>
 
-                    </div>
-                </Link>
+                    </Link>
+
+                )}
 
             </div>
 
