@@ -7,44 +7,143 @@ import {
 
 import { db } from "../firebase/firebase"
 
+
+/*
+    IMPORTANTE:
+    Aquí usamos los nombres EXACTOS de los platos
+    tal como aparecen en tu Admin.
+*/
+
 const imageByName = {
-    // ENTRANTES
-    "Chicharrones Qbola": "/images/Menu/Entrantes/Chicharrones Qbola.png",
-    "Coctel de Camaron": "/images/Menu/Entrantes/Coctel de Camaron.jpeg",
-    "Croquetas": "/images/Menu/Entrantes/Croqueta.jpeg",
-    "Eperlan de Pescado": "/images/Menu/Entrantes/Eperlan de Pescado.png",
-    "Picadera Qbola": "/images/Menu/Entrantes/Picadera Qbola.jpeg",
-    "Tamales con Chicharron": "/images/Menu/Entrantes/Tamales con chicharron.jpeg",
-    "Tostones Rellenos": "/images/Menu/Entrantes/Tostones Rellenos.jpeg",
 
-    // PIZZA / PASTA
-    "Espaguetis": "/images/Menu/Pizza/espaguetis.jpeg",
-    "Pizza Hawaiana": "/images/Menu/Pizza/hawaiana.jpeg",
+    /* =========================
+       ENTRANTES
+    ========================= */
 
-    // PRINCIPALES
-    "Bistec de Palomilla": "/images/Menu/Principales/bistec de palomilla.jpeg",
-    "Cerdo Asado": "/images/Menu/Principales/Cerdo Azado.jpeg",
-    "Chilindron de Cordero": "/images/Menu/Principales/chilindron de cordero.jpeg",
-    "Fajita de Res": "/images/Menu/Principales/fajita de res.jpeg",
-    "Paella": "/images/Menu/Principales/paella.jpeg",
-    "Ropa Vieja": "/images/Menu/Principales/ropa vieja.jpeg",
-    "Rueda de Sierra": "/images/Menu/Principales/rueda de sierras.jpeg",
-    "Ternera Guisada": "/images/Menu/Principales/ternera guisada.jpeg",
+    "Croquetas Q bola":
+        "/images/Menu/Entrantes/Croqueta.jpeg",
 
-    // SANDWICH
-    "Pan con Jamon y Queso": "/images/Menu/Sandwich/pan con jamon y queso.jpeg",
-    "Pan con Lechon": "/images/Menu/Sandwich/pan con lechon.jpeg",
-    "Pan con Minuta": "/images/Menu/Sandwich/Pan con minuta.jpeg",
-    "Pan con Bistec de Cerdo": "/images/Menu/Sandwich/pan con vistect.jpeg",
-    "Pan con Bistec de Res": "/images/Menu/Sandwich/pan con vistect.jpeg",
-    "Sandwich Cubano": "/images/Menu/Sandwich/sandwich cubano.jpeg",
+    "Tamal Cubano con Chicharron":
+        "/images/Menu/Entrantes/Tamales con chicharron.jpeg",
 
-    // ACOMPAÑANTES
-    "Arroz Congri": "/images/Menu/Side/Arros congri.jpeg",
-    "Ensalada del Dia": "/images/Menu/Side/ensalada del dia.jpeg",
-    "Frijoles Negros": "/images/Menu/Side/frijoles negros.jpeg",
-    "Maduros Fritos": "/images/Menu/Side/maduros fritos.jpeg"
+    "Tamal cubano con Masas de Cerdo":
+        "/images/Menu/Entrantes/Tamales con chicharron.jpeg",
+
+    "Tostones Rellenos":
+        "/images/Menu/Entrantes/Tostones Rellenos.jpeg",
+
+    "Picadera Q bola":
+        "/images/Menu/Entrantes/Picadera Qbola.jpeg",
+
+    "Coctel de Camarones":
+        "/images/Menu/Entrantes/Coctel de Camaron.jpeg",
+
+    "Eperlan de Pescado":
+        "/images/Menu/Entrantes/Eperlan de Pescado.png",
+
+    "Chicharrones Q bola":
+        "/images/Menu/Entrantes/Chicharrones Qbola.png",
+
+
+    /* =========================
+       SANDWICHES
+    ========================= */
+
+    "Sandwich Cubano":
+        "/images/Menu/Sandwich/sandwich cubano.jpeg",
+
+    "Pan con Bistec de Cerdo":
+        "/images/Menu/Sandwich/pan con vistect.jpeg",
+
+    "Pan con Bistec de Res":
+        "/images/Menu/Sandwich/pan con vistect.jpeg",
+
+    "Pan con Minuta":
+        "/images/Menu/Sandwich/Pan con minuta.jpeg",
+
+    "Pan con Lechon":
+        "/images/Menu/Sandwich/pan con lechon.jpeg",
+
+    "Sandwich de Jamon y Queso":
+        "/images/Menu/Sandwich/pan con jamon y queso.jpeg",
+
+
+    /* =========================
+       PRINCIPALES
+    ========================= */
+
+    "Ropa Vieja":
+        "/images/Menu/Principales/ropa vieja.jpeg",
+
+    "Cerdo asado":
+        "/images/Menu/Principales/Cerdo Azado.jpeg",
+
+    "Bistec de Palomilla Encebollado":
+        "/images/Menu/Principales/bistec de palomilla.jpeg",
+
+    "Fajitas de res":
+        "/images/Menu/Principales/fajita de res.jpeg",
+
+    "Ternera Guisada":
+        "/images/Menu/Principales/ternera guisada.jpeg",
+
+    "Chilindron de Cordero":
+        "/images/Menu/Principales/chilindron de cordero.jpeg",
+
+    "Paella del Mar":
+        "/images/Menu/Principales/paella.jpeg",
+
+    "Rueda de Sierra Frita":
+        "/images/Menu/Principales/rueda de sierras.jpeg",
+
+
+    /* =========================
+       PIZZA / PASTA
+    ========================= */
+
+    "Pizza Hawaiana":
+        "/images/Menu/Pizza/hawaiana.jpeg",
+
+    "Spaghetti de Queso":
+        "/images/Menu/Pizza/espaguetis.jpeg",
+
+    "Spaghetti de Jamon":
+        "/images/Menu/Pizza/espaguetis.jpeg",
+
+    "Spaghetti de Chorizo":
+        "/images/Menu/Pizza/espaguetis.jpeg",
+
+
+    /* =========================
+       ACOMPAÑANTES
+    ========================= */
+
+    "Frijoles Negros":
+        "/images/Menu/Side/frijoles negros.jpeg",
+
+    "Arroz Congri":
+        "/images/Menu/Side/Arros congri.jpeg",
+
+    "Chips de Platano/Malanga":
+        "/images/Menu/Side/maduros fritos.jpeg",
+
+    "Vegetales del Dia":
+        "/images/Menu/Side/ensalada del dia.jpeg",
+
+
+    /* =========================
+       POSTRES
+    ========================= */
+
+    "Copa Lolita":
+        "/images/Menu/postres/copa lolita.jpeg"
 }
+
+
+/*
+    Normalizamos los nombres para evitar problemas
+    por mayúsculas, acentos o espacios.
+*/
 
 function normalizeText(value) {
     return String(value || "")
@@ -54,82 +153,167 @@ function normalizeText(value) {
         .replace(/[\u0300-\u036f]/g, "")
 }
 
+
 export async function updateMenuImages() {
+
     try {
-        const snapshot = await getDocs(
-            collection(db, "menuItems")
+
+        console.log(
+            "🔄 Comenzando actualización de imágenes..."
         )
 
+
+        const snapshot = await getDocs(
+            collection(
+                db,
+                "menuItems"
+            )
+        )
+
+
         let updatedCount = 0
-        let notFoundCount = 0
 
-        for (const document of snapshot.docs) {
-            const item = document.data()
 
-            const itemName = normalizeText(item.name)
+        for (const documentSnapshot of snapshot.docs) {
 
-            const matchedEntry = Object.entries(
-                imageByName
-            ).find(([name]) => {
-                return normalizeText(name) === itemName
-            })
+            const item =
+                documentSnapshot.data()
+
+
+            const normalizedItemName =
+                normalizeText(
+                    item.name
+                )
+
+
+            const matchedEntry =
+                Object.entries(
+                    imageByName
+                ).find(
+                    ([menuName]) =>
+                        normalizeText(
+                            menuName
+                        ) ===
+                        normalizedItemName
+                )
+
 
             if (!matchedEntry) {
                 continue
             }
 
-            const [, newImageUrl] = matchedEntry
+
+            const [
+                matchedName,
+                imageUrl
+            ] = matchedEntry
+
 
             await updateDoc(
                 doc(
                     db,
                     "menuItems",
-                    document.id
+                    documentSnapshot.id
                 ),
                 {
-                    imageUrl: newImageUrl
+                    imageUrl
                 }
             )
 
+
             updatedCount += 1
 
+
             console.log(
-                `✅ ${item.name} -> ${newImageUrl}`
+                `✅ ${item.name}`
             )
+
+            console.log(
+                `   → ${imageUrl}`
+            )
+
         }
 
-        Object.keys(imageByName).forEach((expectedName) => {
-            const exists = snapshot.docs.some((document) => {
-                const item = document.data()
 
-                return (
-                    normalizeText(item.name) ===
-                    normalizeText(expectedName)
-                )
-            })
-
-            if (!exists) {
-                notFoundCount += 1
-
-                console.warn(
-                    `⚠️ No encontrado en Firestore: ${expectedName}`
-                )
-            }
-        })
-
+        console.log("")
         console.log(
-            `✅ ${updatedCount} imágenes actualizadas`
+            `✅ TERMINADO: ${updatedCount} imágenes actualizadas.`
         )
 
-        if (notFoundCount > 0) {
-            console.log(
-                `⚠️ ${notFoundCount} nombres no coincidieron con Firestore`
+
+        /*
+            Revisamos si algún nombre del mapa
+            no apareció en Firestore.
+        */
+
+        const missingItems = []
+
+
+        Object.keys(
+            imageByName
+        ).forEach(
+            (expectedName) => {
+
+                const exists =
+                    snapshot.docs.some(
+                        (
+                            documentSnapshot
+                        ) => {
+
+                            const item =
+                                documentSnapshot.data()
+
+                            return (
+                                normalizeText(
+                                    item.name
+                                ) ===
+                                normalizeText(
+                                    expectedName
+                                )
+                            )
+                        }
+                    )
+
+
+                if (!exists) {
+                    missingItems.push(
+                        expectedName
+                    )
+                }
+
+            }
+        )
+
+
+        if (
+            missingItems.length > 0
+        ) {
+
+            console.warn(
+                "⚠️ Estos platos no fueron encontrados:"
             )
+
+            missingItems.forEach(
+                (name) =>
+                    console.warn(
+                        `⚠️ ${name}`
+                    )
+            )
+
+        } else {
+
+            console.log(
+                "🎯 Todos los nombres del mapa fueron encontrados."
+            )
+
         }
+
     } catch (error) {
+
         console.error(
-            "❌ Error actualizando imágenes del menú:",
+            "❌ Error actualizando imágenes:",
             error
         )
+
     }
 }
