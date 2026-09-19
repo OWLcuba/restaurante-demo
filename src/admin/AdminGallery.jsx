@@ -1,4 +1,8 @@
-import { useEffect, useState } from "react"
+import {
+    useEffect,
+    useState
+} from "react"
+
 import {
     addDoc,
     collection,
@@ -7,18 +11,36 @@ import {
     getDocs,
     updateDoc
 } from "firebase/firestore"
-import { Link } from "react-router-dom"
 
-import { db } from "../firebase/firebase"
+import {
+    deleteObject,
+    getDownloadURL,
+    ref,
+    uploadBytes
+} from "firebase/storage"
+
+import {
+    Link
+} from "react-router-dom"
+
+import {
+    db,
+    storage
+} from "../firebase/firebase"
 
 import "./Admin.css"
 
+
+/* =====================================================
+   FORMULARIOS VACÍOS
+===================================================== */
 
 const emptyCategoryForm = {
     id: "",
     title: "",
     description: "",
     imageUrl: "",
+    imageStoragePath: "",
     order: "",
     active: true
 }
@@ -27,46 +49,119 @@ const emptyCategoryForm = {
 const emptyImageForm = {
     title: "",
     imageUrl: "",
+    storagePath: "",
     category: ""
 }
 
 
+/* =====================================================
+   COMPONENTE
+===================================================== */
+
 function AdminGallery() {
-    const [categories, setCategories] = useState([])
-    const [images, setImages] = useState([])
+    const [
+        categories,
+        setCategories
+    ] = useState([])
 
-    const [categoryForm, setCategoryForm] =
-        useState(emptyCategoryForm)
+    const [
+        images,
+        setImages
+    ] = useState([])
 
-    const [imageForm, setImageForm] =
-        useState(emptyImageForm)
+
+    const [
+        categoryForm,
+        setCategoryForm
+    ] = useState(
+        emptyCategoryForm
+    )
+
+
+    const [
+        imageForm,
+        setImageForm
+    ] = useState(
+        emptyImageForm
+    )
+
 
     const [
         editingCategoryId,
         setEditingCategoryId
     ] = useState(null)
 
+
     const [
         editingImageId,
         setEditingImageId
     ] = useState(null)
 
-    const [loading, setLoading] = useState(true)
-    const [savingCategory, setSavingCategory] =
-        useState(false)
 
-    const [savingImage, setSavingImage] =
-        useState(false)
-
-    const [categoryMessage, setCategoryMessage] =
-        useState("")
-
-    const [imageMessage, setImageMessage] =
-        useState("")
+    const [
+        categoryImageFile,
+        setCategoryImageFile
+    ] = useState(null)
 
 
-    const slugify = (text) => {
-        return text
+    const [
+        imageFile,
+        setImageFile
+    ] = useState(null)
+
+
+    const [
+        categoryPreview,
+        setCategoryPreview
+    ] = useState("")
+
+
+    const [
+        imagePreview,
+        setImagePreview
+    ] = useState("")
+
+
+    const [
+        loading,
+        setLoading
+    ] = useState(true)
+
+
+    const [
+        savingCategory,
+        setSavingCategory
+    ] = useState(false)
+
+
+    const [
+        savingImage,
+        setSavingImage
+    ] = useState(false)
+
+
+    const [
+        categoryMessage,
+        setCategoryMessage
+    ] = useState("")
+
+
+    const [
+        imageMessage,
+        setImageMessage
+    ] = useState("")
+
+
+    /* =====================================================
+       HELPERS
+    ===================================================== */
+
+    const slugify = (
+        text
+    ) => {
+        return String(
+            text || ""
+        )
             .normalize("NFD")
             .replace(
                 /[\u0300-\u036f]/g,
@@ -74,85 +169,286 @@ function AdminGallery() {
             )
             .toLowerCase()
             .trim()
-            .replace(/[^a-z0-9]+/g, "-")
-            .replace(/^-+|-+$/g, "")
+            .replace(
+                /[^a-z0-9]+/g,
+                "-"
+            )
+            .replace(
+                /^-+|-+$/g,
+                ""
+            )
     }
 
 
-    const loadGallery = async () => {
-        try {
-            const [
-                categorySnapshot,
-                imageSnapshot
-            ] = await Promise.all([
-                getDocs(
-                    collection(
-                        db,
-                        "galleryCategories"
-                    )
-                ),
+    const cleanFileName = (
+        fileName
+    ) => {
+        const dotIndex =
+            fileName.lastIndexOf(".")
 
-                getDocs(
-                    collection(
-                        db,
-                        "gallery"
-                    )
-                )
-            ])
 
-            const categoryData =
-                categorySnapshot.docs
-                    .map((document) => ({
-                        firebaseId:
-                            document.id,
+        const extension =
+            dotIndex >= 0
+                ? fileName
+                      .slice(
+                          dotIndex + 1
+                      )
+                      .toLowerCase()
+                : "jpg"
 
-                        ...document.data()
-                    }))
-                    .sort(
-                        (a, b) =>
-                            Number(
-                                a.order ?? 0
-                            ) -
-                            Number(
-                                b.order ?? 0
-                            )
-                    )
 
-            const imageData =
-                imageSnapshot.docs
-                    .map((document) => ({
-                        firebaseId:
-                            document.id,
+        const baseName =
+            dotIndex >= 0
+                ? fileName.slice(
+                      0,
+                      dotIndex
+                  )
+                : fileName
 
-                        ...document.data()
-                    }))
-                    .sort(
-                        (a, b) =>
-                            Number(a.id || 0) -
-                            Number(b.id || 0)
-                    )
 
-            setCategories(categoryData)
-            setImages(imageData)
-        } catch (error) {
-            console.error(
-                "Error al cargar galería:",
-                error
-            )
+        const cleanBase =
+            slugify(
+                baseName
+            ) ||
+            "imagen"
 
-            setCategoryMessage(
-                "No se pudo cargar la galería."
-            )
-        } finally {
-            setLoading(false)
+
+        return {
+            baseName:
+                cleanBase,
+
+            extension
         }
     }
+
+
+    const validateImageFile = (
+        file,
+        setMessage
+    ) => {
+        if (!file) {
+            return false
+        }
+
+
+        if (
+            !file.type.startsWith(
+                "image/"
+            )
+        ) {
+            setMessage(
+                "Selecciona un archivo de imagen válido."
+            )
+
+            return false
+        }
+
+
+        if (
+            file.size >
+            10 * 1024 * 1024
+        ) {
+            setMessage(
+                "La imagen no puede superar 10 MB."
+            )
+
+            return false
+        }
+
+
+        return true
+    }
+
+
+    const deleteStorageFile =
+        async (
+            storagePath
+        ) => {
+            if (!storagePath) {
+                return
+            }
+
+
+            try {
+                await deleteObject(
+                    ref(
+                        storage,
+                        storagePath
+                    )
+                )
+            } catch (error) {
+                /*
+                    Si el archivo ya no existe,
+                    no queremos romper el admin.
+                */
+
+                console.warn(
+                    "No se pudo eliminar archivo anterior de Storage:",
+                    storagePath,
+                    error
+                )
+            }
+        }
+
+
+    /* =====================================================
+       CARGAR GALERÍA
+    ===================================================== */
+
+    const loadGallery =
+        async () => {
+            try {
+                setLoading(true)
+
+
+                const [
+                    categorySnapshot,
+                    imageSnapshot
+                ] =
+                    await Promise.all([
+                        getDocs(
+                            collection(
+                                db,
+                                "galleryCategories"
+                            )
+                        ),
+
+                        getDocs(
+                            collection(
+                                db,
+                                "gallery"
+                            )
+                        )
+                    ])
+
+
+                const categoryData =
+                    categorySnapshot.docs
+                        .map(
+                            (
+                                document
+                            ) => ({
+                                firebaseId:
+                                    document.id,
+
+                                ...document.data()
+                            })
+                        )
+                        .sort(
+                            (
+                                a,
+                                b
+                            ) =>
+                                Number(
+                                    a.order ??
+                                        0
+                                ) -
+                                Number(
+                                    b.order ??
+                                        0
+                                )
+                        )
+
+
+                const imageData =
+                    imageSnapshot.docs
+                        .map(
+                            (
+                                document
+                            ) => ({
+                                firebaseId:
+                                    document.id,
+
+                                ...document.data()
+                            })
+                        )
+                        .sort(
+                            (
+                                a,
+                                b
+                            ) =>
+                                Number(
+                                    a.id ||
+                                        0
+                                ) -
+                                Number(
+                                    b.id ||
+                                        0
+                                )
+                        )
+
+
+                setCategories(
+                    categoryData
+                )
+
+                setImages(
+                    imageData
+                )
+
+            } catch (error) {
+                console.error(
+                    "Error al cargar galería:",
+                    error
+                )
+
+
+                setCategoryMessage(
+                    "No se pudo cargar la galería."
+                )
+
+            } finally {
+                setLoading(false)
+            }
+        }
 
 
     useEffect(() => {
         loadGallery()
     }, [])
 
+
+    /* =====================================================
+       LIMPIAR PREVIEWS BLOB
+    ===================================================== */
+
+    useEffect(() => {
+        return () => {
+            if (
+                categoryPreview.startsWith(
+                    "blob:"
+                )
+            ) {
+                URL.revokeObjectURL(
+                    categoryPreview
+                )
+            }
+        }
+    }, [
+        categoryPreview
+    ])
+
+
+    useEffect(() => {
+        return () => {
+            if (
+                imagePreview.startsWith(
+                    "blob:"
+                )
+            ) {
+                URL.revokeObjectURL(
+                    imagePreview
+                )
+            }
+        }
+    }, [
+        imagePreview
+    ])
+
+
+    /* =====================================================
+       CAMBIOS FORM CATEGORÍA
+    ===================================================== */
 
     const handleCategoryChange = (
         event
@@ -162,18 +458,75 @@ function AdminGallery() {
             value,
             type,
             checked
-        } = event.target
+        } =
+            event.target
 
-        setCategoryForm((current) => ({
-            ...current,
 
-            [name]:
-                type === "checkbox"
-                    ? checked
-                    : value
-        }))
+        setCategoryForm(
+            (current) => ({
+                ...current,
+
+                [name]:
+                    type ===
+                    "checkbox"
+                        ? checked
+                        : value
+            })
+        )
     }
 
+
+    /* =====================================================
+       FOTO DE PORTADA
+    ===================================================== */
+
+    const handleCategoryImageChange = (
+        event
+    ) => {
+        const file =
+            event.target.files?.[0]
+
+
+        if (
+            !validateImageFile(
+                file,
+                setCategoryMessage
+            )
+        ) {
+            return
+        }
+
+
+        if (
+            categoryPreview.startsWith(
+                "blob:"
+            )
+        ) {
+            URL.revokeObjectURL(
+                categoryPreview
+            )
+        }
+
+
+        setCategoryImageFile(
+            file
+        )
+
+
+        setCategoryPreview(
+            URL.createObjectURL(
+                file
+            )
+        )
+
+
+        setCategoryMessage("")
+    }
+
+
+    /* =====================================================
+       CAMBIOS FORM FOTO
+    ===================================================== */
 
     const handleImageChange = (
         event
@@ -181,155 +534,402 @@ function AdminGallery() {
         const {
             name,
             value
-        } = event.target
+        } =
+            event.target
 
-        setImageForm((current) => ({
-            ...current,
-            [name]: value
-        }))
+
+        setImageForm(
+            (current) => ({
+                ...current,
+
+                [name]:
+                    value
+            })
+        )
     }
 
 
+    /* =====================================================
+       FOTO GALERÍA
+    ===================================================== */
+
+    const handleGalleryImageChange = (
+        event
+    ) => {
+        const file =
+            event.target.files?.[0]
+
+
+        if (
+            !validateImageFile(
+                file,
+                setImageMessage
+            )
+        ) {
+            return
+        }
+
+
+        if (
+            imagePreview.startsWith(
+                "blob:"
+            )
+        ) {
+            URL.revokeObjectURL(
+                imagePreview
+            )
+        }
+
+
+        setImageFile(
+            file
+        )
+
+
+        setImagePreview(
+            URL.createObjectURL(
+                file
+            )
+        )
+
+
+        setImageMessage("")
+    }
+
+
+    /* =====================================================
+       RESET CATEGORÍA
+    ===================================================== */
+
     const resetCategoryForm = () => {
+        if (
+            categoryPreview.startsWith(
+                "blob:"
+            )
+        ) {
+            URL.revokeObjectURL(
+                categoryPreview
+            )
+        }
+
+
         setCategoryForm(
             emptyCategoryForm
         )
 
-        setEditingCategoryId(null)
+        setCategoryImageFile(
+            null
+        )
+
+        setCategoryPreview("")
+
+        setEditingCategoryId(
+            null
+        )
     }
 
 
+    /* =====================================================
+       RESET IMAGEN
+    ===================================================== */
+
     const resetImageForm = () => {
+        if (
+            imagePreview.startsWith(
+                "blob:"
+            )
+        ) {
+            URL.revokeObjectURL(
+                imagePreview
+            )
+        }
+
+
         setImageForm(
             emptyImageForm
         )
 
-        setEditingImageId(null)
+        setImageFile(
+            null
+        )
+
+        setImagePreview("")
+
+        setEditingImageId(
+            null
+        )
     }
 
 
-    const getNextImageId = () => {
-        const ids = images
-            .map((image) =>
-                Number(image.id)
-            )
-            .filter((id) =>
-                Number.isFinite(id)
-            )
+    /* =====================================================
+       SIGUIENTE ID DE IMAGEN
+    ===================================================== */
 
-        if (ids.length === 0) {
+    const getNextImageId = () => {
+        const ids =
+            images
+                .map(
+                    (image) =>
+                        Number(
+                            image.id
+                        )
+                )
+                .filter(
+                    (id) =>
+                        Number.isFinite(
+                            id
+                        )
+                )
+
+
+        if (
+            ids.length ===
+            0
+        ) {
             return 1
         }
 
-        return Math.max(...ids) + 1
+
+        return (
+            Math.max(
+                ...ids
+            ) + 1
+        )
     }
 
 
-    const handleCategorySubmit = async (
-        event
-    ) => {
-        event.preventDefault()
+    /* =====================================================
+       SUBIR PORTADA DE CATEGORÍA
+    ===================================================== */
 
-        try {
-            setSavingCategory(true)
-            setCategoryMessage("")
+    const uploadCategoryImage =
+        async (
+            categoryId
+        ) => {
+            if (
+                !categoryImageFile
+            ) {
+                return {
+                    imageUrl:
+                        categoryForm.imageUrl,
 
-            const categoryId =
-                categoryForm.id.trim() ||
-                slugify(
-                    categoryForm.title
-                )
-
-            if (!categoryId) {
-                setCategoryMessage(
-                    "No se pudo generar el ID de la categoría."
-                )
-
-                return
-            }
-
-            const duplicate =
-                categories.some(
-                    (category) =>
-                        category.id ===
-                            categoryId &&
-                        category.firebaseId !==
-                            editingCategoryId
-                )
-
-            if (duplicate) {
-                setCategoryMessage(
-                    `Ya existe una categoría con el ID "${categoryId}".`
-                )
-
-                return
-            }
-
-            const categoryData = {
-                id: categoryId,
-
-                title:
-                    categoryForm.title.trim(),
-
-                description:
-                    categoryForm.description.trim(),
-
-                imageUrl:
-                    categoryForm.imageUrl.trim(),
-
-                order:
-                    Number(
-                        categoryForm.order || 0
-                    ),
-
-                active:
-                    categoryForm.active
+                    imageStoragePath:
+                        categoryForm.imageStoragePath
+                }
             }
 
 
-            if (editingCategoryId) {
-                await updateDoc(
-                    doc(
-                        db,
-                        "galleryCategories",
-                        editingCategoryId
-                    ),
-                    categoryData
+            const {
+                extension
+            } =
+                cleanFileName(
+                    categoryImageFile.name
                 )
 
-                setCategoryMessage(
-                    "Categoría actualizada correctamente."
-                )
-            } else {
-                await addDoc(
-                    collection(
-                        db,
-                        "galleryCategories"
-                    ),
-                    categoryData
+
+            const storagePath =
+                `gallery/categories/${categoryId}/cover-${Date.now()}.${extension}`
+
+
+            const storageRef =
+                ref(
+                    storage,
+                    storagePath
                 )
 
-                setCategoryMessage(
-                    "Categoría creada correctamente."
-                )
-            }
 
-            resetCategoryForm()
-            await loadGallery()
-        } catch (error) {
-            console.error(
-                "Error al guardar categoría:",
-                error
+            await uploadBytes(
+                storageRef,
+                categoryImageFile,
+                {
+                    contentType:
+                        categoryImageFile.type
+                }
             )
 
-            setCategoryMessage(
-                "No se pudo guardar la categoría."
-            )
-        } finally {
-            setSavingCategory(false)
+
+            const imageUrl =
+                await getDownloadURL(
+                    storageRef
+                )
+
+
+            return {
+                imageUrl,
+                imageStoragePath:
+                    storagePath
+            }
         }
-    }
 
+
+    /* =====================================================
+       GUARDAR CATEGORÍA
+    ===================================================== */
+
+    const handleCategorySubmit =
+        async (
+            event
+        ) => {
+            event.preventDefault()
+
+
+            try {
+                setSavingCategory(
+                    true
+                )
+
+                setCategoryMessage(
+                    ""
+                )
+
+
+                const categoryId =
+                    categoryForm.id.trim() ||
+                    slugify(
+                        categoryForm.title
+                    )
+
+
+                if (!categoryId) {
+                    setCategoryMessage(
+                        "No se pudo generar el ID de la categoría."
+                    )
+
+                    return
+                }
+
+
+                const duplicate =
+                    categories.some(
+                        (
+                            category
+                        ) =>
+                            category.id ===
+                                categoryId &&
+                            category.firebaseId !==
+                                editingCategoryId
+                    )
+
+
+                if (duplicate) {
+                    setCategoryMessage(
+                        `Ya existe una categoría con el ID "${categoryId}".`
+                    )
+
+                    return
+                }
+
+
+                const oldStoragePath =
+                    categoryForm.imageStoragePath
+
+
+                const uploaded =
+                    await uploadCategoryImage(
+                        categoryId
+                    )
+
+
+                const categoryData = {
+                    id:
+                        categoryId,
+
+                    title:
+                        categoryForm.title.trim(),
+
+                    description:
+                        categoryForm.description.trim(),
+
+                    imageUrl:
+                        uploaded.imageUrl ||
+                        "",
+
+                    imageStoragePath:
+                        uploaded.imageStoragePath ||
+                        "",
+
+                    order:
+                        Number(
+                            categoryForm.order ||
+                                0
+                        ),
+
+                    active:
+                        categoryForm.active
+                }
+
+
+                if (
+                    editingCategoryId
+                ) {
+                    await updateDoc(
+                        doc(
+                            db,
+                            "galleryCategories",
+                            editingCategoryId
+                        ),
+                        categoryData
+                    )
+
+
+                    if (
+                        categoryImageFile &&
+                        oldStoragePath &&
+                        oldStoragePath !==
+                            uploaded.imageStoragePath
+                    ) {
+                        await deleteStorageFile(
+                            oldStoragePath
+                        )
+                    }
+
+
+                    setCategoryMessage(
+                        "Categoría actualizada correctamente."
+                    )
+
+                } else {
+                    await addDoc(
+                        collection(
+                            db,
+                            "galleryCategories"
+                        ),
+                        categoryData
+                    )
+
+
+                    setCategoryMessage(
+                        "Categoría creada correctamente."
+                    )
+                }
+
+
+                resetCategoryForm()
+
+                await loadGallery()
+
+            } catch (error) {
+                console.error(
+                    "Error al guardar categoría:",
+                    error
+                )
+
+
+                setCategoryMessage(
+                    "No se pudo guardar la categoría."
+                )
+
+            } finally {
+                setSavingCategory(
+                    false
+                )
+            }
+        }
+
+
+    /* =====================================================
+       EDITAR CATEGORÍA
+    ===================================================== */
 
     const handleEditCategory = (
         category
@@ -338,210 +938,440 @@ function AdminGallery() {
             category.firebaseId
         )
 
+
         setCategoryForm({
             id:
-                category.id || "",
+                category.id ||
+                "",
 
             title:
-                category.title || "",
+                category.title ||
+                "",
 
             description:
-                category.description || "",
+                category.description ||
+                "",
 
             imageUrl:
-                category.imageUrl || "",
+                category.imageUrl ||
+                "",
+
+            imageStoragePath:
+                category.imageStoragePath ||
+                "",
 
             order:
-                category.order ?? "",
+                category.order ??
+                "",
 
             active:
-                category.active !== false
+                category.active !==
+                false
         })
+
+
+        setCategoryImageFile(
+            null
+        )
+
+
+        setCategoryPreview(
+            category.imageUrl ||
+            ""
+        )
+
 
         window.scrollTo({
             top: 0,
-            behavior: "smooth"
+            behavior:
+                "smooth"
         })
     }
 
 
-    const toggleCategoryActive = async (
-        category
-    ) => {
-        try {
-            const newValue =
-                category.active === false
+    /* =====================================================
+       ACTIVAR / DESACTIVAR
+    ===================================================== */
 
-            await updateDoc(
-                doc(
-                    db,
-                    "galleryCategories",
-                    category.firebaseId
-                ),
-                {
-                    active: newValue
-                }
-            )
-
-            setCategories((current) =>
-                current.map((item) =>
-                    item.firebaseId ===
-                    category.firebaseId
-                        ? {
-                              ...item,
-                              active: newValue
-                          }
-                        : item
-                )
-            )
-        } catch (error) {
-            console.error(
-                "Error al cambiar categoría:",
-                error
-            )
-
-            setCategoryMessage(
-                "No se pudo cambiar el estado."
-            )
-        }
-    }
+    const toggleCategoryActive =
+        async (
+            category
+        ) => {
+            try {
+                const newValue =
+                    category.active ===
+                    false
 
 
-    const handleDeleteCategory = async (
-        category
-    ) => {
-        const linkedImages =
-            images.filter(
-                (image) =>
-                    image.category ===
-                    category.id
-            )
-
-        if (linkedImages.length > 0) {
-            setCategoryMessage(
-                `No puedes eliminar "${category.title}" porque tiene ${linkedImages.length} imagen(es). Elimina o mueve esas imágenes primero.`
-            )
-
-            return
-        }
-
-        const confirmed =
-            window.confirm(
-                `¿Eliminar la categoría "${category.title}"?`
-            )
-
-        if (!confirmed) {
-            return
-        }
-
-        try {
-            await deleteDoc(
-                doc(
-                    db,
-                    "galleryCategories",
-                    category.firebaseId
-                )
-            )
-
-            setCategories((current) =>
-                current.filter(
-                    (item) =>
-                        item.firebaseId !==
-                        category.firebaseId
-                )
-            )
-
-            if (
-                editingCategoryId ===
-                category.firebaseId
-            ) {
-                resetCategoryForm()
-            }
-
-            setCategoryMessage(
-                "Categoría eliminada correctamente."
-            )
-        } catch (error) {
-            console.error(
-                "Error al eliminar categoría:",
-                error
-            )
-
-            setCategoryMessage(
-                "No se pudo eliminar la categoría."
-            )
-        }
-    }
-
-
-    const handleImageSubmit = async (
-        event
-    ) => {
-        event.preventDefault()
-
-        try {
-            setSavingImage(true)
-            setImageMessage("")
-
-            const imageData = {
-                title:
-                    imageForm.title.trim(),
-
-                imageUrl:
-                    imageForm.imageUrl.trim(),
-
-                category:
-                    imageForm.category
-            }
-
-
-            if (editingImageId) {
                 await updateDoc(
                     doc(
                         db,
-                        "gallery",
-                        editingImageId
-                    ),
-                    imageData
-                )
-
-                setImageMessage(
-                    "Imagen actualizada correctamente."
-                )
-            } else {
-                await addDoc(
-                    collection(
-                        db,
-                        "gallery"
+                        "galleryCategories",
+                        category.firebaseId
                     ),
                     {
-                        ...imageData,
-                        id:
-                            getNextImageId()
+                        active:
+                            newValue
                     }
                 )
 
-                setImageMessage(
-                    "Imagen agregada correctamente."
+
+                setCategories(
+                    (
+                        current
+                    ) =>
+                        current.map(
+                            (
+                                item
+                            ) =>
+                                item.firebaseId ===
+                                category.firebaseId
+                                    ? {
+                                          ...item,
+
+                                          active:
+                                              newValue
+                                      }
+                                    : item
+                        )
+                )
+
+            } catch (error) {
+                console.error(
+                    "Error al cambiar categoría:",
+                    error
+                )
+
+
+                setCategoryMessage(
+                    "No se pudo cambiar el estado."
                 )
             }
-
-            resetImageForm()
-            await loadGallery()
-        } catch (error) {
-            console.error(
-                "Error al guardar imagen:",
-                error
-            )
-
-            setImageMessage(
-                "No se pudo guardar la imagen."
-            )
-        } finally {
-            setSavingImage(false)
         }
-    }
 
+
+    /* =====================================================
+       ELIMINAR CATEGORÍA
+    ===================================================== */
+
+    const handleDeleteCategory =
+        async (
+            category
+        ) => {
+            const linkedImages =
+                images.filter(
+                    (
+                        image
+                    ) =>
+                        image.category ===
+                        category.id
+                )
+
+
+            if (
+                linkedImages.length >
+                0
+            ) {
+                setCategoryMessage(
+                    `No puedes eliminar "${category.title}" porque tiene ${linkedImages.length} imagen(es). Elimina o mueve esas imágenes primero.`
+                )
+
+                return
+            }
+
+
+            const confirmed =
+                window.confirm(
+                    `¿Eliminar la categoría "${category.title}"?`
+                )
+
+
+            if (!confirmed) {
+                return
+            }
+
+
+            try {
+                await deleteDoc(
+                    doc(
+                        db,
+                        "galleryCategories",
+                        category.firebaseId
+                    )
+                )
+
+
+                if (
+                    category.imageStoragePath
+                ) {
+                    await deleteStorageFile(
+                        category.imageStoragePath
+                    )
+                }
+
+
+                setCategories(
+                    (
+                        current
+                    ) =>
+                        current.filter(
+                            (
+                                item
+                            ) =>
+                                item.firebaseId !==
+                                category.firebaseId
+                        )
+                )
+
+
+                if (
+                    editingCategoryId ===
+                    category.firebaseId
+                ) {
+                    resetCategoryForm()
+                }
+
+
+                setCategoryMessage(
+                    "Categoría eliminada correctamente."
+                )
+
+            } catch (error) {
+                console.error(
+                    "Error al eliminar categoría:",
+                    error
+                )
+
+
+                setCategoryMessage(
+                    "No se pudo eliminar la categoría."
+                )
+            }
+        }
+
+
+    /* =====================================================
+       SUBIR IMAGEN DE GALERÍA
+    ===================================================== */
+
+    const uploadGalleryImage =
+        async (
+            categoryId
+        ) => {
+            if (!imageFile) {
+                return {
+                    imageUrl:
+                        imageForm.imageUrl,
+
+                    storagePath:
+                        imageForm.storagePath
+                }
+            }
+
+
+            const {
+                baseName,
+                extension
+            } =
+                cleanFileName(
+                    imageFile.name
+                )
+
+
+            const storagePath =
+                `gallery/${categoryId}/${Date.now()}-${baseName}.${extension}`
+
+
+            const storageRef =
+                ref(
+                    storage,
+                    storagePath
+                )
+
+
+            await uploadBytes(
+                storageRef,
+                imageFile,
+                {
+                    contentType:
+                        imageFile.type
+                }
+            )
+
+
+            const imageUrl =
+                await getDownloadURL(
+                    storageRef
+                )
+
+
+            return {
+                imageUrl,
+                storagePath
+            }
+        }
+
+
+    /* =====================================================
+       GUARDAR IMAGEN
+    ===================================================== */
+
+    const handleImageSubmit =
+        async (
+            event
+        ) => {
+            event.preventDefault()
+
+
+            try {
+                setSavingImage(
+                    true
+                )
+
+                setImageMessage(
+                    ""
+                )
+
+
+                if (
+                    !imageForm.category
+                ) {
+                    setImageMessage(
+                        "Selecciona una categoría."
+                    )
+
+                    return
+                }
+
+
+                if (
+                    !editingImageId &&
+                    !imageFile
+                ) {
+                    setImageMessage(
+                        "Selecciona una imagen desde tu dispositivo."
+                    )
+
+                    return
+                }
+
+
+                const oldStoragePath =
+                    imageForm.storagePath
+
+
+                const uploaded =
+                    await uploadGalleryImage(
+                        imageForm.category
+                    )
+
+
+                if (
+                    !uploaded.imageUrl
+                ) {
+                    setImageMessage(
+                        "No se pudo obtener la imagen."
+                    )
+
+                    return
+                }
+
+
+                const imageData = {
+                    title:
+                        imageForm.title.trim(),
+
+                    imageUrl:
+                        uploaded.imageUrl,
+
+                    storagePath:
+                        uploaded.storagePath ||
+                        "",
+
+                    category:
+                        imageForm.category
+                }
+
+
+                if (
+                    editingImageId
+                ) {
+                    await updateDoc(
+                        doc(
+                            db,
+                            "gallery",
+                            editingImageId
+                        ),
+                        imageData
+                    )
+
+
+                    if (
+                        imageFile &&
+                        oldStoragePath &&
+                        oldStoragePath !==
+                            uploaded.storagePath
+                    ) {
+                        await deleteStorageFile(
+                            oldStoragePath
+                        )
+                    }
+
+
+                    setImageMessage(
+                        "Imagen actualizada correctamente."
+                    )
+
+                } else {
+                    await addDoc(
+                        collection(
+                            db,
+                            "gallery"
+                        ),
+                        {
+                            ...imageData,
+
+                            id:
+                                getNextImageId(),
+
+                            active:
+                                true
+                        }
+                    )
+
+
+                    setImageMessage(
+                        "Imagen agregada correctamente."
+                    )
+                }
+
+
+                resetImageForm()
+
+                await loadGallery()
+
+            } catch (error) {
+                console.error(
+                    "Error al guardar imagen:",
+                    error
+                )
+
+
+                setImageMessage(
+                    "No se pudo guardar la imagen."
+                )
+
+            } finally {
+                setSavingImage(
+                    false
+                )
+            }
+        }
+
+
+    /* =====================================================
+       EDITAR IMAGEN
+    ===================================================== */
 
     const handleEditImage = (
         image
@@ -550,82 +1380,136 @@ function AdminGallery() {
             image.firebaseId
         )
 
+
         setImageForm({
             title:
-                image.title || "",
+                image.title ||
+                "",
 
             imageUrl:
-                image.imageUrl || "",
+                image.imageUrl ||
+                "",
+
+            storagePath:
+                image.storagePath ||
+                "",
 
             category:
-                image.category || ""
+                image.category ||
+                ""
         })
+
+
+        setImageFile(
+            null
+        )
+
+
+        setImagePreview(
+            image.imageUrl ||
+            ""
+        )
+
 
         document
             .getElementById(
                 "admin-gallery-images"
             )
             ?.scrollIntoView({
-                behavior: "smooth",
-                block: "start"
+                behavior:
+                    "smooth",
+
+                block:
+                    "start"
             })
     }
 
 
-    const handleDeleteImage = async (
-        image
-    ) => {
-        const confirmed =
-            window.confirm(
-                `¿Eliminar "${image.title}"?`
-            )
+    /* =====================================================
+       ELIMINAR IMAGEN
+    ===================================================== */
 
-        if (!confirmed) {
-            return
-        }
-
-        try {
-            await deleteDoc(
-                doc(
-                    db,
-                    "gallery",
-                    image.firebaseId
+    const handleDeleteImage =
+        async (
+            image
+        ) => {
+            const confirmed =
+                window.confirm(
+                    `¿Eliminar "${image.title}"?`
                 )
-            )
 
-            setImages((current) =>
-                current.filter(
-                    (item) =>
-                        item.firebaseId !==
-                        image.firebaseId
-                )
-            )
 
-            if (
-                editingImageId ===
-                image.firebaseId
-            ) {
-                resetImageForm()
+            if (!confirmed) {
+                return
             }
 
-            setImageMessage(
-                "Imagen eliminada correctamente."
-            )
-        } catch (error) {
-            console.error(
-                "Error al eliminar imagen:",
-                error
-            )
 
-            setImageMessage(
-                "No se pudo eliminar la imagen."
-            )
+            try {
+                await deleteDoc(
+                    doc(
+                        db,
+                        "gallery",
+                        image.firebaseId
+                    )
+                )
+
+
+                if (
+                    image.storagePath
+                ) {
+                    await deleteStorageFile(
+                        image.storagePath
+                    )
+                }
+
+
+                setImages(
+                    (
+                        current
+                    ) =>
+                        current.filter(
+                            (
+                                item
+                            ) =>
+                                item.firebaseId !==
+                                image.firebaseId
+                        )
+                )
+
+
+                if (
+                    editingImageId ===
+                    image.firebaseId
+                ) {
+                    resetImageForm()
+                }
+
+
+                setImageMessage(
+                    "Imagen eliminada correctamente."
+                )
+
+            } catch (error) {
+                console.error(
+                    "Error al eliminar imagen:",
+                    error
+                )
+
+
+                setImageMessage(
+                    "No se pudo eliminar la imagen."
+                )
+            }
         }
-    }
 
+
+    /* =====================================================
+       RENDER
+    ===================================================== */
 
     return (
         <main className="admin-page">
+
             <Link
                 to="/admin"
                 className="admin-back-link"
@@ -635,6 +1519,7 @@ function AdminGallery() {
 
 
             <section className="admin-header">
+
                 <span className="admin-kicker">
                     GALERÍA
                 </span>
@@ -644,15 +1529,21 @@ function AdminGallery() {
                 </h1>
 
                 <p>
-                    Administra las categorías y
-                    las fotografías almacenadas
-                    directamente en Firestore.
+                    Sube fotografías directamente
+                    desde tu teléfono o computadora.
                 </p>
+
             </section>
 
 
+            {/* =====================================================
+                CATEGORÍA
+            ===================================================== */}
+
             <section className="admin-section admin-section-first">
+
                 <div className="admin-section-title">
+
                     <span className="admin-kicker">
                         CATEGORÍAS
                     </span>
@@ -662,6 +1553,7 @@ function AdminGallery() {
                             ? "Editar categoría"
                             : "Nueva categoría"}
                     </h2>
+
                 </div>
 
 
@@ -671,6 +1563,7 @@ function AdminGallery() {
                         handleCategorySubmit
                     }
                 >
+
                     <label>
                         Nombre
 
@@ -710,7 +1603,7 @@ function AdminGallery() {
                     </label>
 
 
-                    <label>
+                    <label className="admin-full-field">
                         Descripción
 
                         <textarea
@@ -727,22 +1620,40 @@ function AdminGallery() {
                     </label>
 
 
-                    <label>
+                    <label className="admin-full-field">
+
                         Imagen de portada
 
                         <input
-                            type="text"
-                            name="imageUrl"
-                            value={
-                                categoryForm.imageUrl
-                            }
+                            type="file"
+                            accept="image/*"
                             onChange={
-                                handleCategoryChange
+                                handleCategoryImageChange
                             }
-                            placeholder="/images/bandeja.jpg"
-                            required
                         />
+
                     </label>
+
+
+                    {categoryPreview && (
+
+                        <div className="admin-full-field admin-content-card">
+
+                            <p>
+                                Vista previa
+                            </p>
+
+                            <img
+                                className="admin-card-image"
+                                src={
+                                    categoryPreview
+                                }
+                                alt="Vista previa de categoría"
+                            />
+
+                        </div>
+
+                    )}
 
 
                     <label>
@@ -765,6 +1676,7 @@ function AdminGallery() {
 
 
                     <label className="admin-checkbox-label">
+
                         <input
                             type="checkbox"
                             name="active"
@@ -777,10 +1689,12 @@ function AdminGallery() {
                         />
 
                         Categoría activa
+
                     </label>
 
 
                     <div className="admin-form-actions">
+
                         <button
                             type="submit"
                             className="admin-save-button"
@@ -797,6 +1711,7 @@ function AdminGallery() {
 
 
                         {editingCategoryId && (
+
                             <button
                                 type="button"
                                 className="admin-cancel-button"
@@ -806,23 +1721,35 @@ function AdminGallery() {
                             >
                                 Cancelar edición
                             </button>
+
                         )}
+
                     </div>
 
 
                     {categoryMessage && (
+
                         <p className="admin-message">
                             {
                                 categoryMessage
                             }
                         </p>
+
                     )}
+
                 </form>
+
             </section>
 
 
+            {/* =====================================================
+                CATEGORÍAS ACTUALES
+            ===================================================== */}
+
             <section className="admin-section">
+
                 <div className="admin-section-title">
+
                     <span className="admin-kicker">
                         CATEGORÍAS ACTUALES
                     </span>
@@ -830,29 +1757,41 @@ function AdminGallery() {
                     <h2>
                         Colecciones de fotos
                     </h2>
+
                 </div>
 
 
                 {loading ? (
+
                     <p>
                         Cargando galería...
                     </p>
+
                 ) : categories.length ===
                   0 ? (
+
                     <p className="admin-empty">
                         No hay categorías
                         guardadas.
                     </p>
+
                 ) : (
+
                     <div className="admin-grid">
+
                         {categories.map(
-                            (category) => {
+                            (
+                                category
+                            ) => {
                                 const totalImages =
                                     images.filter(
-                                        (image) =>
+                                        (
+                                            image
+                                        ) =>
                                             image.category ===
                                             category.id
                                     ).length
+
 
                                 return (
                                     <article
@@ -861,7 +1800,9 @@ function AdminGallery() {
                                         }
                                         className="admin-card admin-content-card"
                                     >
+
                                         {category.imageUrl && (
+
                                             <img
                                                 className="admin-card-image"
                                                 src={
@@ -871,9 +1812,12 @@ function AdminGallery() {
                                                     category.title
                                                 }
                                             />
+
                                         )}
 
+
                                         <div>
+
                                             <span
                                                 className={
                                                     category.active ===
@@ -888,6 +1832,7 @@ function AdminGallery() {
                                                     : "Activa"}
                                             </span>
 
+
                                             <p>
                                                 ID:{" "}
                                                 {
@@ -895,17 +1840,20 @@ function AdminGallery() {
                                                 }
                                             </p>
 
+
                                             <h2>
                                                 {
                                                     category.title
                                                 }
                                             </h2>
 
+
                                             <p>
                                                 {
                                                     category.description
                                                 }
                                             </p>
+
 
                                             <p className="admin-gallery-count">
                                                 📸{" "}
@@ -919,15 +1867,19 @@ function AdminGallery() {
                                                     : "es"}
                                             </p>
 
+
                                             <small className="admin-order-label">
                                                 Orden:{" "}
                                                 {
                                                     category.order
                                                 }
                                             </small>
+
                                         </div>
 
+
                                         <div className="admin-card-actions">
+
                                             <button
                                                 type="button"
                                                 onClick={() =>
@@ -938,6 +1890,7 @@ function AdminGallery() {
                                             >
                                                 Editar
                                             </button>
+
 
                                             <button
                                                 type="button"
@@ -954,6 +1907,7 @@ function AdminGallery() {
                                                     : "Desactivar"}
                                             </button>
 
+
                                             <button
                                                 type="button"
                                                 className="admin-danger-button"
@@ -965,21 +1919,32 @@ function AdminGallery() {
                                             >
                                                 Eliminar
                                             </button>
+
                                         </div>
+
                                     </article>
                                 )
                             }
                         )}
+
                     </div>
+
                 )}
+
             </section>
 
+
+            {/* =====================================================
+                SUBIR FOTOGRAFÍA
+            ===================================================== */}
 
             <section
                 id="admin-gallery-images"
                 className="admin-section"
             >
+
                 <div className="admin-section-title">
+
                     <span className="admin-kicker">
                         FOTOGRAFÍAS
                     </span>
@@ -989,6 +1954,7 @@ function AdminGallery() {
                             ? "Editar imagen"
                             : "Agregar imagen"}
                     </h2>
+
                 </div>
 
 
@@ -998,6 +1964,7 @@ function AdminGallery() {
                         handleImageSubmit
                     }
                 >
+
                     <label>
                         Título
 
@@ -1016,24 +1983,6 @@ function AdminGallery() {
 
 
                     <label>
-                        URL de imagen
-
-                        <input
-                            type="text"
-                            name="imageUrl"
-                            value={
-                                imageForm.imageUrl
-                            }
-                            onChange={
-                                handleImageChange
-                            }
-                            placeholder="/images/tacos.jpg"
-                            required
-                        />
-                    </label>
-
-
-                    <label>
                         Categoría
 
                         <select
@@ -1046,12 +1995,17 @@ function AdminGallery() {
                             }
                             required
                         >
+
                             <option value="">
                                 Selecciona una categoría
                             </option>
 
+
                             {categories.map(
-                                (category) => (
+                                (
+                                    category
+                                ) => (
+
                                     <option
                                         key={
                                             category.firebaseId
@@ -1064,13 +2018,53 @@ function AdminGallery() {
                                             category.title
                                         }
                                     </option>
+
                                 )
                             )}
+
                         </select>
                     </label>
 
 
+                    <label className="admin-full-field">
+
+                        Seleccionar imagen
+
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={
+                                handleGalleryImageChange
+                            }
+                        />
+
+                    </label>
+
+
+                    {imagePreview && (
+
+                        <div className="admin-full-field admin-content-card">
+
+                            <p>
+                                Vista previa
+                            </p>
+
+
+                            <img
+                                className="admin-card-image"
+                                src={
+                                    imagePreview
+                                }
+                                alt="Vista previa"
+                            />
+
+                        </div>
+
+                    )}
+
+
                     <div className="admin-form-actions">
+
                         <button
                             type="submit"
                             className="admin-save-button"
@@ -1079,7 +2073,7 @@ function AdminGallery() {
                             }
                         >
                             {savingImage
-                                ? "Guardando..."
+                                ? "Subiendo..."
                                 : editingImageId
                                   ? "Guardar cambios"
                                   : "Agregar imagen"}
@@ -1087,6 +2081,7 @@ function AdminGallery() {
 
 
                         {editingImageId && (
+
                             <button
                                 type="button"
                                 className="admin-cancel-button"
@@ -1096,23 +2091,35 @@ function AdminGallery() {
                             >
                                 Cancelar edición
                             </button>
+
                         )}
+
                     </div>
 
 
                     {imageMessage && (
+
                         <p className="admin-message">
                             {
                                 imageMessage
                             }
                         </p>
+
                     )}
+
                 </form>
+
             </section>
 
 
+            {/* =====================================================
+                IMÁGENES ACTUALES
+            ===================================================== */}
+
             <section className="admin-section">
+
                 <div className="admin-section-title">
+
                     <span className="admin-kicker">
                         IMÁGENES
                     </span>
@@ -1120,38 +2127,56 @@ function AdminGallery() {
                     <h2>
                         Galería actual
                     </h2>
+
                 </div>
 
 
                 {loading ? (
+
                     <p>
                         Cargando imágenes...
                     </p>
-                ) : images.length === 0 ? (
+
+                ) : images.length ===
+                  0 ? (
+
                     <p className="admin-empty">
                         No hay imágenes guardadas.
                     </p>
+
                 ) : (
+
                     <div className="admin-grid">
+
                         {images.map(
-                            (image) => (
+                            (
+                                image
+                            ) => (
+
                                 <article
                                     key={
                                         image.firebaseId
                                     }
                                     className="admin-card admin-content-card"
                                 >
-                                    <img
-                                        className="admin-card-image"
-                                        src={
-                                            image.imageUrl
-                                        }
-                                        alt={
-                                            image.title
-                                        }
-                                    />
+
+                                    {image.imageUrl && (
+
+                                        <img
+                                            className="admin-card-image"
+                                            src={
+                                                image.imageUrl
+                                            }
+                                            alt={
+                                                image.title
+                                            }
+                                        />
+
+                                    )}
+
 
                                     <div>
+
                                         <p>
                                             {
                                                 image.category
@@ -1166,11 +2191,16 @@ function AdminGallery() {
 
                                         <small className="admin-order-label">
                                             ID:{" "}
-                                            {image.id}
+                                            {
+                                                image.id
+                                            }
                                         </small>
+
                                     </div>
 
+
                                     <div className="admin-card-actions">
+
                                         <button
                                             type="button"
                                             onClick={() =>
@@ -1181,6 +2211,7 @@ function AdminGallery() {
                                         >
                                             Editar
                                         </button>
+
 
                                         <button
                                             type="button"
@@ -1193,15 +2224,23 @@ function AdminGallery() {
                                         >
                                             Eliminar
                                         </button>
+
                                     </div>
+
                                 </article>
+
                             )
                         )}
+
                     </div>
+
                 )}
+
             </section>
+
         </main>
     )
 }
+
 
 export default AdminGallery

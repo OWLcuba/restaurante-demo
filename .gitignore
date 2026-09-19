@@ -24,3 +24,14 @@ dist-ssr
 *.sw?
 
 .vercel
+
+
+# Credenciales Firebase Admin
+local-secrets/
+
+Add-Content .gitignore "`n# Firebase Admin credentials`nlocal-secrets/"
+# Firebase Admin credentials
+local-secrets/
+
+# Firebase Admin credentials
+local-secrets/

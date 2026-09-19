@@ -13,13 +13,21 @@ import {
 } from "firebase/firestore"
 
 import {
+    deleteObject,
+    getDownloadURL,
+    ref,
+    uploadBytes
+} from "firebase/storage"
+
+import {
     Link,
     useNavigate,
     useParams
 } from "react-router-dom"
 
 import {
-    db
+    db,
+    storage
 } from "../firebase/firebase"
 
 import "./Admin.css"
@@ -68,6 +76,7 @@ const createEmptyForm = () => ({
     dateLabel: "",
     description: "",
     imageUrl: "",
+    imageStoragePath: "",
     active: true,
 
     offers:
@@ -75,10 +84,6 @@ const createEmptyForm = () => ({
 
     seatStatus: {},
 
-    /*
-        Disponibilidad independiente
-        para cada área de pie.
-    */
     standingAvailability: {}
 })
 
@@ -176,14 +181,6 @@ const getAreaCapacity = (
 }
 
 
-/*
-    Crea la disponibilidad General
-    a partir del local.
-
-    También migra eventos viejos que
-    solo tenían offer.available.
-*/
-
 const createStandingAvailability = (
     areas = [],
     savedAvailability = null,
@@ -191,10 +188,6 @@ const createStandingAvailability = (
 ) => {
     const result = {}
 
-
-    /*
-        Ya existe el nuevo formato.
-    */
 
     if (
         savedAvailability &&
@@ -239,12 +232,6 @@ const createStandingAvailability = (
         return result
     }
 
-
-    /*
-        Evento viejo:
-        distribuimos offer.available
-        entre las áreas.
-    */
 
     const hasLegacyTotal =
         legacyTotal !== "" &&
@@ -312,11 +299,6 @@ const createStandingAvailability = (
         return result
     }
 
-
-    /*
-        Evento nuevo:
-        empieza lleno.
-    */
 
     areas.forEach(
         (area) => {
@@ -395,6 +377,18 @@ function AdminEventForm() {
     const [
         message,
         setMessage
+    ] = useState("")
+
+
+    const [
+        imageFile,
+        setImageFile
+    ] = useState(null)
+
+
+    const [
+        imagePreview,
+        setImagePreview
     ] = useState("")
 
 
@@ -481,6 +475,212 @@ function AdminEventForm() {
 
 
     /* =====================================================
+       IMAGEN DEL EVENTO
+    ===================================================== */
+
+    const handleImageChange = (
+        event
+    ) => {
+        const file =
+            event.target.files?.[0]
+
+
+        if (!file) {
+            return
+        }
+
+
+        if (
+            !file.type.startsWith(
+                "image/"
+            )
+        ) {
+            setMessage(
+                "Selecciona un archivo de imagen válido."
+            )
+
+            return
+        }
+
+
+        if (
+            file.size >
+            10 * 1024 * 1024
+        ) {
+            setMessage(
+                "La imagen no puede superar 10 MB."
+            )
+
+            return
+        }
+
+
+        if (
+            imagePreview.startsWith(
+                "blob:"
+            )
+        ) {
+            URL.revokeObjectURL(
+                imagePreview
+            )
+        }
+
+
+        setImageFile(
+            file
+        )
+
+
+        setImagePreview(
+            URL.createObjectURL(
+                file
+            )
+        )
+
+
+        setMessage("")
+    }
+
+
+    const getFileExtension = (
+        file
+    ) => {
+        const fileName =
+            file?.name ||
+            ""
+
+
+        const parts =
+            fileName.split(".")
+
+
+        if (
+            parts.length > 1
+        ) {
+            return parts
+                .pop()
+                .toLowerCase()
+        }
+
+
+        if (
+            file?.type ===
+            "image/png"
+        ) {
+            return "png"
+        }
+
+
+        if (
+            file?.type ===
+            "image/webp"
+        ) {
+            return "webp"
+        }
+
+
+        return "jpg"
+    }
+
+
+    const uploadEventImage = async (
+        documentId
+    ) => {
+        if (!imageFile) {
+            return {
+                imageUrl:
+                    formData.imageUrl,
+
+                imageStoragePath:
+                    formData.imageStoragePath
+            }
+        }
+
+
+        const extension =
+            getFileExtension(
+                imageFile
+            )
+
+
+        const storagePath =
+            `events/${documentId}/event-${Date.now()}.${extension}`
+
+
+        const imageRef =
+            ref(
+                storage,
+                storagePath
+            )
+
+
+        await uploadBytes(
+            imageRef,
+            imageFile,
+            {
+                contentType:
+                    imageFile.type
+            }
+        )
+
+
+        const imageUrl =
+            await getDownloadURL(
+                imageRef
+            )
+
+
+        return {
+            imageUrl,
+
+            imageStoragePath:
+                storagePath
+        }
+    }
+
+
+    const deleteOldEventImage = async (
+        storagePath
+    ) => {
+        if (!storagePath) {
+            return
+        }
+
+
+        try {
+            await deleteObject(
+                ref(
+                    storage,
+                    storagePath
+                )
+            )
+        } catch (error) {
+            console.warn(
+                "No se pudo eliminar la imagen anterior del evento:",
+                error
+            )
+        }
+    }
+
+
+    useEffect(() => {
+        return () => {
+            if (
+                imagePreview.startsWith(
+                    "blob:"
+                )
+            ) {
+                URL.revokeObjectURL(
+                    imagePreview
+                )
+            }
+        }
+    }, [
+        imagePreview
+    ])
+
+
+    /* =====================================================
        CARGAR LOCALES + EVENTO
     ===================================================== */
 
@@ -530,18 +730,10 @@ function AdminEventForm() {
                 )
 
 
-                /*
-                    Evento nuevo.
-                */
-
                 if (!eventId) {
                     return
                 }
 
-
-                /*
-                    Evento existente.
-                */
 
                 const eventSnapshot =
                     await getDoc(
@@ -642,6 +834,10 @@ function AdminEventForm() {
                         eventData.imageUrl ||
                         "",
 
+                    imageStoragePath:
+                        eventData.imageStoragePath ||
+                        "",
+
                     active:
                         eventData.active !==
                         false,
@@ -689,6 +885,12 @@ function AdminEventForm() {
 
                     standingAvailability
                 })
+
+
+                setImagePreview(
+                    eventData.imageUrl ||
+                    ""
+                )
 
             } catch (error) {
                 console.error(
@@ -1118,12 +1320,6 @@ function AdminEventForm() {
                 }
 
 
-                /*
-                    Cambió de local.
-                    Creamos inventario nuevo
-                    desde ese local.
-                */
-
                 if (
                     name ===
                         "venueId" &&
@@ -1291,16 +1487,87 @@ function AdminEventForm() {
         }
 
 
+        if (
+            !isEditing &&
+            !imageFile
+        ) {
+            setMessage(
+                "Selecciona una imagen para el evento."
+            )
+
+            return
+        }
+
+
         try {
             setSaving(true)
             setMessage("")
 
 
-            /*
-                General / Mesa / VIP
-                siempre reciben la cantidad
-                actual calculada.
-            */
+            const documentId =
+                isEditing
+                    ? eventId
+                    : createSlug(
+                          formData.title
+                      )
+
+
+            if (!documentId) {
+                setMessage(
+                    "No se pudo generar el ID del evento."
+                )
+
+                return
+            }
+
+
+            if (!isEditing) {
+                const eventRef =
+                    doc(
+                        db,
+                        "specialEvents",
+                        documentId
+                    )
+
+
+                const existingEvent =
+                    await getDoc(
+                        eventRef
+                    )
+
+
+                if (
+                    existingEvent.exists()
+                ) {
+                    setMessage(
+                        `Ya existe un evento con el ID "${documentId}".`
+                    )
+
+                    return
+                }
+            }
+
+
+            const oldImageStoragePath =
+                formData.imageStoragePath
+
+
+            const uploadedImage =
+                await uploadEventImage(
+                    documentId
+                )
+
+
+            if (
+                !uploadedImage.imageUrl
+            ) {
+                setMessage(
+                    "Selecciona una imagen para el evento."
+                )
+
+                return
+            }
+
 
             const cleanOffers =
                 formData.offers
@@ -1360,11 +1627,6 @@ function AdminEventForm() {
                     )
 
 
-            /*
-                Guardamos solamente
-                mesas del local actual.
-            */
-
             const cleanSeatStatus =
                 {}
 
@@ -1380,11 +1642,6 @@ function AdminEventForm() {
                 }
             )
 
-
-            /*
-                Guardamos disponibilidad
-                General por cada área.
-            */
 
             const cleanStandingAvailability =
                 {}
@@ -1429,8 +1686,11 @@ function AdminEventForm() {
                         .trim(),
 
                 imageUrl:
-                    formData.imageUrl
-                        .trim(),
+                    uploadedImage.imageUrl,
+
+                imageStoragePath:
+                    uploadedImage.imageStoragePath ||
+                    "",
 
                 active:
                     formData.active,
@@ -1443,11 +1703,6 @@ function AdminEventForm() {
 
                 standingAvailability:
                     cleanStandingAvailability,
-
-                /*
-                    Útil después para
-                    estadísticas.
-                */
 
                 inventoryCapacity: {
                     general:
@@ -1475,49 +1730,25 @@ function AdminEventForm() {
 
             } else {
 
-                const documentId =
-                    createSlug(
-                        formData.title
-                    )
-
-
-                if (!documentId) {
-                    setMessage(
-                        "No se pudo generar el ID del evento."
-                    )
-
-                    return
-                }
-
-
-                const eventRef =
+                await setDoc(
                     doc(
                         db,
                         "specialEvents",
                         documentId
-                    )
-
-
-                const existingEvent =
-                    await getDoc(
-                        eventRef
-                    )
-
-
-                if (
-                    existingEvent.exists()
-                ) {
-                    setMessage(
-                        `Ya existe un evento con el ID "${documentId}".`
-                    )
-
-                    return
-                }
-
-
-                await setDoc(
-                    eventRef,
+                    ),
                     eventData
+                )
+            }
+
+
+            if (
+                imageFile &&
+                oldImageStoragePath &&
+                oldImageStoragePath !==
+                    uploadedImage.imageStoragePath
+            ) {
+                await deleteOldEventImage(
+                    oldImageStoragePath
                 )
             }
 
@@ -1625,10 +1856,6 @@ function AdminEventForm() {
                     handleSubmit
                 }
             >
-
-                {/* =====================================================
-                    INFORMACIÓN
-                ===================================================== */}
 
                 <label>
                     Nombre del evento
@@ -1743,21 +1970,38 @@ function AdminEventForm() {
 
                 <label className="admin-full-field">
 
-                    URL de imagen
+                    Imagen del evento
 
                     <input
-                        type="text"
-                        name="imageUrl"
-                        value={
-                            formData.imageUrl
-                        }
+                        type="file"
+                        accept="image/*"
                         onChange={
-                            handleChange
+                            handleImageChange
                         }
-                        required
                     />
 
                 </label>
+
+
+                {imagePreview && (
+
+                    <div className="admin-upload-preview">
+
+                        <p>
+                            Vista previa
+                        </p>
+
+                        <img
+                            className="admin-card-image"
+                            src={
+                                imagePreview
+                            }
+                            alt="Vista previa del evento"
+                        />
+
+                    </div>
+
+                )}
 
 
                 <label className="admin-checkbox-label">
@@ -1777,10 +2021,6 @@ function AdminEventForm() {
 
                 </label>
 
-
-                {/* =====================================================
-                    OFERTAS
-                ===================================================== */}
 
                 <section className="admin-offers-editor">
 
@@ -2022,10 +2262,6 @@ function AdminEventForm() {
                 </section>
 
 
-                {/* =====================================================
-                    DISTRIBUCIÓN
-                ===================================================== */}
-
                 <section className="admin-event-layout-section">
 
                     <div className="admin-event-layout-heading">
@@ -2080,8 +2316,6 @@ function AdminEventForm() {
                     ) : (
 
                         <>
-
-                            {/* RESUMEN */}
 
                             <div className="admin-event-capacity-summary">
 
@@ -2171,8 +2405,6 @@ function AdminEventForm() {
                             </div>
 
 
-                            {/* LEYENDA */}
-
                             <div className="admin-event-status-legend">
 
                                 <span>
@@ -2193,11 +2425,7 @@ function AdminEventForm() {
                             </div>
 
 
-                            {/* PLANO */}
-
                             <div className="admin-floor-plan admin-event-floor-plan">
-
-                                {/* ÁREAS GENERAL */}
 
                                 <svg
                                     className="admin-standing-layer"
@@ -2263,8 +2491,6 @@ function AdminEventForm() {
 
                                 </svg>
 
-
-                                {/* LABEL GENERAL */}
 
                                 {standingAreas.map(
                                     (
@@ -2336,8 +2562,6 @@ function AdminEventForm() {
                                 )}
 
 
-                                {/* ESCENARIO */}
-
                                 {seatingMap.stage && (
 
                                     <div
@@ -2368,8 +2592,6 @@ function AdminEventForm() {
 
                                 )}
 
-
-                                {/* BAR / ENTRADA */}
 
                                 {seatingMap.markers
                                     ?.map(
@@ -2419,8 +2641,6 @@ function AdminEventForm() {
                                         )
                                     )}
 
-
-                                {/* MESAS / VIP */}
 
                                 {venueSeats.map(
                                     (
@@ -2506,10 +2726,6 @@ function AdminEventForm() {
 
                             </div>
 
-
-                            {/* =====================================================
-                                GENERAL SELECCIONADO
-                            ===================================================== */}
 
                             {selectedArea && (
 
@@ -2627,10 +2843,6 @@ function AdminEventForm() {
 
                             )}
 
-
-                            {/* =====================================================
-                                MESA SELECCIONADA
-                            ===================================================== */}
 
                             {selectedSeat && (
 
@@ -2755,10 +2967,6 @@ function AdminEventForm() {
 
                 </section>
 
-
-                {/* =====================================================
-                    GUARDAR
-                ===================================================== */}
 
                 <div className="admin-form-actions">
 

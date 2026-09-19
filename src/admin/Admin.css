@@ -3606,3 +3606,89 @@
     }
 
 }
+
+/* =====================================================
+   SUBIDA Y PREVIEW DE IMÁGENES
+===================================================== */
+
+.admin-upload-preview {
+    grid-column: 1 / -1;
+
+    padding: 16px;
+
+    border: 1px solid #30353c;
+    border-radius: 14px;
+
+    background: #101216;
+}
+
+
+.admin-upload-preview p {
+    margin:
+        0
+        0
+        12px;
+
+    color: #aaa;
+
+    font-size: 13px;
+    font-weight: 700;
+}
+
+
+.admin-upload-preview img {
+    display: block;
+
+    width: 100%;
+    max-height: 420px;
+
+    margin: 0;
+
+    border-radius: 12px;
+
+    object-fit: cover;
+
+    background: #0a0a0a;
+}
+
+
+/* INPUT DE ARCHIVO */
+
+.admin-form input[type="file"] {
+    padding: 10px;
+
+    cursor: pointer;
+}
+
+
+.admin-form input[type="file"]::file-selector-button {
+    margin-right: 12px;
+    padding:
+        10px
+        14px;
+
+    border: none;
+    border-radius: 8px;
+
+    background: #e63922;
+    color: white;
+
+    font-family: inherit;
+    font-weight: 800;
+
+    cursor: pointer;
+}
+
+
+.admin-form input[type="file"]::file-selector-button:hover {
+    background: #f14b35;
+}
+
+
+@media (max-width: 800px) {
+
+    .admin-upload-preview {
+        grid-column: auto;
+    }
+
+}

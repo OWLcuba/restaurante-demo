@@ -1,4 +1,7 @@
-import { useEffect, useState } from "react"
+import {
+    useEffect,
+    useState
+} from "react"
 
 import {
     addDoc,
@@ -6,15 +9,32 @@ import {
     deleteDoc,
     doc,
     getDocs,
+    setDoc,
     updateDoc
 } from "firebase/firestore"
 
-import { Link } from "react-router-dom"
+import {
+    deleteObject,
+    getDownloadURL,
+    ref,
+    uploadBytes
+} from "firebase/storage"
 
-import { db } from "../firebase/firebase"
+import {
+    Link
+} from "react-router-dom"
+
+import {
+    db,
+    storage
+} from "../firebase/firebase"
 
 import "./Admin.css"
 
+
+/* =====================================================
+   FORM VACÍO
+===================================================== */
 
 const emptyForm = {
     name: "",
@@ -22,48 +42,130 @@ const emptyForm = {
     price: "",
     category: "",
     imageUrl: "",
+    imageStoragePath: "",
     active: true
 }
 
 
+/* =====================================================
+   COMPONENTE
+===================================================== */
+
 function AdminMenu() {
-    const [items, setItems] = useState([])
-    const [categories, setCategories] = useState([])
-
-    const [formData, setFormData] =
-        useState(emptyForm)
-
-    const [newCategory, setNewCategory] =
-        useState("")
-
-    const [editingId, setEditingId] =
-        useState(null)
-
-    const [loading, setLoading] =
-        useState(true)
-
-    const [saving, setSaving] =
-        useState(false)
-
-    const [categorySaving, setCategorySaving] =
-        useState(false)
-
-    const [message, setMessage] =
-        useState("")
+    const [
+        items,
+        setItems
+    ] = useState([])
 
 
-    /* =========================
+    const [
+        categories,
+        setCategories
+    ] = useState([])
+
+
+    const [
+        formData,
+        setFormData
+    ] = useState(
+        emptyForm
+    )
+
+
+    const [
+        newCategory,
+        setNewCategory
+    ] = useState("")
+
+
+    const [
+        editingId,
+        setEditingId
+    ] = useState(null)
+
+
+    const [
+        loading,
+        setLoading
+    ] = useState(true)
+
+
+    const [
+        saving,
+        setSaving
+    ] = useState(false)
+
+
+    const [
+        categorySaving,
+        setCategorySaving
+    ] = useState(false)
+
+
+    const [
+        message,
+        setMessage
+    ] = useState("")
+
+
+    const [
+        imageFile,
+        setImageFile
+    ] = useState(null)
+
+
+    const [
+        imagePreview,
+        setImagePreview
+    ] = useState("")
+
+
+    /* =====================================================
        UTILIDADES
-    ========================= */
+    ===================================================== */
 
-    const normalizeText = (value) => {
-        return String(value || "")
+    const normalizeText = (
+        value
+    ) => {
+        return String(
+            value ||
+            ""
+        )
             .trim()
             .toLowerCase()
     }
 
 
-    const parsePrice = (value) => {
+    const slugify = (
+        value
+    ) => {
+        return String(
+            value ||
+            ""
+        )
+            .normalize(
+                "NFD"
+            )
+            .replace(
+                /[\u0300-\u036f]/g,
+                ""
+            )
+            .toLowerCase()
+            .trim()
+            .replace(
+                /[^a-z0-9]+/g,
+                "-"
+            )
+            .replace(
+                /^-+|-+$/g,
+                ""
+            )
+    }
+
+
+    const parsePrice = (
+        value
+    ) => {
         if (
             value === null ||
             value === undefined ||
@@ -72,213 +174,264 @@ function AdminMenu() {
             return ""
         }
 
-        const cleaned = String(value)
-            .replace("$", "")
-            .replace(",", "")
-            .trim()
 
-        const number = Number(cleaned)
+        const cleaned =
+            String(
+                value
+            )
+                .replace(
+                    "$",
+                    ""
+                )
+                .replace(
+                    ",",
+                    ""
+                )
+                .trim()
 
-        return Number.isFinite(number)
+
+        const number =
+            Number(
+                cleaned
+            )
+
+
+        return Number.isFinite(
+            number
+        )
             ? number
             : ""
     }
 
 
-    const formatPrice = (value) => {
-        const number = parsePrice(value)
+    const formatPrice = (
+        value
+    ) => {
+        const number =
+            parsePrice(
+                value
+            )
 
-        if (number === "") {
+
+        if (
+            number === ""
+        ) {
             return "Precio por confirmar"
         }
 
-        return `$${Number(number).toFixed(2)}`
+
+        return `$${Number(
+            number
+        ).toFixed(
+            2
+        )}`
     }
 
 
-    /* =========================
+    /* =====================================================
+       CARPETA STORAGE SEGÚN CATEGORÍA
+    ===================================================== */
+
+    const getStorageFolder = (
+        category
+    ) => {
+        const slug =
+            slugify(
+                category
+            )
+
+
+        const aliases = {
+            "cocktails":
+                "cocktails-alcohol",
+
+            "cocktail":
+                "cocktails-alcohol",
+
+            "cocktails-alcohol":
+                "cocktails-alcohol",
+
+            "cocteles":
+                "cocktails-alcohol",
+
+            "coctel":
+                "cocktails-alcohol",
+
+            "alcohol":
+                "cocktails-alcohol",
+
+            "drinks":
+                "drinks",
+
+            "drink":
+                "drinks",
+
+            "bebidas":
+                "drinks",
+
+            "bebida":
+                "drinks",
+
+            "entradas":
+                "entrantes",
+
+            "entrante":
+                "entrantes",
+
+            "entrantes":
+                "entrantes",
+
+            "appetizers":
+                "entrantes",
+
+            "pizza":
+                "pizza",
+
+            "pizzas":
+                "pizza",
+
+            "postre":
+                "postres",
+
+            "postres":
+                "postres",
+
+            "dessert":
+                "postres",
+
+            "desserts":
+                "postres",
+
+            "principales":
+                "principales",
+
+            "principal":
+                "principales",
+
+            "main":
+                "principales",
+
+            "mains":
+                "principales",
+
+            "sandwich":
+                "sandwich",
+
+            "sandwiches":
+                "sandwich",
+
+            "sandwichs":
+                "sandwich",
+
+            "side":
+                "side",
+
+            "sides":
+                "side",
+
+            "acompanantes":
+                "side",
+
+            "acompanamientos":
+                "side"
+        }
+
+
+        return aliases[
+            slug
+        ] ||
+        slug ||
+        "otros"
+    }
+
+
+    /* =====================================================
+       EXTENSIÓN DE ARCHIVO
+    ===================================================== */
+
+    const getFileExtension = (
+        file
+    ) => {
+        const fileName =
+            file?.name ||
+            ""
+
+
+        const pieces =
+            fileName.split(
+                "."
+            )
+
+
+        if (
+            pieces.length >
+            1
+        ) {
+            return pieces
+                .pop()
+                .toLowerCase()
+        }
+
+
+        if (
+            file?.type ===
+            "image/png"
+        ) {
+            return "png"
+        }
+
+
+        if (
+            file?.type ===
+            "image/webp"
+        ) {
+            return "webp"
+        }
+
+
+        return "jpg"
+    }
+
+
+    /* =====================================================
        CARGAR DATOS
-    ========================= */
+    ===================================================== */
 
-    const loadData = async () => {
-        try {
-            const [
-                menuSnapshot,
-                categorySnapshot
-            ] = await Promise.all([
-                getDocs(
-                    collection(
-                        db,
-                        "menuItems"
-                    )
-                ),
-
-                getDocs(
-                    collection(
-                        db,
-                        "menuCategories"
-                    )
-                )
-            ])
-
-
-            const menuData =
-                menuSnapshot.docs
-                    .map((document) => ({
-                        firebaseId:
-                            document.id,
-
-                        ...document.data()
-                    }))
-                    .sort(
-                        (a, b) =>
-                            Number(
-                                a.id || 0
-                            ) -
-                            Number(
-                                b.id || 0
-                            )
-                    )
-
-
-            let categoryData =
-                categorySnapshot.docs
-                    .map((document) => ({
-                        firebaseId:
-                            document.id,
-
-                        ...document.data()
-                    }))
-                    .sort(
-                        (a, b) =>
-                            Number(
-                                a.order || 0
-                            ) -
-                            Number(
-                                b.order || 0
-                            )
-                    )
-
-
-            /*
-                Detectamos las categorías
-                que ya existen dentro de
-                los platos antiguos.
-            */
-
-            const oldCategoryNames = []
-
-            menuData.forEach((item) => {
-                const name =
-                    String(
-                        item.category || ""
-                    ).trim()
-
-                if (!name) {
-                    return
-                }
-
-                const alreadyExists =
-                    oldCategoryNames.some(
-                        (existing) =>
-                            normalizeText(
-                                existing
-                            ) ===
-                            normalizeText(
-                                name
-                            )
-                    )
-
-                if (!alreadyExists) {
-                    oldCategoryNames.push(
-                        name
-                    )
-                }
-            })
-
-
-            /*
-                Buscamos categorías usadas
-                por platos pero que todavía
-                no existen en menuCategories.
-            */
-
-            const missingCategories =
-                oldCategoryNames.filter(
-                    (name) =>
-                        !categoryData.some(
-                            (category) =>
-                                normalizeText(
-                                    category.name
-                                ) ===
-                                normalizeText(
-                                    name
-                                )
-                        )
+    const loadData =
+        async () => {
+            try {
+                setLoading(
+                    true
                 )
 
 
-            /*
-                Si encontramos categorías
-                antiguas, las migramos
-                automáticamente.
-            */
-
-            if (
-                missingCategories.length > 0
-            ) {
-                let nextOrder =
-                    categoryData.length > 0
-                        ? Math.max(
-                              ...categoryData.map(
-                                  (category) =>
-                                      Number(
-                                          category.order ||
-                                              0
-                                      )
-                              )
-                          ) + 1
-                        : 1
-
-
-                for (
-                    const categoryName
-                    of missingCategories
-                ) {
-                    await addDoc(
-                        collection(
-                            db,
-                            "menuCategories"
+                const [
+                    menuSnapshot,
+                    categorySnapshot
+                ] =
+                    await Promise.all([
+                        getDocs(
+                            collection(
+                                db,
+                                "menuItems"
+                            )
                         ),
-                        {
-                            name:
-                                categoryName,
 
-                            order:
-                                nextOrder,
-
-                            active:
-                                true
-                        }
-                    )
-
-                    nextOrder += 1
-                }
-
-
-                const newCategorySnapshot =
-                    await getDocs(
-                        collection(
-                            db,
-                            "menuCategories"
+                        getDocs(
+                            collection(
+                                db,
+                                "menuCategories"
+                            )
                         )
-                    )
+                    ])
 
 
-                categoryData =
-                    newCategorySnapshot.docs
+                const menuData =
+                    menuSnapshot.docs
                         .map(
-                            (document) => ({
+                            (
+                                document
+                            ) => ({
                                 firebaseId:
                                     document.id,
 
@@ -286,32 +439,240 @@ function AdminMenu() {
                             })
                         )
                         .sort(
-                            (a, b) =>
+                            (
+                                a,
+                                b
+                            ) =>
                                 Number(
-                                    a.order || 0
+                                    a.id ||
+                                    0
                                 ) -
                                 Number(
-                                    b.order || 0
+                                    b.id ||
+                                    0
                                 )
                         )
+
+
+                let categoryData =
+                    categorySnapshot.docs
+                        .map(
+                            (
+                                document
+                            ) => ({
+                                firebaseId:
+                                    document.id,
+
+                                ...document.data()
+                            })
+                        )
+                        .sort(
+                            (
+                                a,
+                                b
+                            ) =>
+                                Number(
+                                    a.order ||
+                                    0
+                                ) -
+                                Number(
+                                    b.order ||
+                                    0
+                                )
+                        )
+
+
+                /*
+                    Detectamos categorías
+                    existentes en platos viejos.
+                */
+
+                const oldCategoryNames =
+                    []
+
+
+                menuData.forEach(
+                    (
+                        item
+                    ) => {
+                        const name =
+                            String(
+                                item.category ||
+                                ""
+                            ).trim()
+
+
+                        if (!name) {
+                            return
+                        }
+
+
+                        const alreadyExists =
+                            oldCategoryNames.some(
+                                (
+                                    existing
+                                ) =>
+                                    normalizeText(
+                                        existing
+                                    ) ===
+                                    normalizeText(
+                                        name
+                                    )
+                            )
+
+
+                        if (
+                            !alreadyExists
+                        ) {
+                            oldCategoryNames.push(
+                                name
+                            )
+                        }
+                    }
+                )
+
+
+                /*
+                    Categorías usadas por platos
+                    pero todavía no guardadas.
+                */
+
+                const missingCategories =
+                    oldCategoryNames.filter(
+                        (
+                            name
+                        ) =>
+                            !categoryData.some(
+                                (
+                                    category
+                                ) =>
+                                    normalizeText(
+                                        category.name
+                                    ) ===
+                                    normalizeText(
+                                        name
+                                    )
+                            )
+                    )
+
+
+                /*
+                    Migración automática.
+                */
+
+                if (
+                    missingCategories.length >
+                    0
+                ) {
+                    let nextOrder =
+                        categoryData.length >
+                        0
+                            ? Math.max(
+                                  ...categoryData.map(
+                                      (
+                                          category
+                                      ) =>
+                                          Number(
+                                              category.order ||
+                                                  0
+                                          )
+                                  )
+                              ) +
+                              1
+                            : 1
+
+
+                    for (
+                        const categoryName
+                        of missingCategories
+                    ) {
+                        await addDoc(
+                            collection(
+                                db,
+                                "menuCategories"
+                            ),
+                            {
+                                name:
+                                    categoryName,
+
+                                order:
+                                    nextOrder,
+
+                                active:
+                                    true
+                            }
+                        )
+
+
+                        nextOrder +=
+                            1
+                    }
+
+
+                    const newCategorySnapshot =
+                        await getDocs(
+                            collection(
+                                db,
+                                "menuCategories"
+                            )
+                        )
+
+
+                    categoryData =
+                        newCategorySnapshot.docs
+                            .map(
+                                (
+                                    document
+                                ) => ({
+                                    firebaseId:
+                                        document.id,
+
+                                    ...document.data()
+                                })
+                            )
+                            .sort(
+                                (
+                                    a,
+                                    b
+                                ) =>
+                                    Number(
+                                        a.order ||
+                                            0
+                                    ) -
+                                    Number(
+                                        b.order ||
+                                            0
+                                    )
+                            )
+                }
+
+
+                setItems(
+                    menuData
+                )
+
+
+                setCategories(
+                    categoryData
+                )
+
+            } catch (error) {
+                console.error(
+                    "Error al cargar menú:",
+                    error
+                )
+
+
+                setMessage(
+                    "No se pudo cargar el menú."
+                )
+
+            } finally {
+                setLoading(
+                    false
+                )
             }
-
-
-            setItems(menuData)
-            setCategories(categoryData)
-        } catch (error) {
-            console.error(
-                "Error al cargar menú:",
-                error
-            )
-
-            setMessage(
-                "No se pudo cargar el menú."
-            )
-        } finally {
-            setLoading(false)
         }
-    }
 
 
     useEffect(() => {
@@ -319,24 +680,52 @@ function AdminMenu() {
     }, [])
 
 
-    /* =========================
-       FORMULARIO DE PLATO
-    ========================= */
+    /* =====================================================
+       LIMPIAR PREVIEW
+    ===================================================== */
 
-    const handleChange = (event) => {
+    useEffect(() => {
+        return () => {
+            if (
+                imagePreview.startsWith(
+                    "blob:"
+                )
+            ) {
+                URL.revokeObjectURL(
+                    imagePreview
+                )
+            }
+        }
+    }, [
+        imagePreview
+    ])
+
+
+    /* =====================================================
+       FORMULARIO DE PLATO
+    ===================================================== */
+
+    const handleChange = (
+        event
+    ) => {
         const {
             name,
             value,
             type,
             checked
-        } = event.target
+        } =
+            event.target
+
 
         setFormData(
-            (current) => ({
+            (
+                current
+            ) => ({
                 ...current,
 
                 [name]:
-                    type === "checkbox"
+                    type ===
+                    "checkbox"
                         ? checked
                         : value
             })
@@ -344,139 +733,439 @@ function AdminMenu() {
     }
 
 
-    const resetForm = () => {
-        setFormData(emptyForm)
-        setEditingId(null)
+    /* =====================================================
+       SELECCIONAR IMAGEN
+    ===================================================== */
+
+    const handleImageChange = (
+        event
+    ) => {
+        const file =
+            event.target.files?.[0]
+
+
+        if (!file) {
+            return
+        }
+
+
+        if (
+            !file.type.startsWith(
+                "image/"
+            )
+        ) {
+            setMessage(
+                "Selecciona un archivo de imagen válido."
+            )
+
+            return
+        }
+
+
+        if (
+            file.size >
+            10 * 1024 * 1024
+        ) {
+            setMessage(
+                "La imagen no puede superar 10 MB."
+            )
+
+            return
+        }
+
+
+        if (
+            imagePreview.startsWith(
+                "blob:"
+            )
+        ) {
+            URL.revokeObjectURL(
+                imagePreview
+            )
+        }
+
+
+        setImageFile(
+            file
+        )
+
+
+        setImagePreview(
+            URL.createObjectURL(
+                file
+            )
+        )
+
+
+        setMessage("")
     }
 
 
+    /* =====================================================
+       SUBIR IMAGEN
+    ===================================================== */
+
+    const uploadMenuImage =
+        async (
+            itemId
+        ) => {
+            if (!imageFile) {
+                return {
+                    imageUrl:
+                        formData.imageUrl,
+
+                    imageStoragePath:
+                        formData.imageStoragePath
+                }
+            }
+
+
+            const extension =
+                getFileExtension(
+                    imageFile
+                )
+
+
+            const folder =
+                getStorageFolder(
+                    formData.category
+                )
+
+
+            const itemSlug =
+                slugify(
+                    formData.name
+                ) ||
+                "plato"
+
+
+            const storagePath =
+                `menu/${folder}/${itemId}-${itemSlug}-${Date.now()}.${extension}`
+
+
+            const imageRef =
+                ref(
+                    storage,
+                    storagePath
+                )
+
+
+            await uploadBytes(
+                imageRef,
+                imageFile,
+                {
+                    contentType:
+                        imageFile.type
+                }
+            )
+
+
+            const imageUrl =
+                await getDownloadURL(
+                    imageRef
+                )
+
+
+            return {
+                imageUrl,
+
+                imageStoragePath:
+                    storagePath
+            }
+        }
+
+
+    /* =====================================================
+       BORRAR ARCHIVO STORAGE
+    ===================================================== */
+
+    const deleteStorageImage =
+        async (
+            storagePath
+        ) => {
+            if (!storagePath) {
+                return
+            }
+
+
+            try {
+                await deleteObject(
+                    ref(
+                        storage,
+                        storagePath
+                    )
+                )
+
+            } catch (error) {
+                console.warn(
+                    "No se pudo eliminar la imagen anterior:",
+                    error
+                )
+            }
+        }
+
+
+    /* =====================================================
+       RESET FORM
+    ===================================================== */
+
+    const resetForm = () => {
+        if (
+            imagePreview.startsWith(
+                "blob:"
+            )
+        ) {
+            URL.revokeObjectURL(
+                imagePreview
+            )
+        }
+
+
+        setFormData(
+            emptyForm
+        )
+
+
+        setImageFile(
+            null
+        )
+
+
+        setImagePreview(
+            ""
+        )
+
+
+        setEditingId(
+            null
+        )
+    }
+
+
+    /* =====================================================
+       SIGUIENTE ID VISUAL
+    ===================================================== */
+
     const getNextId = () => {
-        if (items.length === 0) {
+        if (
+            items.length ===
+            0
+        ) {
             return 1
         }
+
 
         const highestId =
             Math.max(
                 ...items.map(
-                    (item) =>
+                    (
+                        item
+                    ) =>
                         Number(
-                            item.id || 0
+                            item.id ||
+                            0
                         )
                 )
             )
 
-        return highestId + 1
+
+        return (
+            highestId +
+            1
+        )
     }
 
 
-    const handleSubmit = async (
-        event
-    ) => {
-        event.preventDefault()
+    /* =====================================================
+       GUARDAR PLATO
+    ===================================================== */
+
+    const handleSubmit =
+        async (
+            event
+        ) => {
+            event.preventDefault()
 
 
-        if (!formData.category) {
-            setMessage(
-                "Selecciona una categoría."
-            )
+            if (
+                !formData.category
+            ) {
+                setMessage(
+                    "Selecciona una categoría."
+                )
 
-            return
-        }
-
-
-        const numericPrice =
-            parsePrice(
-                formData.price
-            )
-
-
-        if (numericPrice === "") {
-            setMessage(
-                "El precio no es válido."
-            )
-
-            return
-        }
-
-
-        try {
-            setSaving(true)
-            setMessage("")
-
-
-            const menuData = {
-                name:
-                    formData.name.trim(),
-
-                description:
-                    formData.description.trim(),
-
-                price:
-                    numericPrice,
-
-                category:
-                    formData.category.trim(),
-
-                imageUrl:
-                    formData.imageUrl.trim(),
-
-                active:
-                    formData.active
+                return
             }
 
 
-            if (editingId) {
-                await updateDoc(
-                    doc(
-                        db,
-                        "menuItems",
-                        editingId
-                    ),
-                    menuData
+            const numericPrice =
+                parsePrice(
+                    formData.price
                 )
+
+
+            if (
+                numericPrice ===
+                ""
+            ) {
+                setMessage(
+                    "El precio no es válido."
+                )
+
+                return
+            }
+
+
+            try {
+                setSaving(
+                    true
+                )
+
 
                 setMessage(
-                    "Plato actualizado correctamente."
+                    ""
                 )
-            } else {
-                await addDoc(
-                    collection(
-                        db,
-                        "menuItems"
-                    ),
-                    {
-                        ...menuData,
 
-                        id:
-                            getNextId()
+
+                let menuRef
+
+
+                if (editingId) {
+                    menuRef =
+                        doc(
+                            db,
+                            "menuItems",
+                            editingId
+                        )
+
+                } else {
+                    menuRef =
+                        doc(
+                            collection(
+                                db,
+                                "menuItems"
+                            )
+                        )
+                }
+
+
+                const itemDocumentId =
+                    menuRef.id
+
+
+                const oldStoragePath =
+                    formData.imageStoragePath
+
+
+                const uploadedImage =
+                    await uploadMenuImage(
+                        itemDocumentId
+                    )
+
+
+                const menuData = {
+                    name:
+                        formData.name
+                            .trim(),
+
+                    description:
+                        formData.description
+                            .trim(),
+
+                    price:
+                        numericPrice,
+
+                    category:
+                        formData.category
+                            .trim(),
+
+                    imageUrl:
+                        uploadedImage.imageUrl ||
+                        "",
+
+                    imageStoragePath:
+                        uploadedImage.imageStoragePath ||
+                        "",
+
+                    active:
+                        formData.active
+                }
+
+
+                if (editingId) {
+
+                    await updateDoc(
+                        menuRef,
+                        menuData
+                    )
+
+
+                    if (
+                        imageFile &&
+                        oldStoragePath &&
+                        oldStoragePath !==
+                            uploadedImage.imageStoragePath
+                    ) {
+                        await deleteStorageImage(
+                            oldStoragePath
+                        )
                     }
+
+
+                    setMessage(
+                        "Plato actualizado correctamente."
+                    )
+
+                } else {
+
+                    await setDoc(
+                        menuRef,
+                        {
+                            ...menuData,
+
+                            id:
+                                getNextId()
+                        }
+                    )
+
+
+                    setMessage(
+                        "Plato creado correctamente."
+                    )
+                }
+
+
+                resetForm()
+
+
+                await loadData()
+
+            } catch (error) {
+                console.error(
+                    "Error al guardar plato:",
+                    error
                 )
+
 
                 setMessage(
-                    "Plato creado correctamente."
+                    "No se pudo guardar el plato."
+                )
+
+            } finally {
+                setSaving(
+                    false
                 )
             }
-
-
-            resetForm()
-
-            await loadData()
-        } catch (error) {
-            console.error(
-                "Error al guardar plato:",
-                error
-            )
-
-            setMessage(
-                "No se pudo guardar el plato."
-            )
-        } finally {
-            setSaving(false)
         }
-    }
 
 
-    const handleEdit = (item) => {
+    /* =====================================================
+       EDITAR PLATO
+    ===================================================== */
+
+    const handleEdit = (
+        item
+    ) => {
         setEditingId(
             item.firebaseId
         )
@@ -484,10 +1173,12 @@ function AdminMenu() {
 
         setFormData({
             name:
-                item.name || "",
+                item.name ||
+                "",
 
             description:
-                item.description || "",
+                item.description ||
+                "",
 
             price:
                 parsePrice(
@@ -495,33 +1186,53 @@ function AdminMenu() {
                 ),
 
             category:
-                item.category || "",
+                item.category ||
+                "",
 
             imageUrl:
-                item.imageUrl || "",
+                item.imageUrl ||
+                "",
+
+            imageStoragePath:
+                item.imageStoragePath ||
+                "",
 
             active:
-                item.active !== false
+                item.active !==
+                false
         })
+
+
+        setImageFile(
+            null
+        )
+
+
+        setImagePreview(
+            item.imageUrl ||
+            ""
+        )
 
 
         window.scrollTo({
             top: 0,
-            behavior: "smooth"
+            behavior:
+                "smooth"
         })
     }
 
 
-    /* =========================
+    /* =====================================================
        ACTIVAR / DESACTIVAR
-    ========================= */
+    ===================================================== */
 
     const toggleActive = async (
         item
     ) => {
         try {
             const newValue =
-                item.active === false
+                item.active ===
+                false
 
 
             await updateDoc(
@@ -538,9 +1249,13 @@ function AdminMenu() {
 
 
             setItems(
-                (current) =>
+                (
+                    current
+                ) =>
                     current.map(
-                        (menuItem) =>
+                        (
+                            menuItem
+                        ) =>
                             menuItem.firebaseId ===
                             item.firebaseId
                                 ? {
@@ -552,11 +1267,13 @@ function AdminMenu() {
                                 : menuItem
                     )
             )
+
         } catch (error) {
             console.error(
                 "Error al cambiar estado:",
                 error
             )
+
 
             setMessage(
                 "No se pudo cambiar el estado."
@@ -565,9 +1282,9 @@ function AdminMenu() {
     }
 
 
-    /* =========================
+    /* =====================================================
        ELIMINAR PLATO
-    ========================= */
+    ===================================================== */
 
     const handleDelete = async (
         item
@@ -593,10 +1310,23 @@ function AdminMenu() {
             )
 
 
+            if (
+                item.imageStoragePath
+            ) {
+                await deleteStorageImage(
+                    item.imageStoragePath
+                )
+            }
+
+
             setItems(
-                (current) =>
+                (
+                    current
+                ) =>
                     current.filter(
-                        (menuItem) =>
+                        (
+                            menuItem
+                        ) =>
                             menuItem.firebaseId !==
                             item.firebaseId
                     )
@@ -614,11 +1344,13 @@ function AdminMenu() {
             setMessage(
                 "Plato eliminado correctamente."
             )
+
         } catch (error) {
             console.error(
                 "Error al eliminar plato:",
                 error
             )
+
 
             setMessage(
                 "No se pudo eliminar el plato."
@@ -627,118 +1359,143 @@ function AdminMenu() {
     }
 
 
-    /* =========================
+    /* =====================================================
        CREAR CATEGORÍA
-    ========================= */
+    ===================================================== */
 
-    const handleAddCategory = async (
-        event
-    ) => {
-        event.preventDefault()
-
-
-        const name =
-            newCategory.trim()
+    const handleAddCategory =
+        async (
+            event
+        ) => {
+            event.preventDefault()
 
 
-        if (!name) {
-            setMessage(
-                "Escribe el nombre de la categoría."
-            )
+            const name =
+                newCategory.trim()
 
-            return
+
+            if (!name) {
+                setMessage(
+                    "Escribe el nombre de la categoría."
+                )
+
+                return
+            }
+
+
+            const duplicated =
+                categories.some(
+                    (
+                        category
+                    ) =>
+                        normalizeText(
+                            category.name
+                        ) ===
+                        normalizeText(
+                            name
+                        )
+                )
+
+
+            if (duplicated) {
+                setMessage(
+                    "Esa categoría ya existe."
+                )
+
+                return
+            }
+
+
+            try {
+                setCategorySaving(
+                    true
+                )
+
+
+                setMessage(
+                    ""
+                )
+
+
+                const nextOrder =
+                    categories.length >
+                    0
+                        ? Math.max(
+                              ...categories.map(
+                                  (
+                                      category
+                                  ) =>
+                                      Number(
+                                          category.order ||
+                                              0
+                                      )
+                              )
+                          ) +
+                          1
+                        : 1
+
+
+                await addDoc(
+                    collection(
+                        db,
+                        "menuCategories"
+                    ),
+                    {
+                        name,
+
+                        order:
+                            nextOrder,
+
+                        active:
+                            true
+                    }
+                )
+
+
+                setNewCategory(
+                    ""
+                )
+
+
+                setMessage(
+                    "Categoría creada correctamente."
+                )
+
+
+                await loadData()
+
+            } catch (error) {
+                console.error(
+                    "Error al crear categoría:",
+                    error
+                )
+
+
+                setMessage(
+                    "No se pudo crear la categoría."
+                )
+
+            } finally {
+                setCategorySaving(
+                    false
+                )
+            }
         }
 
 
-        const duplicated =
-            categories.some(
-                (category) =>
-                    normalizeText(
-                        category.name
-                    ) ===
-                    normalizeText(
-                        name
-                    )
-            )
-
-
-        if (duplicated) {
-            setMessage(
-                "Esa categoría ya existe."
-            )
-
-            return
-        }
-
-
-        try {
-            setCategorySaving(true)
-            setMessage("")
-
-
-            const nextOrder =
-                categories.length > 0
-                    ? Math.max(
-                          ...categories.map(
-                              (category) =>
-                                  Number(
-                                      category.order ||
-                                          0
-                                  )
-                          )
-                      ) + 1
-                    : 1
-
-
-            await addDoc(
-                collection(
-                    db,
-                    "menuCategories"
-                ),
-                {
-                    name,
-                    order:
-                        nextOrder,
-                    active:
-                        true
-                }
-            )
-
-
-            setNewCategory("")
-
-
-            setMessage(
-                "Categoría creada correctamente."
-            )
-
-
-            await loadData()
-        } catch (error) {
-            console.error(
-                "Error al crear categoría:",
-                error
-            )
-
-            setMessage(
-                "No se pudo crear la categoría."
-            )
-        } finally {
-            setCategorySaving(false)
-        }
-    }
-
-
-    /* =========================
+    /* =====================================================
        ELIMINAR CATEGORÍA
-    ========================= */
+    ===================================================== */
 
     const handleDeleteCategory =
-        async (category) => {
-
+        async (
+            category
+        ) => {
             const categoryInUse =
                 items.some(
-                    (item) =>
+                    (
+                        item
+                    ) =>
                         normalizeText(
                             item.category
                         ) ===
@@ -748,7 +1505,9 @@ function AdminMenu() {
                 )
 
 
-            if (categoryInUse) {
+            if (
+                categoryInUse
+            ) {
                 setMessage(
                     `No puedes eliminar "${category.name}" porque todavía tiene platos asociados.`
                 )
@@ -787,9 +1546,13 @@ function AdminMenu() {
                     )
                 ) {
                     setFormData(
-                        (current) => ({
+                        (
+                            current
+                        ) => ({
                             ...current,
-                            category: ""
+
+                            category:
+                                ""
                         })
                     )
                 }
@@ -801,11 +1564,13 @@ function AdminMenu() {
 
 
                 await loadData()
+
             } catch (error) {
                 console.error(
                     "Error al eliminar categoría:",
                     error
                 )
+
 
                 setMessage(
                     "No se pudo eliminar la categoría."
@@ -814,9 +1579,9 @@ function AdminMenu() {
         }
 
 
-    /* =========================
+    /* =====================================================
        RENDER
-    ========================= */
+    ===================================================== */
 
     return (
         <main className="admin-page">
@@ -835,11 +1600,13 @@ function AdminMenu() {
                     MENÚ
                 </span>
 
+
                 <h1>
                     {editingId
                         ? "Editar plato"
                         : "Nuevo plato"}
                 </h1>
+
 
                 <p>
                     Crea, modifica y controla
@@ -856,7 +1623,9 @@ function AdminMenu() {
 
             <form
                 className="admin-form"
-                onSubmit={handleSubmit}
+                onSubmit={
+                    handleSubmit
+                }
             >
 
                 <label>
@@ -873,6 +1642,7 @@ function AdminMenu() {
                         }
                         required
                     />
+
                 </label>
 
 
@@ -889,12 +1659,17 @@ function AdminMenu() {
                         }
                         required
                     >
+
                         <option value="">
                             Selecciona una categoría
                         </option>
 
+
                         {categories.map(
-                            (category) => (
+                            (
+                                category
+                            ) => (
+
                                 <option
                                     key={
                                         category.firebaseId
@@ -907,9 +1682,12 @@ function AdminMenu() {
                                         category.name
                                     }
                                 </option>
+
                             )
                         )}
+
                     </select>
+
                 </label>
 
 
@@ -926,6 +1704,7 @@ function AdminMenu() {
                         }
                         rows="5"
                     />
+
                 </label>
 
 
@@ -945,23 +1724,44 @@ function AdminMenu() {
                         step="0.01"
                         required
                     />
+
                 </label>
 
 
-                <label>
-                    URL de imagen
+                <label className="admin-full-field">
+
+                    Imagen del plato
 
                     <input
-                        type="text"
-                        name="imageUrl"
-                        value={
-                            formData.imageUrl
-                        }
+                        type="file"
+                        accept="image/*"
                         onChange={
-                            handleChange
+                            handleImageChange
                         }
                     />
+
                 </label>
+
+
+                {imagePreview && (
+
+                    <div className="admin-upload-preview">
+
+                        <p>
+                            Vista previa
+                        </p>
+
+
+                        <img
+                            src={
+                                imagePreview
+                            }
+                            alt="Vista previa del plato"
+                        />
+
+                    </div>
+
+                )}
 
 
                 <label className="admin-checkbox-label">
@@ -978,6 +1778,7 @@ function AdminMenu() {
                     />
 
                     Plato activo
+
                 </label>
 
 
@@ -991,7 +1792,9 @@ function AdminMenu() {
                         }
                     >
                         {saving
-                            ? "Guardando..."
+                            ? imageFile
+                                ? "Subiendo imagen..."
+                                : "Guardando..."
                             : editingId
                               ? "Guardar cambios"
                               : "Crear plato"}
@@ -999,6 +1802,7 @@ function AdminMenu() {
 
 
                     {editingId && (
+
                         <button
                             type="button"
                             className="admin-cancel-button"
@@ -1008,15 +1812,18 @@ function AdminMenu() {
                         >
                             Cancelar edición
                         </button>
+
                     )}
 
                 </div>
 
 
                 {message && (
+
                     <p className="admin-message">
                         {message}
                     </p>
+
                 )}
 
             </form>
@@ -1071,6 +1878,7 @@ function AdminMenu() {
                             }
                             placeholder="Ej: Postres"
                         />
+
                     </label>
 
 
@@ -1093,11 +1901,15 @@ function AdminMenu() {
                 </form>
 
 
-                {categories.length === 0 ? (
+                {categories.length ===
+                0 ? (
+
                     <p className="admin-empty">
                         Todavía no hay categorías.
                     </p>
+
                 ) : (
+
                     <div className="admin-grid">
 
                         {categories.map(
@@ -1108,7 +1920,9 @@ function AdminMenu() {
 
                                 const itemCount =
                                     items.filter(
-                                        (item) =>
+                                        (
+                                            item
+                                        ) =>
                                             normalizeText(
                                                 item.category
                                             ) ===
@@ -1143,7 +1957,9 @@ function AdminMenu() {
 
 
                                             <p>
-                                                {itemCount}{" "}
+                                                {
+                                                    itemCount
+                                                }{" "}
                                                 {itemCount ===
                                                 1
                                                     ? "plato"
@@ -1175,6 +1991,7 @@ function AdminMenu() {
                         )}
 
                     </div>
+
                 )}
 
             </section>
@@ -1200,19 +2017,28 @@ function AdminMenu() {
 
 
                 {loading ? (
+
                     <p>
                         Cargando menú...
                     </p>
-                ) : items.length === 0 ? (
+
+                ) : items.length ===
+                  0 ? (
+
                     <p className="admin-empty">
                         Todavía no hay platos
                         guardados en Firestore.
                     </p>
+
                 ) : (
+
                     <div className="admin-grid">
 
                         {items.map(
-                            (item) => (
+                            (
+                                item
+                            ) => (
+
                                 <article
                                     key={
                                         item.firebaseId
@@ -1221,6 +2047,7 @@ function AdminMenu() {
                                 >
 
                                     {item.imageUrl && (
+
                                         <img
                                             className="admin-card-image"
                                             src={
@@ -1230,6 +2057,7 @@ function AdminMenu() {
                                                 item.name
                                             }
                                         />
+
                                     )}
 
 
@@ -1327,10 +2155,12 @@ function AdminMenu() {
                                     </div>
 
                                 </article>
+
                             )
                         )}
 
                     </div>
+
                 )}
 
             </section>
