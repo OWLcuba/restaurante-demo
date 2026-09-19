@@ -131,10 +131,9 @@ function Home() {
         )
     }
 
-
-    const heroImage =
-        businessData.heroImageUrl ||
-        "/images/restaurant-cover.jpg"
+        const heroImage =
+    businessData.heroImageUrl || ""
+    
 
 
     return (

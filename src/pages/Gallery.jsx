@@ -19,6 +19,28 @@ import {
 import "./Gallery.css"
 
 
+function normalizeText(value) {
+    return String(value || "")
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+}
+
+
+function isDrinkCategory(category) {
+    const normalized =
+        normalizeText(category)
+
+    return (
+        normalized.includes("bebidas") ||
+        normalized.includes("drinks") ||
+        normalized.includes("cocktails") ||
+        normalized.includes("alcohol")
+    )
+}
+
+
 function Gallery() {
     const [
         galleryCategories,
@@ -39,7 +61,11 @@ function Gallery() {
     useEffect(() => {
         async function loadGalleryCategories() {
             try {
-                const querySnapshot =
+                /*
+                    CARGAMOS CATEGORÍAS
+                */
+
+                const categoriesSnapshot =
                     await getDocs(
                         collection(
                             db,
@@ -49,7 +75,7 @@ function Gallery() {
 
 
                 const categories =
-                    querySnapshot.docs.map(
+                    categoriesSnapshot.docs.map(
                         (document) => ({
                             firebaseId:
                                 document.id,
@@ -59,11 +85,116 @@ function Gallery() {
                     )
 
 
+                /*
+                    CARGAMOS MENU ITEMS
+                    PARA SACAR PORTADAS
+                    DE PLATOS Y BEBIDAS
+                */
+
+                const menuSnapshot =
+                    await getDocs(
+                        collection(
+                            db,
+                            "menuItems"
+                        )
+                    )
+
+
+                const menuItems =
+                    menuSnapshot.docs.map(
+                        (document) => ({
+                            firebaseId:
+                                document.id,
+
+                            ...document.data()
+                        })
+                    )
+
+
+                const activeMenuItems =
+                    menuItems.filter(
+                        (item) =>
+                            item.active !== false &&
+                            item.imageUrl
+                    )
+
+
+                /*
+                    BUSCAMOS UNA FOTO
+                    PARA PLATOS
+                */
+
+                const dishImage =
+                    activeMenuItems.find(
+                        (item) =>
+                            !isDrinkCategory(
+                                item.category
+                            )
+                    )?.imageUrl || ""
+
+
+                /*
+                    BUSCAMOS UNA FOTO
+                    PARA BEBIDAS
+                */
+
+                const drinkImage =
+                    activeMenuItems.find(
+                        (item) =>
+                            isDrinkCategory(
+                                item.category
+                            )
+                    )?.imageUrl || ""
+
+
+                /*
+                    REEMPLAZAMOS PORTADAS
+                    DE PLATOS Y BEBIDAS
+                */
+
+                const categoriesWithDynamicImages =
+                    categories.map(
+                        (category) => {
+
+                            if (
+                                category.id ===
+                                "platos"
+                            ) {
+                                return {
+                                    ...category,
+
+                                    imageUrl:
+                                        dishImage ||
+                                        category.imageUrl
+                                }
+                            }
+
+
+                            if (
+                                category.id ===
+                                "bebidas"
+                            ) {
+                                return {
+                                    ...category,
+
+                                    imageUrl:
+                                        drinkImage ||
+                                        category.imageUrl
+                                }
+                            }
+
+
+                            return category
+                        }
+                    )
+
+
                 const activeCategories =
-                    categories
+                    categoriesWithDynamicImages
                         .filter(
                             (category) =>
-                                category.active !== false
+                                category.active !==
+                                false
                         )
                         .sort(
                             (a, b) =>
@@ -79,7 +210,10 @@ function Gallery() {
                 setGalleryCategories(
                     activeCategories
                 )
-            } catch (firebaseError) {
+
+            } catch (
+                firebaseError
+            ) {
                 console.error(
                     "Error al cargar las categorías de la galería:",
                     firebaseError
@@ -169,15 +303,21 @@ function Gallery() {
                                     className="gallery-card"
                                 >
 
-                                    <img
-                                        src={
-                                            category.imageUrl
-                                        }
-                                        alt={
-                                            category.title
-                                        }
-                                        loading="lazy"
-                                    />
+                                    {category.imageUrl ? (
+                                        <img
+                                            src={
+                                                category.imageUrl
+                                            }
+                                            alt={
+                                                category.title
+                                            }
+                                            loading="lazy"
+                                        />
+                                    ) : (
+                                        <div className="gallery-card-placeholder">
+                                            Sin imagen
+                                        </div>
+                                    )}
 
 
                                     <div className="gallery-overlay">

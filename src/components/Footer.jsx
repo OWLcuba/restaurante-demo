@@ -44,13 +44,17 @@ function Footer() {
                         className="footer-brand"
                     >
 
-                        <img
-                            src="/images/logo.jpg"
-                            alt={
-                                businessData.name
-                            }
-                            className="footer-logo"
-                        />
+                        {businessData.logoUrl && (
+                            <img
+                                src={
+                                    businessData.logoUrl
+                                }
+                                alt={
+                                    businessData.name
+                                }
+                                className="footer-logo"
+                            />
+                        )}
 
 
                         <div>

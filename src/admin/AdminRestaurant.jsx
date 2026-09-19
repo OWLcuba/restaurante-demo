@@ -1,9 +1,31 @@
-import { useEffect, useState } from "react"
-import { doc, updateDoc } from "firebase/firestore"
-import { Link } from "react-router-dom"
+import {
+    useEffect,
+    useState
+} from "react"
 
-import { db } from "../firebase/firebase"
-import { useBusiness } from "../context/BusinessContext"
+import {
+    doc,
+    updateDoc
+} from "firebase/firestore"
+
+import {
+    getDownloadURL,
+    ref,
+    uploadBytes
+} from "firebase/storage"
+
+import {
+    Link
+} from "react-router-dom"
+
+import {
+    db,
+    storage
+} from "../firebase/firebase"
+
+import {
+    useBusiness
+} from "../context/BusinessContext"
 
 import "./Admin.css"
 
@@ -15,7 +37,10 @@ function AdminRestaurant() {
     } = useBusiness()
 
 
-    const [formData, setFormData] = useState({
+    const [
+        formData,
+        setFormData
+    ] = useState({
         name: "",
         slogan: "",
         description: "",
@@ -41,14 +66,35 @@ function AdminRestaurant() {
     })
 
 
-    const [saving, setSaving] = useState(false)
-    const [message, setMessage] = useState("")
+    const [
+        heroImageFile,
+        setHeroImageFile
+    ] = useState(null)
+
+
+    const [
+        heroPreview,
+        setHeroPreview
+    ] = useState("")
+
+
+    const [
+        saving,
+        setSaving
+    ] = useState(false)
+
+
+    const [
+        message,
+        setMessage
+    ] = useState("")
 
 
     useEffect(() => {
         if (!businessData) {
             return
         }
+
 
         setFormData({
             name:
@@ -61,8 +107,7 @@ function AdminRestaurant() {
                 businessData.description || "",
 
             heroImageUrl:
-                businessData.heroImageUrl ||
-                "/images/restaurant-cover.jpg",
+                businessData.heroImageUrl || "",
 
             phone:
                 businessData.phone || "",
@@ -100,36 +145,182 @@ function AdminRestaurant() {
             shortHours:
                 businessData.shortHours || ""
         })
-    }, [businessData])
 
 
-    const handleChange = (event) => {
+        setHeroPreview(
+            businessData.heroImageUrl ||
+            ""
+        )
+
+    }, [
+        businessData
+    ])
+
+
+    useEffect(() => {
+        return () => {
+            if (
+                heroPreview &&
+                heroPreview.startsWith(
+                    "blob:"
+                )
+            ) {
+                URL.revokeObjectURL(
+                    heroPreview
+                )
+            }
+        }
+    }, [
+        heroPreview
+    ])
+
+
+    const handleChange = (
+        event
+    ) => {
         const {
             name,
             value
         } = event.target
 
+
         setFormData(
             (current) => ({
                 ...current,
-                [name]: value
+                [name]:
+                    value
             })
         )
     }
 
 
-    const handleSubmit = async (event) => {
+    const handleHeroImageChange = (
+        event
+    ) => {
+        const file =
+            event.target.files?.[0]
+
+
+        if (!file) {
+            return
+        }
+
+
+        if (
+            !file.type.startsWith(
+                "image/"
+            )
+        ) {
+            setMessage(
+                "Selecciona un archivo de imagen válido."
+            )
+
+            return
+        }
+
+
+        if (
+            file.size >
+            10 * 1024 * 1024
+        ) {
+            setMessage(
+                "La imagen no puede superar 10 MB."
+            )
+
+            return
+        }
+
+
+        if (
+            heroPreview &&
+            heroPreview.startsWith(
+                "blob:"
+            )
+        ) {
+            URL.revokeObjectURL(
+                heroPreview
+            )
+        }
+
+
+        const previewUrl =
+            URL.createObjectURL(
+                file
+            )
+
+
+        setHeroImageFile(
+            file
+        )
+
+        setHeroPreview(
+            previewUrl
+        )
+
+        setMessage("")
+    }
+
+
+    const uploadHeroImage =
+        async () => {
+
+            if (!heroImageFile) {
+                return formData.heroImageUrl
+            }
+
+
+            const extension =
+                heroImageFile.name
+                    .split(".")
+                    .pop()
+                    ?.toLowerCase() ||
+                "jpg"
+
+
+            const storagePath =
+                `business/cover/restaurant-cover-${Date.now()}.${extension}`
+
+
+            const storageRef =
+                ref(
+                    storage,
+                    storagePath
+                )
+
+
+            await uploadBytes(
+                storageRef,
+                heroImageFile,
+                {
+                    contentType:
+                        heroImageFile.type
+                }
+            )
+
+
+            return await getDownloadURL(
+                storageRef
+            )
+        }
+
+
+    const handleSubmit = async (
+        event
+    ) => {
         event.preventDefault()
+
 
         try {
             setSaving(true)
             setMessage("")
 
-            const businessRef = doc(
-                db,
-                "business",
-                "main"
-            )
+
+            const businessRef =
+                doc(
+                    db,
+                    "business",
+                    "main"
+                )
 
 
             const cleanWhatsapp =
@@ -161,6 +352,15 @@ function AdminRestaurant() {
                 )}`
 
 
+            /*
+                Si seleccionaron una nueva
+                imagen, la subimos ahora.
+            */
+
+            const heroImageUrl =
+                await uploadHeroImage()
+
+
             const updatedBusiness = {
                 name:
                     formData.name.trim(),
@@ -172,7 +372,7 @@ function AdminRestaurant() {
                     formData.description.trim(),
 
                 heroImageUrl:
-                    formData.heroImageUrl.trim(),
+                    heroImageUrl || "",
 
                 phone:
                     formData.phone.trim(),
@@ -191,31 +391,46 @@ function AdminRestaurant() {
 
                 shortAddress: {
                     line1:
-                        formData.shortAddressLine1.trim(),
+                        formData
+                            .shortAddressLine1
+                            .trim(),
 
                     line2:
-                        formData.shortAddressLine2.trim()
+                        formData
+                            .shortAddressLine2
+                            .trim()
                 },
 
                 hours: [
                     {
                         days:
-                            formData.weekdayDays.trim(),
+                            formData
+                                .weekdayDays
+                                .trim(),
 
                         time:
-                            formData.weekdayTime.trim()
+                            formData
+                                .weekdayTime
+                                .trim()
                     },
+
                     {
                         days:
-                            formData.weekendDays.trim(),
+                            formData
+                                .weekendDays
+                                .trim(),
 
                         time:
-                            formData.weekendTime.trim()
+                            formData
+                                .weekendTime
+                                .trim()
                     }
                 ],
 
                 shortHours:
-                    formData.shortHours.trim(),
+                    formData
+                        .shortHours
+                        .trim(),
 
                 googleMapsUrl,
 
@@ -223,15 +438,21 @@ function AdminRestaurant() {
 
                 floatingAction: {
                     icon:
-                        businessData.floatingAction?.icon ||
+                        businessData
+                            .floatingAction
+                            ?.icon ||
                         "💬",
 
                     label:
-                        businessData.floatingAction?.label ||
+                        businessData
+                            .floatingAction
+                            ?.label ||
                         "Ordenar por WhatsApp",
 
                     type:
-                        businessData.floatingAction?.type ||
+                        businessData
+                            .floatingAction
+                            ?.type ||
                         "whatsapp",
 
                     url:
@@ -246,18 +467,43 @@ function AdminRestaurant() {
             )
 
 
+            setFormData(
+                (current) => ({
+                    ...current,
+
+                    heroImageUrl:
+                        heroImageUrl ||
+                        ""
+                })
+            )
+
+
+            setHeroImageFile(
+                null
+            )
+
+
+            setHeroPreview(
+                heroImageUrl ||
+                ""
+            )
+
+
             setMessage(
                 "Cambios guardados correctamente."
             )
+
         } catch (error) {
             console.error(
                 "Error al guardar restaurante:",
                 error
             )
 
+
             setMessage(
                 "No se pudieron guardar los cambios."
             )
+
         } finally {
             setSaving(false)
         }
@@ -270,9 +516,11 @@ function AdminRestaurant() {
     ) {
         return (
             <main className="admin-page">
+
                 <p>
                     Cargando datos...
                 </p>
+
             </main>
         )
     }
@@ -290,6 +538,7 @@ function AdminRestaurant() {
 
 
             <section className="admin-header">
+
                 <span className="admin-kicker">
                     RESTAURANTE
                 </span>
@@ -304,12 +553,15 @@ function AdminRestaurant() {
                     horarios y foto del
                     restaurante.
                 </p>
+
             </section>
 
 
             <form
                 className="admin-form"
-                onSubmit={handleSubmit}
+                onSubmit={
+                    handleSubmit
+                }
             >
 
                 {/* =====================
@@ -317,6 +569,7 @@ function AdminRestaurant() {
                 ===================== */}
 
                 <div className="admin-full-field">
+
                     <span className="admin-kicker">
                         INFORMACIÓN GENERAL
                     </span>
@@ -324,6 +577,7 @@ function AdminRestaurant() {
                     <h2>
                         Identidad del restaurante
                     </h2>
+
                 </div>
 
 
@@ -333,8 +587,12 @@ function AdminRestaurant() {
                     <input
                         type="text"
                         name="name"
-                        value={formData.name}
-                        onChange={handleChange}
+                        value={
+                            formData.name
+                        }
+                        onChange={
+                            handleChange
+                        }
                         required
                     />
                 </label>
@@ -346,8 +604,12 @@ function AdminRestaurant() {
                     <input
                         type="text"
                         name="slogan"
-                        value={formData.slogan}
-                        onChange={handleChange}
+                        value={
+                            formData.slogan
+                        }
+                        onChange={
+                            handleChange
+                        }
                         required
                     />
                 </label>
@@ -361,7 +623,9 @@ function AdminRestaurant() {
                         value={
                             formData.description
                         }
-                        onChange={handleChange}
+                        onChange={
+                            handleChange
+                        }
                         rows="5"
                         required
                     />
@@ -373,6 +637,7 @@ function AdminRestaurant() {
                 ===================== */}
 
                 <div className="admin-full-field">
+
                     <span className="admin-kicker">
                         FOTO PRINCIPAL
                     </span>
@@ -380,49 +645,70 @@ function AdminRestaurant() {
                     <h2>
                         Imagen del Home
                     </h2>
+
+                    <p>
+                        Selecciona una imagen desde
+                        tu teléfono o computadora.
+                    </p>
+
                 </div>
 
 
                 <label className="admin-full-field">
-                    Ruta o URL de imagen
+
+                    Cambiar foto principal
 
                     <input
-                        type="text"
-                        name="heroImageUrl"
-                        value={
-                            formData.heroImageUrl
+                        type="file"
+                        accept="image/*"
+                        onChange={
+                            handleHeroImageChange
                         }
-                        onChange={handleChange}
-                        placeholder="/images/restaurant-cover.jpg"
                     />
+
                 </label>
 
 
-                {formData.heroImageUrl && (
+                {heroPreview && (
+
                     <div
                         className="admin-full-field admin-content-card"
                         style={{
-                            maxWidth: "650px"
+                            maxWidth:
+                                "650px"
                         }}
                     >
+
                         <p>
                             Vista previa
                         </p>
 
+
                         <img
                             src={
-                                formData.heroImageUrl
+                                heroPreview
                             }
                             alt="Vista previa del restaurante"
                             style={{
-                                width: "100%",
-                                maxHeight: "360px",
-                                objectFit: "cover",
-                                borderRadius: "14px",
-                                display: "block"
+                                width:
+                                    "100%",
+
+                                maxHeight:
+                                    "360px",
+
+                                objectFit:
+                                    "cover",
+
+                                borderRadius:
+                                    "14px",
+
+                                display:
+                                    "block"
                             }}
                         />
+
                     </div>
+
                 )}
 
 
@@ -431,6 +717,7 @@ function AdminRestaurant() {
                 ===================== */}
 
                 <div className="admin-full-field">
+
                     <span className="admin-kicker">
                         CONTACTO
                     </span>
@@ -438,6 +725,7 @@ function AdminRestaurant() {
                     <h2>
                         Teléfono y WhatsApp
                     </h2>
+
                 </div>
 
 
@@ -447,8 +735,12 @@ function AdminRestaurant() {
                     <input
                         type="text"
                         name="phone"
-                        value={formData.phone}
-                        onChange={handleChange}
+                        value={
+                            formData.phone
+                        }
+                        onChange={
+                            handleChange
+                        }
                         placeholder="+12105551234"
                     />
                 </label>
@@ -463,7 +755,9 @@ function AdminRestaurant() {
                         value={
                             formData.displayPhone
                         }
-                        onChange={handleChange}
+                        onChange={
+                            handleChange
+                        }
                         placeholder="(210) 555-1234"
                     />
                 </label>
@@ -478,7 +772,9 @@ function AdminRestaurant() {
                         value={
                             formData.whatsapp
                         }
-                        onChange={handleChange}
+                        onChange={
+                            handleChange
+                        }
                         placeholder="12105551234"
                     />
                 </label>
@@ -493,7 +789,9 @@ function AdminRestaurant() {
                         value={
                             formData.whatsappMessage
                         }
-                        onChange={handleChange}
+                        onChange={
+                            handleChange
+                        }
                         placeholder="Hola, quiero hacer un pedido..."
                     />
                 </label>
@@ -504,6 +802,7 @@ function AdminRestaurant() {
                 ===================== */}
 
                 <div className="admin-full-field">
+
                     <span className="admin-kicker">
                         UBICACIÓN
                     </span>
@@ -511,6 +810,7 @@ function AdminRestaurant() {
                     <h2>
                         Dirección
                     </h2>
+
                 </div>
 
 
@@ -523,7 +823,9 @@ function AdminRestaurant() {
                         value={
                             formData.address
                         }
-                        onChange={handleChange}
+                        onChange={
+                            handleChange
+                        }
                         placeholder="123 Main Street, San Antonio, TX"
                         required
                     />
@@ -537,9 +839,12 @@ function AdminRestaurant() {
                         type="text"
                         name="shortAddressLine1"
                         value={
-                            formData.shortAddressLine1
+                            formData
+                                .shortAddressLine1
                         }
-                        onChange={handleChange}
+                        onChange={
+                            handleChange
+                        }
                         placeholder="123 Main Street"
                     />
                 </label>
@@ -552,9 +857,12 @@ function AdminRestaurant() {
                         type="text"
                         name="shortAddressLine2"
                         value={
-                            formData.shortAddressLine2
+                            formData
+                                .shortAddressLine2
                         }
-                        onChange={handleChange}
+                        onChange={
+                            handleChange
+                        }
                         placeholder="San Antonio, TX"
                     />
                 </label>
@@ -565,6 +873,7 @@ function AdminRestaurant() {
                 ===================== */}
 
                 <div className="admin-full-field">
+
                     <span className="admin-kicker">
                         HORARIOS
                     </span>
@@ -572,6 +881,7 @@ function AdminRestaurant() {
                     <h2>
                         Horarios del restaurante
                     </h2>
+
                 </div>
 
 
@@ -584,7 +894,9 @@ function AdminRestaurant() {
                         value={
                             formData.weekdayDays
                         }
-                        onChange={handleChange}
+                        onChange={
+                            handleChange
+                        }
                         placeholder="Lunes - Jueves"
                     />
                 </label>
@@ -599,7 +911,9 @@ function AdminRestaurant() {
                         value={
                             formData.weekdayTime
                         }
-                        onChange={handleChange}
+                        onChange={
+                            handleChange
+                        }
                         placeholder="10:00 AM - 9:00 PM"
                     />
                 </label>
@@ -614,7 +928,9 @@ function AdminRestaurant() {
                         value={
                             formData.weekendDays
                         }
-                        onChange={handleChange}
+                        onChange={
+                            handleChange
+                        }
                         placeholder="Viernes - Domingo"
                     />
                 </label>
@@ -629,7 +945,9 @@ function AdminRestaurant() {
                         value={
                             formData.weekendTime
                         }
-                        onChange={handleChange}
+                        onChange={
+                            handleChange
+                        }
                         placeholder="10:00 AM - 11:00 PM"
                     />
                 </label>
@@ -644,7 +962,9 @@ function AdminRestaurant() {
                         value={
                             formData.shortHours
                         }
-                        onChange={handleChange}
+                        onChange={
+                            handleChange
+                        }
                         placeholder="10AM - 9PM"
                     />
                 </label>
@@ -655,25 +975,34 @@ function AdminRestaurant() {
                 ===================== */}
 
                 <div className="admin-form-actions admin-full-field">
+
                     <button
                         type="submit"
                         className="admin-save-button"
-                        disabled={saving}
+                        disabled={
+                            saving
+                        }
                     >
                         {saving
                             ? "Guardando..."
                             : "Guardar cambios"}
                     </button>
+
                 </div>
 
 
                 {message && (
+
                     <p className="admin-message admin-full-field">
-                        {message}
+                        {
+                            message
+                        }
                     </p>
+
                 )}
 
             </form>
+
         </main>
     )
 }

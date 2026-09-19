@@ -297,7 +297,6 @@
 
 /* =====================================================
    FIESTAS + EVENTOS
-   EL CORAZÓN DE LA WEB
 ===================================================== */
 
 .home-experiences {
@@ -353,22 +352,30 @@
 
 
 /* =====================================================
-   FIESTAS — ACENTO AZUL
+   FIESTAS — SIN IMAGEN LOCAL
 ===================================================== */
 
 .party-experience {
     border-color:
         rgba(44, 122, 200, 0.48);
 
-    background-image:
-        linear-gradient(
-            to top,
-            rgba(2, 12, 25, 0.98) 0%,
-            rgba(2, 22, 43, 0.76) 38%,
-            rgba(0, 41, 82, 0.20) 72%,
-            rgba(0, 0, 0, 0.05)
+    background:
+        radial-gradient(
+            circle at 78% 22%,
+            rgba(59, 150, 240, 0.28),
+            transparent 32%
         ),
-        url("/images/promo-familiar.jpg");
+        radial-gradient(
+            circle at 20% 82%,
+            rgba(0, 82, 165, 0.22),
+            transparent 38%
+        ),
+        linear-gradient(
+            145deg,
+            #07182b,
+            #092746 52%,
+            #05101d
+        );
 
     background-position: center;
 }
@@ -390,23 +397,17 @@
 
 
 /* =====================================================
-   EVENTOS — ACENTO ROJO
+   EVENTOS
+   LA FOTO VIENE DESDE FIRESTORE
 ===================================================== */
 
 .events-experience {
     border-color:
         rgba(207, 20, 43, 0.50);
 
-    background-image:
-        linear-gradient(
-            to top,
-            rgba(25, 2, 6, 0.98) 0%,
-            rgba(45, 5, 12, 0.74) 38%,
-            rgba(100, 8, 22, 0.16) 72%,
-            rgba(0, 0, 0, 0.04)
-        ),
-        url("/images/yonki.webp");
+    background-color: #21070c;
 
+    background-size: cover;
     background-position: center;
 }
 
@@ -443,6 +444,38 @@
 
     box-sizing: border-box;
 }
+
+
+/*
+   El degradado vive ahora en el overlay.
+   Así no interfiere con la imagen dinámica
+   que Home.jsx recibe desde Firestore.
+*/
+
+.party-experience
+.home-experience-overlay {
+    background:
+        linear-gradient(
+            to top,
+            rgba(2, 12, 25, 0.98) 0%,
+            rgba(2, 22, 43, 0.72) 42%,
+            rgba(0, 41, 82, 0.10) 76%,
+            transparent 100%
+        );
+}
+
+.events-experience
+.home-experience-overlay {
+    background:
+        linear-gradient(
+            to top,
+            rgba(25, 2, 6, 0.98) 0%,
+            rgba(45, 5, 12, 0.74) 40%,
+            rgba(80, 7, 18, 0.18) 75%,
+            transparent 100%
+        );
+}
+
 
 .home-experience-overlay > span {
     width: fit-content;

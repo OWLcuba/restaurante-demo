@@ -1,11 +1,17 @@
-import { useEffect, useState } from "react"
+import {
+    useEffect,
+    useState
+} from "react"
+
 import {
     Navigate,
     useLocation
 } from "react-router-dom"
+
 import {
     onAuthStateChanged
 } from "firebase/auth"
+
 import {
     doc,
     getDoc
@@ -17,11 +23,21 @@ import {
 } from "../firebase/firebase"
 
 
-function ProtectedAdminRoute({ children }) {
-    const location = useLocation()
+function ProtectedAdminRoute({
+    children
+}) {
+    const location =
+        useLocation()
 
-    const [checking, setChecking] = useState(true)
-    const [authorized, setAuthorized] = useState(false)
+    const [
+        checking,
+        setChecking
+    ] = useState(true)
+
+    const [
+        authorized,
+        setAuthorized
+    ] = useState(false)
 
 
     useEffect(() => {
@@ -29,28 +45,61 @@ function ProtectedAdminRoute({ children }) {
             onAuthStateChanged(
                 auth,
                 async (user) => {
+
                     if (!user) {
                         setAuthorized(false)
                         setChecking(false)
+
                         return
                     }
 
+
                     try {
-                        const adminRef = doc(
-                            db,
-                            "admins",
-                            user.uid
-                        )
+                        const adminRef =
+                            doc(
+                                db,
+                                "admins",
+                                user.uid
+                            )
+
 
                         const adminSnapshot =
-                            await getDoc(adminRef)
+                            await getDoc(
+                                adminRef
+                            )
+
+
+                        const adminData =
+                            adminSnapshot.exists()
+                                ? adminSnapshot.data()
+                                : null
+
+
+                        const hasAdminRole =
+                            adminData &&
+                            (
+                                adminData.role ===
+                                    "admin" ||
+                                adminData.role ===
+                                    "owner"
+                            )
+
+
+                        const isActive =
+                            adminData?.active ===
+                            true
+
 
                         const isAdmin =
                             adminSnapshot.exists() &&
-                            adminSnapshot.data()?.role ===
-                                "admin"
+                            hasAdminRole &&
+                            isActive
 
-                        setAuthorized(isAdmin)
+
+                        setAuthorized(
+                            isAdmin
+                        )
+
                     } catch (error) {
                         console.error(
                             "Error verificando administrador:",
@@ -58,22 +107,28 @@ function ProtectedAdminRoute({ children }) {
                         )
 
                         setAuthorized(false)
+
                     } finally {
                         setChecking(false)
                     }
                 }
             )
 
-        return () => unsubscribe()
+
+        return () =>
+            unsubscribe()
+
     }, [])
 
 
     if (checking) {
         return (
             <main className="admin-page">
+
                 <p>
                     Verificando acceso...
                 </p>
+
             </main>
         )
     }
@@ -85,7 +140,8 @@ function ProtectedAdminRoute({ children }) {
                 to="/admin/login"
                 replace
                 state={{
-                    from: location.pathname
+                    from:
+                        location.pathname
                 }}
             />
         )

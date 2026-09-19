@@ -20,11 +20,31 @@ import {
 import "./Gallery.css"
 
 
-function GalleryCategory() {
-    const {
-        category
-    } = useParams()
+function normalizeText(value) {
+    return String(value || "")
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+}
 
+
+function isDrinkCategory(category) {
+    const normalized =
+        normalizeText(category)
+
+    return (
+        normalized.includes("bebidas") ||
+        normalized.includes("drinks") ||
+        normalized.includes("cocktails") ||
+        normalized.includes("alcohol")
+    )
+}
+
+
+function GalleryCategory() {
+    const { category } =
+        useParams()
 
     const [
         images,
@@ -45,7 +65,90 @@ function GalleryCategory() {
     useEffect(() => {
         async function loadGalleryImages() {
             try {
-                const querySnapshot =
+                setLoading(true)
+                setError("")
+
+                /*
+                    PLATOS Y BEBIDAS
+                    reutilizan menuItems.
+                */
+
+                if (
+                    category === "platos" ||
+                    category === "bebidas"
+                ) {
+                    const menuSnapshot =
+                        await getDocs(
+                            collection(
+                                db,
+                                "menuItems"
+                            )
+                        )
+
+                    const menuItems =
+                        menuSnapshot.docs.map(
+                            (document) => ({
+                                firebaseId:
+                                    document.id,
+
+                                ...document.data()
+                            })
+                        )
+
+
+                    const filteredItems =
+                        menuItems
+                            .filter(
+                                (item) =>
+                                    item.active !==
+                                        false &&
+                                    item.imageUrl
+                            )
+                            .filter(
+                                (item) => {
+                                    const drink =
+                                        isDrinkCategory(
+                                            item.category
+                                        )
+
+                                    if (
+                                        category ===
+                                        "bebidas"
+                                    ) {
+                                        return drink
+                                    }
+
+                                    return !drink
+                                }
+                            )
+                            .map(
+                                (item) => ({
+                                    firebaseId:
+                                        item.firebaseId,
+
+                                    title:
+                                        item.name,
+
+                                    imageUrl:
+                                        item.imageUrl
+                                })
+                            )
+
+
+                    setImages(
+                        filteredItems
+                    )
+
+                    return
+                }
+
+
+                /*
+                    RESTAURANTE / EVENTOS
+                    usan la colección gallery.
+                */
+
+                const gallerySnapshot =
                     await getDocs(
                         collection(
                             db,
@@ -55,7 +158,7 @@ function GalleryCategory() {
 
 
                 const galleryData =
-                    querySnapshot.docs.map(
+                    gallerySnapshot.docs.map(
                         (document) => ({
                             firebaseId:
                                 document.id,
@@ -70,15 +173,22 @@ function GalleryCategory() {
                         .filter(
                             (image) =>
                                 image.category ===
-                                category
+                                    category &&
+                                image.active !==
+                                    false &&
+                                image.imageUrl
                         )
                         .sort(
                             (a, b) =>
                                 Number(
-                                    a.id || 0
+                                    a.order ??
+                                    a.id ??
+                                    0
                                 ) -
                                 Number(
-                                    b.id || 0
+                                    b.order ??
+                                    b.id ??
+                                    0
                                 )
                         )
 
@@ -86,7 +196,10 @@ function GalleryCategory() {
                 setImages(
                     filteredImages
                 )
-            } catch (firebaseError) {
+
+            } catch (
+                firebaseError
+            ) {
                 console.error(
                     "Error al cargar la categoría de galería:",
                     firebaseError
@@ -165,8 +278,7 @@ function GalleryCategory() {
 
             {!loading &&
                 !error &&
-                images.length ===
-                    0 && (
+                images.length === 0 && (
                     <p className="gallery-status">
                         Todavía no hay imágenes
                         en esta categoría.
@@ -176,8 +288,7 @@ function GalleryCategory() {
 
             {!loading &&
                 !error &&
-                images.length >
-                    0 && (
+                images.length > 0 && (
 
                     <div className="gallery-grid gallery-images-grid">
 
@@ -196,7 +307,8 @@ function GalleryCategory() {
                                             image.imageUrl
                                         }
                                         alt={
-                                            image.title
+                                            image.title ||
+                                            "Q' Bola"
                                         }
                                         loading="lazy"
                                     />

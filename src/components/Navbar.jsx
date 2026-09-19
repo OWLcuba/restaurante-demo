@@ -142,6 +142,10 @@ function Navbar() {
     }
 
 
+    const logoUrl =
+    businessData?.logoUrl || ""
+
+
     return (
         <nav className="navbar">
 
@@ -152,14 +156,16 @@ function Navbar() {
                 className="logo"
                 onClick={closeMenu}
             >
-                <img
-                    src="/images/logo.jpg"
-                    alt={
-                        businessData?.name ||
-                        "Q' Bola"
-                    }
-                    className="navbar-logo"
-                />
+                {logoUrl && (
+    <img
+        src={logoUrl}
+        alt={
+            businessData?.name ||
+            "Q' Bola"
+        }
+        className="navbar-logo"
+    />
+)}
 
                 <span>
                     {!loadingBusiness &&

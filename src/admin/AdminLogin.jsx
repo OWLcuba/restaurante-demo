@@ -1,14 +1,17 @@
 import { useState } from "react"
+
 import {
     browserLocalPersistence,
     setPersistence,
     signInWithEmailAndPassword,
     signOut
 } from "firebase/auth"
+
 import {
     doc,
     getDoc
 } from "firebase/firestore"
+
 import {
     Navigate,
     useLocation,
@@ -63,10 +66,28 @@ function AdminLogin() {
                 await getDoc(adminRef)
 
 
+            const adminData =
+                adminSnapshot.exists()
+                    ? adminSnapshot.data()
+                    : null
+
+
+            const hasAdminRole =
+                adminData &&
+                (
+                    adminData.role === "admin" ||
+                    adminData.role === "owner"
+                )
+
+
+            const isActive =
+                adminData?.active === true
+
+
             if (
                 !adminSnapshot.exists() ||
-                adminSnapshot.data()?.role !==
-                    "admin"
+                !hasAdminRole ||
+                !isActive
             ) {
                 await signOut(auth)
 
@@ -82,12 +103,14 @@ function AdminLogin() {
                 location.state?.from ||
                 "/admin"
 
+
             navigate(
                 destination,
                 {
                     replace: true
                 }
             )
+
         } catch (error) {
             console.error(
                 "Error al iniciar sesión:",
@@ -97,6 +120,7 @@ function AdminLogin() {
             setMessage(
                 "Correo o contraseña incorrectos."
             )
+
         } finally {
             setLoading(false)
         }
@@ -115,7 +139,9 @@ function AdminLogin() {
 
     return (
         <main className="admin-page">
+
             <section className="admin-header">
+
                 <span className="admin-kicker">
                     ADMINISTRACIÓN
                 </span>
@@ -128,6 +154,7 @@ function AdminLogin() {
                     Accede al panel de administración
                     de Q&apos; Bola.
                 </p>
+
             </section>
 
 
@@ -135,6 +162,7 @@ function AdminLogin() {
                 className="admin-form admin-login-form"
                 onSubmit={handleSubmit}
             >
+
                 <label>
                     Correo electrónico
 
@@ -185,7 +213,9 @@ function AdminLogin() {
                         {message}
                     </p>
                 )}
+
             </form>
+
         </main>
     )
 }
