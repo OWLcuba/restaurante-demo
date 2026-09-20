@@ -145,6 +145,7 @@ function AdminEvents() {
                 setVenues(
                     venueData
                 )
+
             } catch (firebaseError) {
                 console.error(
                     "Error al cargar administración de eventos:",
@@ -154,6 +155,7 @@ function AdminEvents() {
                 setError(
                     "No se pudieron cargar los eventos y locales."
                 )
+
             } finally {
                 setLoading(false)
             }
@@ -254,6 +256,7 @@ function AdminEvents() {
             >
 
                 {eventItem.imageUrl && (
+
                     <img
                         className="admin-card-image"
                         src={
@@ -263,6 +266,7 @@ function AdminEvents() {
                             eventItem.title
                         }
                     />
+
                 )}
 
 
@@ -379,9 +383,11 @@ function AdminEvents() {
 
 
             {error && (
+
                 <p className="admin-message">
                     {error}
                 </p>
+
             )}
 
 

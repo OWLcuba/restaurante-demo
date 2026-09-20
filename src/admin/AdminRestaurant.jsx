@@ -9,6 +9,7 @@ import {
 } from "firebase/firestore"
 
 import {
+    deleteObject,
     getDownloadURL,
     ref,
     uploadBytes
@@ -26,6 +27,10 @@ import {
 import {
     useBusiness
 } from "../context/BusinessContext"
+
+import {
+    processImage
+} from "../utils/processImage"
 
 import "./Admin.css"
 
@@ -46,6 +51,7 @@ function AdminRestaurant() {
         description: "",
 
         heroImageUrl: "",
+        heroImageStoragePath: "",
 
         phone: "",
         displayPhone: "",
@@ -90,6 +96,10 @@ function AdminRestaurant() {
     ] = useState("")
 
 
+    /* =====================================================
+       CARGAR DATOS
+    ===================================================== */
+
     useEffect(() => {
         if (!businessData) {
             return
@@ -108,6 +118,9 @@ function AdminRestaurant() {
 
             heroImageUrl:
                 businessData.heroImageUrl || "",
+
+            heroImageStoragePath:
+                businessData.heroImageStoragePath || "",
 
             phone:
                 businessData.phone || "",
@@ -157,6 +170,10 @@ function AdminRestaurant() {
     ])
 
 
+    /* =====================================================
+       LIMPIAR PREVIEW BLOB
+    ===================================================== */
+
     useEffect(() => {
         return () => {
             if (
@@ -175,6 +192,10 @@ function AdminRestaurant() {
     ])
 
 
+    /* =====================================================
+       CAMBIOS FORMULARIO
+    ===================================================== */
+
     const handleChange = (
         event
     ) => {
@@ -187,6 +208,7 @@ function AdminRestaurant() {
         setFormData(
             (current) => ({
                 ...current,
+
                 [name]:
                     value
             })
@@ -194,91 +216,126 @@ function AdminRestaurant() {
     }
 
 
-    const handleHeroImageChange = (
-        event
-    ) => {
-        const file =
-            event.target.files?.[0]
+    /* =====================================================
+       SELECCIONAR Y PROCESAR FOTO PRINCIPAL
+    ===================================================== */
+
+    const handleHeroImageChange =
+        async (
+            event
+        ) => {
+            const file =
+                event.target.files?.[0]
 
 
-        if (!file) {
-            return
-        }
-
-
-        if (
-            !file.type.startsWith(
-                "image/"
-            )
-        ) {
-            setMessage(
-                "Selecciona un archivo de imagen válido."
-            )
-
-            return
-        }
-
-
-        if (
-            file.size >
-            10 * 1024 * 1024
-        ) {
-            setMessage(
-                "La imagen no puede superar 10 MB."
-            )
-
-            return
-        }
-
-
-        if (
-            heroPreview &&
-            heroPreview.startsWith(
-                "blob:"
-            )
-        ) {
-            URL.revokeObjectURL(
-                heroPreview
-            )
-        }
-
-
-        const previewUrl =
-            URL.createObjectURL(
-                file
-            )
-
-
-        setHeroImageFile(
-            file
-        )
-
-        setHeroPreview(
-            previewUrl
-        )
-
-        setMessage("")
-    }
-
-
-    const uploadHeroImage =
-        async () => {
-
-            if (!heroImageFile) {
-                return formData.heroImageUrl
+            if (!file) {
+                return
             }
 
 
-            const extension =
-                heroImageFile.name
-                    .split(".")
-                    .pop()
-                    ?.toLowerCase() ||
-                "jpg"
+            if (
+                !file.type.startsWith(
+                    "image/"
+                )
+            ) {
+                setMessage(
+                    "Selecciona un archivo de imagen válido."
+                )
+
+                return
+            }
+
+
+            if (
+                file.size >
+                15 * 1024 * 1024
+            ) {
+                setMessage(
+                    "La imagen original no puede superar 15 MB."
+                )
+
+                return
+            }
+
+
+            try {
+                setMessage(
+                    "Procesando imagen..."
+                )
+
+
+                const processedFile =
+                    await processImage(
+                        file
+                    )
+
+
+                if (
+                    heroPreview &&
+                    heroPreview.startsWith(
+                        "blob:"
+                    )
+                ) {
+                    URL.revokeObjectURL(
+                        heroPreview
+                    )
+                }
+
+
+                setHeroImageFile(
+                    processedFile
+                )
+
+
+                setHeroPreview(
+                    URL.createObjectURL(
+                        processedFile
+                    )
+                )
+
+
+                setMessage(
+                    ""
+                )
+
+            } catch (error) {
+                console.error(
+                    "Error procesando imagen principal:",
+                    error
+                )
+
+
+                setHeroImageFile(
+                    null
+                )
+
+
+                setMessage(
+                    "No se pudo procesar esa imagen. Prueba con otra foto."
+                )
+            }
+        }
+
+
+    /* =====================================================
+       SUBIR FOTO PRINCIPAL
+    ===================================================== */
+
+    const uploadHeroImage =
+        async () => {
+            if (!heroImageFile) {
+                return {
+                    imageUrl:
+                        formData.heroImageUrl,
+
+                    storagePath:
+                        formData.heroImageStoragePath
+                }
+            }
 
 
             const storagePath =
-                `business/cover/restaurant-cover-${Date.now()}.${extension}`
+                `business/cover/restaurant-cover-${Date.now()}.jpg`
 
 
             const storageRef =
@@ -298,11 +355,52 @@ function AdminRestaurant() {
             )
 
 
-            return await getDownloadURL(
-                storageRef
-            )
+            const imageUrl =
+                await getDownloadURL(
+                    storageRef
+                )
+
+
+            return {
+                imageUrl,
+                storagePath
+            }
         }
 
+
+    /* =====================================================
+       BORRAR FOTO ANTERIOR
+    ===================================================== */
+
+    const deleteOldHeroImage =
+        async (
+            storagePath
+        ) => {
+            if (!storagePath) {
+                return
+            }
+
+
+            try {
+                await deleteObject(
+                    ref(
+                        storage,
+                        storagePath
+                    )
+                )
+
+            } catch (error) {
+                console.warn(
+                    "No se pudo eliminar la imagen principal anterior:",
+                    error
+                )
+            }
+        }
+
+
+    /* =====================================================
+       GUARDAR RESTAURANTE
+    ===================================================== */
 
     const handleSubmit = async (
         event
@@ -311,8 +409,13 @@ function AdminRestaurant() {
 
 
         try {
-            setSaving(true)
-            setMessage("")
+            setSaving(
+                true
+            )
+
+            setMessage(
+                ""
+            )
 
 
             const businessRef =
@@ -352,12 +455,11 @@ function AdminRestaurant() {
                 )}`
 
 
-            /*
-                Si seleccionaron una nueva
-                imagen, la subimos ahora.
-            */
+            const oldHeroStoragePath =
+                formData.heroImageStoragePath
 
-            const heroImageUrl =
+
+            const uploadedHero =
                 await uploadHeroImage()
 
 
@@ -372,7 +474,12 @@ function AdminRestaurant() {
                     formData.description.trim(),
 
                 heroImageUrl:
-                    heroImageUrl || "",
+                    uploadedHero.imageUrl ||
+                    "",
+
+                heroImageStoragePath:
+                    uploadedHero.storagePath ||
+                    "",
 
                 phone:
                     formData.phone.trim(),
@@ -467,12 +574,34 @@ function AdminRestaurant() {
             )
 
 
+            /*
+                Si se subió una imagen nueva
+                y conocemos la ruta de la vieja,
+                eliminamos la anterior.
+            */
+
+            if (
+                heroImageFile &&
+                oldHeroStoragePath &&
+                oldHeroStoragePath !==
+                    uploadedHero.storagePath
+            ) {
+                await deleteOldHeroImage(
+                    oldHeroStoragePath
+                )
+            }
+
+
             setFormData(
                 (current) => ({
                     ...current,
 
                     heroImageUrl:
-                        heroImageUrl ||
+                        uploadedHero.imageUrl ||
+                        "",
+
+                    heroImageStoragePath:
+                        uploadedHero.storagePath ||
                         ""
                 })
             )
@@ -484,7 +613,7 @@ function AdminRestaurant() {
 
 
             setHeroPreview(
-                heroImageUrl ||
+                uploadedHero.imageUrl ||
                 ""
             )
 
@@ -505,10 +634,16 @@ function AdminRestaurant() {
             )
 
         } finally {
-            setSaving(false)
+            setSaving(
+                false
+            )
         }
     }
 
+
+    /* =====================================================
+       LOADING
+    ===================================================== */
 
     if (
         loadingBusiness ||
@@ -525,6 +660,10 @@ function AdminRestaurant() {
         )
     }
 
+
+    /* =====================================================
+       RENDER
+    ===================================================== */
 
     return (
         <main className="admin-page">
@@ -595,6 +734,7 @@ function AdminRestaurant() {
                         }
                         required
                     />
+
                 </label>
 
 
@@ -612,10 +752,12 @@ function AdminRestaurant() {
                         }
                         required
                     />
+
                 </label>
 
 
                 <label className="admin-full-field">
+
                     Descripción
 
                     <textarea
@@ -629,6 +771,7 @@ function AdminRestaurant() {
                         rows="5"
                         required
                     />
+
                 </label>
 
 
@@ -671,13 +814,7 @@ function AdminRestaurant() {
 
                 {heroPreview && (
 
-                    <div
-                        className="admin-full-field admin-content-card"
-                        style={{
-                            maxWidth:
-                                "650px"
-                        }}
-                    >
+                    <div className="admin-upload-preview">
 
                         <p>
                             Vista previa
@@ -689,22 +826,6 @@ function AdminRestaurant() {
                                 heroPreview
                             }
                             alt="Vista previa del restaurante"
-                            style={{
-                                width:
-                                    "100%",
-
-                                maxHeight:
-                                    "360px",
-
-                                objectFit:
-                                    "cover",
-
-                                borderRadius:
-                                    "14px",
-
-                                display:
-                                    "block"
-                            }}
                         />
 
                     </div>
@@ -743,6 +864,7 @@ function AdminRestaurant() {
                         }
                         placeholder="+12105551234"
                     />
+
                 </label>
 
 
@@ -760,6 +882,7 @@ function AdminRestaurant() {
                         }
                         placeholder="(210) 555-1234"
                     />
+
                 </label>
 
 
@@ -777,6 +900,7 @@ function AdminRestaurant() {
                         }
                         placeholder="12105551234"
                     />
+
                 </label>
 
 
@@ -794,6 +918,7 @@ function AdminRestaurant() {
                         }
                         placeholder="Hola, quiero hacer un pedido..."
                     />
+
                 </label>
 
 
@@ -815,6 +940,7 @@ function AdminRestaurant() {
 
 
                 <label className="admin-full-field">
+
                     Dirección completa
 
                     <input
@@ -829,6 +955,7 @@ function AdminRestaurant() {
                         placeholder="123 Main Street, San Antonio, TX"
                         required
                     />
+
                 </label>
 
 
@@ -847,6 +974,7 @@ function AdminRestaurant() {
                         }
                         placeholder="123 Main Street"
                     />
+
                 </label>
 
 
@@ -865,6 +993,7 @@ function AdminRestaurant() {
                         }
                         placeholder="San Antonio, TX"
                     />
+
                 </label>
 
 
@@ -899,6 +1028,7 @@ function AdminRestaurant() {
                         }
                         placeholder="Lunes - Jueves"
                     />
+
                 </label>
 
 
@@ -916,6 +1046,7 @@ function AdminRestaurant() {
                         }
                         placeholder="10:00 AM - 9:00 PM"
                     />
+
                 </label>
 
 
@@ -933,6 +1064,7 @@ function AdminRestaurant() {
                         }
                         placeholder="Viernes - Domingo"
                     />
+
                 </label>
 
 
@@ -950,10 +1082,12 @@ function AdminRestaurant() {
                         }
                         placeholder="10:00 AM - 11:00 PM"
                     />
+
                 </label>
 
 
                 <label className="admin-full-field">
+
                     Horario corto para el Home
 
                     <input
@@ -967,6 +1101,7 @@ function AdminRestaurant() {
                         }
                         placeholder="10AM - 9PM"
                     />
+
                 </label>
 
 
@@ -984,7 +1119,9 @@ function AdminRestaurant() {
                         }
                     >
                         {saving
-                            ? "Guardando..."
+                            ? heroImageFile
+                                ? "Subiendo imagen..."
+                                : "Guardando..."
                             : "Guardar cambios"}
                     </button>
 

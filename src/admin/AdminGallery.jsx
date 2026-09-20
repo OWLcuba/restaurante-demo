@@ -28,6 +28,10 @@ import {
     storage
 } from "../firebase/firebase"
 
+import {
+    processImage
+} from "../utils/processImage"
+
 import "./Admin.css"
 
 
@@ -180,48 +184,6 @@ function AdminGallery() {
     }
 
 
-    const cleanFileName = (
-        fileName
-    ) => {
-        const dotIndex =
-            fileName.lastIndexOf(".")
-
-
-        const extension =
-            dotIndex >= 0
-                ? fileName
-                      .slice(
-                          dotIndex + 1
-                      )
-                      .toLowerCase()
-                : "jpg"
-
-
-        const baseName =
-            dotIndex >= 0
-                ? fileName.slice(
-                      0,
-                      dotIndex
-                  )
-                : fileName
-
-
-        const cleanBase =
-            slugify(
-                baseName
-            ) ||
-            "imagen"
-
-
-        return {
-            baseName:
-                cleanBase,
-
-            extension
-        }
-    }
-
-
     const validateImageFile = (
         file,
         setMessage
@@ -246,10 +208,10 @@ function AdminGallery() {
 
         if (
             file.size >
-            10 * 1024 * 1024
+            15 * 1024 * 1024
         ) {
             setMessage(
-                "La imagen no puede superar 10 MB."
+                "La imagen original no puede superar 15 MB."
             )
 
             return false
@@ -277,11 +239,6 @@ function AdminGallery() {
                     )
                 )
             } catch (error) {
-                /*
-                    Si el archivo ya no existe,
-                    no queremos romper el admin.
-                */
-
                 console.warn(
                     "No se pudo eliminar archivo anterior de Storage:",
                     storagePath,
@@ -480,48 +437,80 @@ function AdminGallery() {
        FOTO DE PORTADA
     ===================================================== */
 
-    const handleCategoryImageChange = (
-        event
-    ) => {
-        const file =
-            event.target.files?.[0]
+    const handleCategoryImageChange =
+        async (
+            event
+        ) => {
+            const file =
+                event.target.files?.[0]
 
 
-        if (
-            !validateImageFile(
-                file,
-                setCategoryMessage
-            )
-        ) {
-            return
+            if (
+                !validateImageFile(
+                    file,
+                    setCategoryMessage
+                )
+            ) {
+                return
+            }
+
+
+            try {
+                setCategoryMessage(
+                    "Procesando imagen..."
+                )
+
+
+                const processedFile =
+                    await processImage(
+                        file
+                    )
+
+
+                if (
+                    categoryPreview.startsWith(
+                        "blob:"
+                    )
+                ) {
+                    URL.revokeObjectURL(
+                        categoryPreview
+                    )
+                }
+
+
+                setCategoryImageFile(
+                    processedFile
+                )
+
+
+                setCategoryPreview(
+                    URL.createObjectURL(
+                        processedFile
+                    )
+                )
+
+
+                setCategoryMessage(
+                    ""
+                )
+
+            } catch (error) {
+                console.error(
+                    "Error procesando portada:",
+                    error
+                )
+
+
+                setCategoryImageFile(
+                    null
+                )
+
+
+                setCategoryMessage(
+                    "No se pudo procesar esa imagen. Prueba con otra foto."
+                )
+            }
         }
-
-
-        if (
-            categoryPreview.startsWith(
-                "blob:"
-            )
-        ) {
-            URL.revokeObjectURL(
-                categoryPreview
-            )
-        }
-
-
-        setCategoryImageFile(
-            file
-        )
-
-
-        setCategoryPreview(
-            URL.createObjectURL(
-                file
-            )
-        )
-
-
-        setCategoryMessage("")
-    }
 
 
     /* =====================================================
@@ -553,48 +542,80 @@ function AdminGallery() {
        FOTO GALERÍA
     ===================================================== */
 
-    const handleGalleryImageChange = (
-        event
-    ) => {
-        const file =
-            event.target.files?.[0]
+    const handleGalleryImageChange =
+        async (
+            event
+        ) => {
+            const file =
+                event.target.files?.[0]
 
 
-        if (
-            !validateImageFile(
-                file,
-                setImageMessage
-            )
-        ) {
-            return
+            if (
+                !validateImageFile(
+                    file,
+                    setImageMessage
+                )
+            ) {
+                return
+            }
+
+
+            try {
+                setImageMessage(
+                    "Procesando imagen..."
+                )
+
+
+                const processedFile =
+                    await processImage(
+                        file
+                    )
+
+
+                if (
+                    imagePreview.startsWith(
+                        "blob:"
+                    )
+                ) {
+                    URL.revokeObjectURL(
+                        imagePreview
+                    )
+                }
+
+
+                setImageFile(
+                    processedFile
+                )
+
+
+                setImagePreview(
+                    URL.createObjectURL(
+                        processedFile
+                    )
+                )
+
+
+                setImageMessage(
+                    ""
+                )
+
+            } catch (error) {
+                console.error(
+                    "Error procesando imagen de galería:",
+                    error
+                )
+
+
+                setImageFile(
+                    null
+                )
+
+
+                setImageMessage(
+                    "No se pudo procesar esa imagen. Prueba con otra foto."
+                )
+            }
         }
-
-
-        if (
-            imagePreview.startsWith(
-                "blob:"
-            )
-        ) {
-            URL.revokeObjectURL(
-                imagePreview
-            )
-        }
-
-
-        setImageFile(
-            file
-        )
-
-
-        setImagePreview(
-            URL.createObjectURL(
-                file
-            )
-        )
-
-
-        setImageMessage("")
-    }
 
 
     /* =====================================================
@@ -719,16 +740,8 @@ function AdminGallery() {
             }
 
 
-            const {
-                extension
-            } =
-                cleanFileName(
-                    categoryImageFile.name
-                )
-
-
             const storagePath =
-                `gallery/categories/${categoryId}/cover-${Date.now()}.${extension}`
+                `gallery/categories/${categoryId}/cover-${Date.now()}.jpg`
 
 
             const storageRef =
@@ -1169,17 +1182,15 @@ function AdminGallery() {
             }
 
 
-            const {
-                baseName,
-                extension
-            } =
-                cleanFileName(
-                    imageFile.name
-                )
+            const titleSlug =
+                slugify(
+                    imageForm.title
+                ) ||
+                "imagen"
 
 
             const storagePath =
-                `gallery/${categoryId}/${Date.now()}-${baseName}.${extension}`
+                `gallery/${categoryId}/${Date.now()}-${titleSlug}.jpg`
 
 
             const storageRef =
@@ -1637,14 +1648,13 @@ function AdminGallery() {
 
                     {categoryPreview && (
 
-                        <div className="admin-full-field admin-content-card">
+                        <div className="admin-upload-preview">
 
                             <p>
                                 Vista previa
                             </p>
 
                             <img
-                                className="admin-card-image"
                                 src={
                                     categoryPreview
                                 }
@@ -1703,7 +1713,9 @@ function AdminGallery() {
                             }
                         >
                             {savingCategory
-                                ? "Guardando..."
+                                ? categoryImageFile
+                                    ? "Subiendo imagen..."
+                                    : "Guardando..."
                                 : editingCategoryId
                                   ? "Guardar cambios"
                                   : "Crear categoría"}
@@ -2043,7 +2055,7 @@ function AdminGallery() {
 
                     {imagePreview && (
 
-                        <div className="admin-full-field admin-content-card">
+                        <div className="admin-upload-preview">
 
                             <p>
                                 Vista previa
@@ -2051,7 +2063,6 @@ function AdminGallery() {
 
 
                             <img
-                                className="admin-card-image"
                                 src={
                                     imagePreview
                                 }
@@ -2073,7 +2084,9 @@ function AdminGallery() {
                             }
                         >
                             {savingImage
-                                ? "Subiendo..."
+                                ? imageFile
+                                    ? "Subiendo imagen..."
+                                    : "Guardando..."
                                 : editingImageId
                                   ? "Guardar cambios"
                                   : "Agregar imagen"}

@@ -30,6 +30,10 @@ import {
     storage
 } from "../firebase/firebase"
 
+import {
+    processImage
+} from "../utils/processImage"
+
 import "./Admin.css"
 
 
@@ -478,190 +482,190 @@ function AdminEventForm() {
        IMAGEN DEL EVENTO
     ===================================================== */
 
-    const handleImageChange = (
-        event
-    ) => {
-        const file =
-            event.target.files?.[0]
+    const handleImageChange =
+        async (
+            event
+        ) => {
+            const file =
+                event.target.files?.[0]
 
 
-        if (!file) {
-            return
-        }
+            if (!file) {
+                return
+            }
 
 
-        if (
-            !file.type.startsWith(
-                "image/"
-            )
-        ) {
-            setMessage(
-                "Selecciona un archivo de imagen válido."
-            )
+            if (
+                !file.type.startsWith(
+                    "image/"
+                )
+            ) {
+                setMessage(
+                    "Selecciona un archivo de imagen válido."
+                )
 
-            return
-        }
-
-
-        if (
-            file.size >
-            10 * 1024 * 1024
-        ) {
-            setMessage(
-                "La imagen no puede superar 10 MB."
-            )
-
-            return
-        }
+                return
+            }
 
 
-        if (
-            imagePreview.startsWith(
-                "blob:"
-            )
-        ) {
-            URL.revokeObjectURL(
-                imagePreview
-            )
-        }
+            if (
+                file.size >
+                15 * 1024 * 1024
+            ) {
+                setMessage(
+                    "La imagen original no puede superar 15 MB."
+                )
+
+                return
+            }
 
 
-        setImageFile(
-            file
-        )
+            try {
+                setMessage(
+                    "Procesando imagen..."
+                )
 
 
-        setImagePreview(
-            URL.createObjectURL(
-                file
-            )
-        )
+                const processedFile =
+                    await processImage(
+                        file
+                    )
 
 
-        setMessage("")
-    }
+                if (
+                    imagePreview.startsWith(
+                        "blob:"
+                    )
+                ) {
+                    URL.revokeObjectURL(
+                        imagePreview
+                    )
+                }
 
 
-    const getFileExtension = (
-        file
-    ) => {
-        const fileName =
-            file?.name ||
-            ""
+                setImageFile(
+                    processedFile
+                )
 
 
-        const parts =
-            fileName.split(".")
+                setImagePreview(
+                    URL.createObjectURL(
+                        processedFile
+                    )
+                )
 
 
-        if (
-            parts.length > 1
-        ) {
-            return parts
-                .pop()
-                .toLowerCase()
-        }
+                setMessage(
+                    ""
+                )
+
+            } catch (error) {
+                console.error(
+                    "Error procesando imagen:",
+                    error
+                )
 
 
-        if (
-            file?.type ===
-            "image/png"
-        ) {
-            return "png"
-        }
+                setImageFile(
+                    null
+                )
 
 
-        if (
-            file?.type ===
-            "image/webp"
-        ) {
-            return "webp"
-        }
-
-
-        return "jpg"
-    }
-
-
-    const uploadEventImage = async (
-        documentId
-    ) => {
-        if (!imageFile) {
-            return {
-                imageUrl:
-                    formData.imageUrl,
-
-                imageStoragePath:
-                    formData.imageStoragePath
+                setMessage(
+                    "No se pudo procesar esa imagen. Prueba con otra foto."
+                )
             }
         }
 
 
-        const extension =
-            getFileExtension(
-                imageFile
-            )
+    /* =====================================================
+       SUBIR IMAGEN
+    ===================================================== */
 
+    const uploadEventImage =
+        async (
+            documentId
+        ) => {
+            if (!imageFile) {
+                return {
+                    imageUrl:
+                        formData.imageUrl,
 
-        const storagePath =
-            `events/${documentId}/event-${Date.now()}.${extension}`
-
-
-        const imageRef =
-            ref(
-                storage,
-                storagePath
-            )
-
-
-        await uploadBytes(
-            imageRef,
-            imageFile,
-            {
-                contentType:
-                    imageFile.type
+                    imageStoragePath:
+                        formData.imageStoragePath
+                }
             }
-        )
 
 
-        const imageUrl =
-            await getDownloadURL(
-                imageRef
-            )
+            const storagePath =
+                `events/${documentId}/event-${Date.now()}.jpg`
 
 
-        return {
-            imageUrl,
-
-            imageStoragePath:
-                storagePath
-        }
-    }
-
-
-    const deleteOldEventImage = async (
-        storagePath
-    ) => {
-        if (!storagePath) {
-            return
-        }
-
-
-        try {
-            await deleteObject(
+            const imageRef =
                 ref(
                     storage,
                     storagePath
                 )
-            )
-        } catch (error) {
-            console.warn(
-                "No se pudo eliminar la imagen anterior del evento:",
-                error
-            )
-        }
-    }
 
+
+            await uploadBytes(
+                imageRef,
+                imageFile,
+                {
+                    contentType:
+                        imageFile.type
+                }
+            )
+
+
+            const imageUrl =
+                await getDownloadURL(
+                    imageRef
+                )
+
+
+            return {
+                imageUrl,
+
+                imageStoragePath:
+                    storagePath
+            }
+        }
+
+
+    /* =====================================================
+       BORRAR IMAGEN ANTERIOR
+    ===================================================== */
+
+    const deleteOldEventImage =
+        async (
+            storagePath
+        ) => {
+            if (!storagePath) {
+                return
+            }
+
+
+            try {
+                await deleteObject(
+                    ref(
+                        storage,
+                        storagePath
+                    )
+                )
+
+            } catch (error) {
+                console.warn(
+                    "No se pudo eliminar la imagen anterior del evento:",
+                    error
+                )
+            }
+        }
+
+
+    /* =====================================================
+       LIMPIAR PREVIEW
+    ===================================================== */
 
     useEffect(() => {
         return () => {
@@ -904,7 +908,9 @@ function AdminEventForm() {
                 )
 
             } finally {
-                setLoading(false)
+                setLoading(
+                    false
+                )
             }
         }
 
@@ -1472,94 +1478,25 @@ function AdminEventForm() {
        GUARDAR
     ===================================================== */
 
-    const handleSubmit = async (
-        submitEvent
-    ) => {
-        submitEvent.preventDefault()
+    const handleSubmit =
+        async (
+            submitEvent
+        ) => {
+            submitEvent.preventDefault()
 
 
-        if (!selectedVenue) {
-            setMessage(
-                "Debes seleccionar un local."
-            )
-
-            return
-        }
-
-
-        if (
-            !isEditing &&
-            !imageFile
-        ) {
-            setMessage(
-                "Selecciona una imagen para el evento."
-            )
-
-            return
-        }
-
-
-        try {
-            setSaving(true)
-            setMessage("")
-
-
-            const documentId =
-                isEditing
-                    ? eventId
-                    : createSlug(
-                          formData.title
-                      )
-
-
-            if (!documentId) {
+            if (!selectedVenue) {
                 setMessage(
-                    "No se pudo generar el ID del evento."
+                    "Debes seleccionar un local."
                 )
 
                 return
             }
 
 
-            if (!isEditing) {
-                const eventRef =
-                    doc(
-                        db,
-                        "specialEvents",
-                        documentId
-                    )
-
-
-                const existingEvent =
-                    await getDoc(
-                        eventRef
-                    )
-
-
-                if (
-                    existingEvent.exists()
-                ) {
-                    setMessage(
-                        `Ya existe un evento con el ID "${documentId}".`
-                    )
-
-                    return
-                }
-            }
-
-
-            const oldImageStoragePath =
-                formData.imageStoragePath
-
-
-            const uploadedImage =
-                await uploadEventImage(
-                    documentId
-                )
-
-
             if (
-                !uploadedImage.imageUrl
+                !isEditing &&
+                !imageFile
             ) {
                 setMessage(
                     "Selecciona una imagen para el evento."
@@ -1569,209 +1506,286 @@ function AdminEventForm() {
             }
 
 
-            const cleanOffers =
-                formData.offers
-                    .filter(
-                        (offer) =>
-                            offer.name.trim()
-                    )
-                    .map(
-                        (offer) => {
-                            const offerType =
-                                (
-                                    offer.type ||
-                                    "general"
-                                )
-                                    .trim()
-                                    .toLowerCase()
-
-
-                            const automatic =
-                                getOfferAvailability(
-                                    offerType
-                                )
-
-
-                            return {
-                                type:
-                                    offerType,
-
-                                name:
-                                    offer.name
-                                        .trim(),
-
-                                description:
-                                    offer.description
-                                        .trim(),
-
-                                price:
-                                    offer.price ===
-                                    ""
-                                        ? 0
-                                        : Number(
-                                              offer.price
-                                          ),
-
-                                available:
-                                    automatic !==
-                                    null
-                                        ? automatic
-                                        : Number(
-                                              offer.available
-                                          ) || 0,
-
-                                active:
-                                    offer.active
-                            }
-                        }
-                    )
-
-
-            const cleanSeatStatus =
-                {}
-
-
-            venueSeats.forEach(
-                (seat) => {
-                    cleanSeatStatus[
-                        seat.id
-                    ] =
-                        getSeatStatus(
-                            seat.id
-                        )
-                }
-            )
-
-
-            const cleanStandingAvailability =
-                {}
-
-
-            standingAreas.forEach(
-                (area) => {
-                    cleanStandingAvailability[
-                        area.id
-                    ] =
-                        getStandingAvailable(
-                            area
-                        )
-                }
-            )
-
-
-            const eventData = {
-                title:
-                    formData.title
-                        .trim(),
-
-                venueId:
-                    selectedVenue
-                        .firebaseId,
-
-                venue:
-                    selectedVenue.name,
-
-                date:
-                    formData.date,
-
-                dateLabel:
-                    formData.dateLabel
-                        .trim() ||
-                    createDateLabel(
-                        formData.date
-                    ),
-
-                description:
-                    formData.description
-                        .trim(),
-
-                imageUrl:
-                    uploadedImage.imageUrl,
-
-                imageStoragePath:
-                    uploadedImage.imageStoragePath ||
-                    "",
-
-                active:
-                    formData.active,
-
-                offers:
-                    cleanOffers,
-
-                seatStatus:
-                    cleanSeatStatus,
-
-                standingAvailability:
-                    cleanStandingAvailability,
-
-                inventoryCapacity: {
-                    general:
-                        totalStandingCapacity,
-
-                    table:
-                        tableSeats.length,
-
-                    vip:
-                        vipSeats.length
-                }
-            }
-
-
-            if (isEditing) {
-
-                await updateDoc(
-                    doc(
-                        db,
-                        "specialEvents",
-                        eventId
-                    ),
-                    eventData
+            try {
+                setSaving(
+                    true
                 )
 
-            } else {
+                setMessage(
+                    ""
+                )
 
-                await setDoc(
-                    doc(
-                        db,
-                        "specialEvents",
+
+                const documentId =
+                    isEditing
+                        ? eventId
+                        : createSlug(
+                              formData.title
+                          )
+
+
+                if (!documentId) {
+                    setMessage(
+                        "No se pudo generar el ID del evento."
+                    )
+
+                    return
+                }
+
+
+                if (!isEditing) {
+                    const eventRef =
+                        doc(
+                            db,
+                            "specialEvents",
+                            documentId
+                        )
+
+
+                    const existingEvent =
+                        await getDoc(
+                            eventRef
+                        )
+
+
+                    if (
+                        existingEvent.exists()
+                    ) {
+                        setMessage(
+                            `Ya existe un evento con el ID "${documentId}".`
+                        )
+
+                        return
+                    }
+                }
+
+
+                const oldImageStoragePath =
+                    formData.imageStoragePath
+
+
+                const uploadedImage =
+                    await uploadEventImage(
                         documentId
-                    ),
-                    eventData
+                    )
+
+
+                if (
+                    !uploadedImage.imageUrl
+                ) {
+                    setMessage(
+                        "Selecciona una imagen para el evento."
+                    )
+
+                    return
+                }
+
+
+                const cleanOffers =
+                    formData.offers
+                        .filter(
+                            (offer) =>
+                                offer.name.trim()
+                        )
+                        .map(
+                            (offer) => {
+                                const offerType =
+                                    (
+                                        offer.type ||
+                                        "general"
+                                    )
+                                        .trim()
+                                        .toLowerCase()
+
+
+                                const automatic =
+                                    getOfferAvailability(
+                                        offerType
+                                    )
+
+
+                                return {
+                                    type:
+                                        offerType,
+
+                                    name:
+                                        offer.name
+                                            .trim(),
+
+                                    description:
+                                        offer.description
+                                            .trim(),
+
+                                    price:
+                                        offer.price ===
+                                        ""
+                                            ? 0
+                                            : Number(
+                                                  offer.price
+                                              ),
+
+                                    available:
+                                        automatic !==
+                                        null
+                                            ? automatic
+                                            : Number(
+                                                  offer.available
+                                              ) || 0,
+
+                                    active:
+                                        offer.active
+                                }
+                            }
+                        )
+
+
+                const cleanSeatStatus =
+                    {}
+
+
+                venueSeats.forEach(
+                    (seat) => {
+                        cleanSeatStatus[
+                            seat.id
+                        ] =
+                            getSeatStatus(
+                                seat.id
+                            )
+                    }
+                )
+
+
+                const cleanStandingAvailability =
+                    {}
+
+
+                standingAreas.forEach(
+                    (area) => {
+                        cleanStandingAvailability[
+                            area.id
+                        ] =
+                            getStandingAvailable(
+                                area
+                            )
+                    }
+                )
+
+
+                const eventData = {
+                    title:
+                        formData.title
+                            .trim(),
+
+                    venueId:
+                        selectedVenue
+                            .firebaseId,
+
+                    venue:
+                        selectedVenue.name,
+
+                    date:
+                        formData.date,
+
+                    dateLabel:
+                        formData.dateLabel
+                            .trim() ||
+                        createDateLabel(
+                            formData.date
+                        ),
+
+                    description:
+                        formData.description
+                            .trim(),
+
+                    imageUrl:
+                        uploadedImage.imageUrl,
+
+                    imageStoragePath:
+                        uploadedImage.imageStoragePath ||
+                        "",
+
+                    active:
+                        formData.active,
+
+                    offers:
+                        cleanOffers,
+
+                    seatStatus:
+                        cleanSeatStatus,
+
+                    standingAvailability:
+                        cleanStandingAvailability,
+
+                    inventoryCapacity: {
+                        general:
+                            totalStandingCapacity,
+
+                        table:
+                            tableSeats.length,
+
+                        vip:
+                            vipSeats.length
+                    }
+                }
+
+
+                if (isEditing) {
+
+                    await updateDoc(
+                        doc(
+                            db,
+                            "specialEvents",
+                            eventId
+                        ),
+                        eventData
+                    )
+
+                } else {
+
+                    await setDoc(
+                        doc(
+                            db,
+                            "specialEvents",
+                            documentId
+                        ),
+                        eventData
+                    )
+                }
+
+
+                if (
+                    imageFile &&
+                    oldImageStoragePath &&
+                    oldImageStoragePath !==
+                        uploadedImage.imageStoragePath
+                ) {
+                    await deleteOldEventImage(
+                        oldImageStoragePath
+                    )
+                }
+
+
+                navigate(
+                    "/admin/eventos"
+                )
+
+            } catch (error) {
+                console.error(
+                    "Error al guardar evento:",
+                    error
+                )
+
+
+                setMessage(
+                    "No se pudo guardar el evento."
+                )
+
+            } finally {
+                setSaving(
+                    false
                 )
             }
-
-
-            if (
-                imageFile &&
-                oldImageStoragePath &&
-                oldImageStoragePath !==
-                    uploadedImage.imageStoragePath
-            ) {
-                await deleteOldEventImage(
-                    oldImageStoragePath
-                )
-            }
-
-
-            navigate(
-                "/admin/eventos"
-            )
-
-        } catch (error) {
-            console.error(
-                "Error al guardar evento:",
-                error
-            )
-
-
-            setMessage(
-                "No se pudo guardar el evento."
-            )
-
-        } finally {
-            setSaving(false)
         }
-    }
 
 
     /* =====================================================
@@ -1931,6 +1945,7 @@ function AdminEventForm() {
                         rows="5"
                         required
                     />
+
                 </label>
 
 
@@ -1948,6 +1963,7 @@ function AdminEventForm() {
                         }
                         required
                     />
+
                 </label>
 
 
@@ -1965,6 +1981,7 @@ function AdminEventForm() {
                         }
                         required
                     />
+
                 </label>
 
 
@@ -1992,7 +2009,6 @@ function AdminEventForm() {
                         </p>
 
                         <img
-                            className="admin-card-image"
                             src={
                                 imagePreview
                             }
@@ -2133,6 +2149,7 @@ function AdminEventForm() {
                                                 </option>
 
                                             </select>
+
                                         </label>
 
 
@@ -2155,6 +2172,7 @@ function AdminEventForm() {
                                                 }
                                                 required
                                             />
+
                                         </label>
 
 
@@ -2178,6 +2196,7 @@ function AdminEventForm() {
                                                 min="0"
                                                 step="0.01"
                                             />
+
                                         </label>
 
 
@@ -2198,12 +2217,11 @@ function AdminEventForm() {
                                                 </strong>
 
                                                 <span>
-                                                    desde el
-                                                    inventario
-                                                    del evento
+                                                    desde el inventario del evento
                                                 </span>
 
                                             </div>
+
                                         </label>
 
 
@@ -2277,10 +2295,8 @@ function AdminEventForm() {
                             </h2>
 
                             <p>
-                                El local define la
-                                capacidad inicial.
-                                Aquí controlas lo que
-                                todavía está disponible
+                                El local define la capacidad inicial.
+                                Aquí controlas lo que todavía está disponible
                                 para este evento.
                             </p>
 
@@ -2338,8 +2354,7 @@ function AdminEventForm() {
                                         </strong>
 
                                         <small>
-                                            general
-                                            disponible
+                                            general disponible
                                         </small>
 
                                     </div>
@@ -2366,8 +2381,7 @@ function AdminEventForm() {
                                         </strong>
 
                                         <small>
-                                            mesas
-                                            disponibles
+                                            mesas disponibles
                                         </small>
 
                                     </div>
@@ -2394,8 +2408,7 @@ function AdminEventForm() {
                                         </strong>
 
                                         <small>
-                                            VIP
-                                            disponibles
+                                            VIP disponibles
                                         </small>
 
                                     </div>
@@ -2831,10 +2844,8 @@ function AdminEventForm() {
 
 
                                         <small>
-                                            Si vendes entradas
-                                            fuera de la web,
-                                            reduce aquí la
-                                            disponibilidad.
+                                            Si vendes entradas fuera de la web,
+                                            reduce aquí la disponibilidad.
                                         </small>
 
                                     </div>
@@ -2980,7 +2991,9 @@ function AdminEventForm() {
                         }
                     >
                         {saving
-                            ? "Guardando..."
+                            ? imageFile
+                                ? "Subiendo imagen..."
+                                : "Guardando..."
                             : isEditing
                               ? "Guardar cambios"
                               : "Crear evento"}

@@ -28,6 +28,10 @@ import {
     storage
 } from "../firebase/firebase"
 
+import {
+    processImage
+} from "../utils/processImage"
+
 import "./Admin.css"
 
 
@@ -226,116 +230,103 @@ function AdminParties() {
 
 
     /* =====================================================
-       SELECCIONAR IMAGEN
+       SELECCIONAR Y PROCESAR IMAGEN
     ===================================================== */
 
-    const handleImageChange = (
-        event
-    ) => {
-        const file =
-            event.target.files?.[0]
+    const handleImageChange =
+        async (
+            event
+        ) => {
+            const file =
+                event.target.files?.[0]
 
 
-        if (!file) {
-            return
+            if (!file) {
+                return
+            }
+
+
+            if (
+                !file.type.startsWith(
+                    "image/"
+                )
+            ) {
+                setMessage(
+                    "Selecciona un archivo de imagen válido."
+                )
+
+                return
+            }
+
+
+            if (
+                file.size >
+                15 * 1024 * 1024
+            ) {
+                setMessage(
+                    "La imagen original no puede superar 15 MB."
+                )
+
+                return
+            }
+
+
+            try {
+                setMessage(
+                    "Procesando imagen..."
+                )
+
+
+                const processedFile =
+                    await processImage(
+                        file
+                    )
+
+
+                if (
+                    imagePreview.startsWith(
+                        "blob:"
+                    )
+                ) {
+                    URL.revokeObjectURL(
+                        imagePreview
+                    )
+                }
+
+
+                setImageFile(
+                    processedFile
+                )
+
+
+                setImagePreview(
+                    URL.createObjectURL(
+                        processedFile
+                    )
+                )
+
+
+                setMessage(
+                    ""
+                )
+
+            } catch (error) {
+                console.error(
+                    "Error procesando imagen:",
+                    error
+                )
+
+
+                setImageFile(
+                    null
+                )
+
+
+                setMessage(
+                    "No se pudo procesar esa imagen. Prueba con otra foto."
+                )
+            }
         }
-
-
-        if (
-            !file.type.startsWith(
-                "image/"
-            )
-        ) {
-            setMessage(
-                "Selecciona un archivo de imagen válido."
-            )
-
-            return
-        }
-
-
-        if (
-            file.size >
-            10 * 1024 * 1024
-        ) {
-            setMessage(
-                "La imagen no puede superar 10 MB."
-            )
-
-            return
-        }
-
-
-        if (
-            imagePreview.startsWith(
-                "blob:"
-            )
-        ) {
-            URL.revokeObjectURL(
-                imagePreview
-            )
-        }
-
-
-        setImageFile(
-            file
-        )
-
-
-        setImagePreview(
-            URL.createObjectURL(
-                file
-            )
-        )
-
-
-        setMessage("")
-    }
-
-
-    /* =====================================================
-       EXTENSIÓN
-    ===================================================== */
-
-    const getFileExtension = (
-        file
-    ) => {
-        const fileName =
-            file?.name ||
-            ""
-
-
-        const parts =
-            fileName.split(".")
-
-
-        if (
-            parts.length > 1
-        ) {
-            return parts
-                .pop()
-                .toLowerCase()
-        }
-
-
-        if (
-            file?.type ===
-            "image/png"
-        ) {
-            return "png"
-        }
-
-
-        if (
-            file?.type ===
-            "image/webp"
-        ) {
-            return "webp"
-        }
-
-
-        return "jpg"
-    }
 
 
     /* =====================================================
@@ -357,14 +348,8 @@ function AdminParties() {
             }
 
 
-            const extension =
-                getFileExtension(
-                    imageFile
-                )
-
-
             const storagePath =
-                `parties/${packageId}/party-${Date.now()}.${extension}`
+                `parties/${packageId}/party-${Date.now()}.jpg`
 
 
             const imageRef =
@@ -1105,7 +1090,9 @@ function AdminParties() {
                         }
                     >
                         {saving
-                            ? "Guardando..."
+                            ? imageFile
+                                ? "Subiendo imagen..."
+                                : "Guardando..."
                             : editingId
                               ? "Guardar cambios"
                               : "Crear combo"}
